@@ -1,0 +1,437 @@
+import AIPreviewModal from './AIPreviewModal';
+import BaseModal from '@/modals/BaseModal';
+import { addTask } from '@/store/TaskActions';
+import { getLocalDateString } from '@/utils/dateUtils';
+import { normalizeNaturalOrYMDDate } from '@/hooks/tasks/useTaskDateUtils';
+import { useRef } from 'react';
+import { useTaskAI } from '@/hooks/tasks/useTaskAI';
+type AITaskFormProps = {
+  onClose: () => void;
+  onSwitchToManual?: () => void;
+};
+const AITaskForm = ({
+  onClose,
+  onSwitchToManual
+}: AITaskFormProps) => {
+  const {
+    AI_DEBUG,
+    aiPrompt,
+    setAiPrompt,
+    aiLoading,
+    setAiLoading,
+    aiError,
+    setAiError,
+    showAIPreview,
+    setShowAIPreview,
+    aiParsedTasks,
+    setAiParsedTasks,
+    aiTextareaRef,
+    setAiAbortController,
+    aiCancelledRef,
+    handleCancelAI
+  } = useTaskAI('ai');
+
+  // Simple cache to avoid repeated requests
+  const aiCache = useRef<Map<string, any>>(new Map());
+  function mapAITaskToFormData(task: any) {
+    const normalizedDate = task.date && task.date !== 'null' ? normalizeNaturalOrYMDDate(task.date) : null;
+    return {
+      title: task.task || '',
+      description: task.description || (task.subject ? `Asignatura: ${task.subject}` : ''),
+      assignment: task.subject || '',
+      deadline: normalizedDate,
+      difficulty: task.difficulty?.toLowerCase() || 'medium',
+      isRecurring: false,
+      recurrence_weekdays: null,
+      start_at: null,
+      end_at: null
+    };
+  }
+  const handleAIAcceptAll = async (tasks: any[]) => {
+    const mappedTasks = tasks.map(mapAITaskToFormData);
+    if (AI_DEBUG) {}
+    await Promise.all(mappedTasks.map(addTask));
+    setShowAIPreview(false);
+    onClose();
+  };
+  const handleAISubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!aiPrompt.trim()) {
+      setAiError('Prompt required');
+      return;
+    }
+    setAiError('');
+    setAiLoading(true);
+    aiCancelledRef.current = false;
+    const controller = new AbortController();
+    setAiAbortController(controller);
+    const tStart = performance.now();
+    let debugInterval: number | null = null;
+    if (AI_DEBUG) {
+      debugInterval = window.setInterval(() => {
+        const elapsed = (performance.now() - tStart) / 1000;
+        console.info(`[AI][elapsed] ${elapsed.toFixed(1)}s`);
+      }, 1000);
+    }
+    try {
+      const result = await callAIAPI(controller);
+      if (aiCancelledRef.current) {
+        return;
+      }
+      if (debugInterval) clearInterval(debugInterval);
+      if (!result.success || !result.data) {
+        setAiError(result.error || 'Failed to generate task');
+        return;
+      }
+      const aiTask = result.data;
+      const mappedData = mapAITaskToFormData(aiTask);
+      // Show the AI preview modal with the generated tasks
+      if (mappedData) {
+        setAiParsedTasks([mappedData]);
+        setShowAIPreview(true);
+      } else {
+        setAiError('No valid tasks were generated');
+      }
+      setAiPrompt('');
+    } catch (error: any) {
+      if (debugInterval) clearInterval(debugInterval);
+      if (aiCancelledRef.current) {
+        return;
+      }
+      console.error('[AI] Error:', error);
+      setAiError(error.message || 'Failed to generate task');
+    } finally {
+      setAiLoading(false);
+      setAiAbortController(null);
+    }
+  };
+  async function callAIAPI(controller: AbortController): Promise<{
+    success: boolean;
+    data?: any;
+    error?: string;
+  }> {
+    const currentDate = getLocalDateString();
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Check cache first
+    const cacheKey = `${aiPrompt}_${currentDate}`;
+    if (aiCache.current.has(cacheKey)) {
+      if (AI_DEBUG) {}
+      return {
+        success: true,
+        data: aiCache.current.get(cacheKey)
+      };
+    }
+    const modelCandidates = getModelCandidates();
+    if (AI_DEBUG) {}
+    for (const model of modelCandidates) {
+      if (AI_DEBUG) {}
+      try {
+        const requestBody = {
+          model,
+          messages: [{
+            role: 'system',
+            content: buildSystemPrompt(currentDate, tz)
+          }, {
+            role: 'user',
+            content: `Texto: "${aiPrompt}"`
+          }],
+          temperature: 0.0,
+          stream: false
+        };
+        if (AI_DEBUG) {}
+        const response = await fetch('/api/openrouter', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(requestBody),
+          signal: controller.signal
+        });
+        if (aiCancelledRef.current) {
+          return {
+            success: false,
+            error: 'Cancelled'
+          };
+        }
+        if (AI_DEBUG) {}
+        if (!response.ok) {
+          const errorText = await response.text();
+          if (AI_DEBUG) {
+            console.error(`[AI][${model}] HTTP ${response.status}:`, response.statusText);
+            console.error(`[AI][${model}] Response:`, errorText);
+          }
+          continue;
+        }
+        const data = await response.json();
+        if (AI_DEBUG) {
+          if (data.usage) {}
+          if (data.choices?.[0]?.finish_reason) {}
+        }
+        const parsed = parseAIResponse(data);
+        if (!parsed) {
+          if (AI_DEBUG) {}
+          continue;
+        }
+
+        // Cache the successful result
+        aiCache.current.set(cacheKey, parsed);
+        if (AI_DEBUG) {}
+        return {
+          success: true,
+          data: parsed
+        };
+      } catch (err: any) {
+        if (err?.name === 'AbortError') {
+          if (AI_DEBUG) {}
+          return {
+            success: false,
+            error: 'Aborted'
+          };
+        }
+
+        // Enhanced debugging for different error types
+        if (AI_DEBUG) {
+          console.error(`[AI][${model}] Network/Request Error:`, err.message);
+          if (err.message.includes('fetch')) {
+            console.error(`[AI][${model}] Network connectivity issue`);
+          } else if (err.message.includes('timeout')) {
+            console.error(`[AI][${model}] Request timeout - model may be slow`);
+          } else if (err.message.includes('CORS')) {
+            console.error(`[AI][${model}] CORS issue - check backend configuration`);
+          } else {
+            console.error(`[AI][${model}] Unexpected error:`, err);
+          }
+        }
+      }
+    }
+
+    // Enhanced debugging when all models fail
+    if (AI_DEBUG) {
+      console.error('[AI] All models failed. Summary:');
+      console.error('[AI] Models attempted:', modelCandidates.join(', '));
+      console.error('[AI] Check the following:');
+      console.error('[AI] 1. Backend API is deployed and accessible');
+      console.error('[AI] 2. OPENROUTER_API_KEY is configured in server environment');
+      console.error('[AI] 3. Models are available in your OpenRouter plan');
+      console.error('[AI] 4. Network connectivity to backend API');
+      console.error('[AI] 5. Rate limits not exceeded');
+    }
+    return {
+      success: false,
+      error: 'All AI models failed'
+    };
+  }
+  function getModelCandidates(): string[] {
+    return ['openrouter/free'];
+  }
+  function buildSystemPrompt(currentDate: string, tz: string): string {
+    return `ULTRA_DETERMINISTIC_MODE: JSON_OUTPUT_ONLY. NO_MARKDOWN. NO_QUOTES. NO_EXPLANATIONS. NO_META_CONTENT.
+
+[${currentDate} ${tz}] [{"task":"name","description":"short","date":"YYYY-MM-DD","subject":"Subject","difficulty":"medium"}]
+
+STRICT_RULES:
+- INPUT_LANGUAGE → OUTPUT_LANGUAGE
+- TODAY=${currentDate}, TOMORROW=${getLocalDateString(new Date(Date.now() + 86400000))}
+- MAX_50_CHARS_PER_DESCRIPTION
+- RESPONSE_MUST_START_WITH_[ AND_END_WITH_]
+- ABSOLUTELY_NO_MARKDOWN_FENCES
+- ABSOLUTELY_NO_EXTRA_TEXT
+- ABSOLUTELY_NO_QUOTES_AROUND_RESPONSE
+- ONLY_VALID_JSON_ARRAY
+
+ES:[{"task":"Hacer matemáticas","description":"Ejercicios","date":"2025-11-30","subject":"Matemáticas","difficulty":"medium"}]
+EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"Math","difficulty":"medium"}]`;
+  }
+
+  // Cached regex patterns - compiled once for better performance
+  const regexCache = useRef({
+    markdownFence: /```(?:json)?\r?\n([\s\S]*?)```/i,
+    markdownCleanup: /```(?:json)?|```/gi,
+    modelPrefixes: /^(?:<s>\s*\[OUT\]\s*|<s>|\[OUT\]\s*)/,
+    smartQuotes: /[\u201C\u201D\u2018\u2019]/g,
+    trailingCommas: /,(\s*[}\]])/g
+  });
+  function parseAIResponse(data: any): any {
+    const choice = data?.choices?.[0];
+    const msg = choice?.message || {};
+    if (AI_DEBUG) {}
+    let content = '';
+
+    // Extract content from various formats
+    if (typeof msg.content === 'string' && msg.content.trim()) {
+      content = msg.content;
+      if (AI_DEBUG) {}
+    } else if (Array.isArray(msg.tool_calls) && msg.tool_calls.length) {
+      const arg = msg.tool_calls[0]?.function?.arguments;
+      if (typeof arg === 'string' && arg.trim()) {
+        content = arg;
+        if (AI_DEBUG) {}
+      }
+    } else if (Array.isArray(msg.content)) {
+      const firstText = msg.content.find((p: any) => typeof p?.text === 'string' && p.text.trim());
+      if (firstText?.text) {
+        content = firstText.text;
+        if (AI_DEBUG) {}
+      }
+    } else if (typeof choice?.text === 'string') {
+      content = choice.text;
+      if (AI_DEBUG) {}
+    }
+    if (AI_DEBUG) {}
+    if (!content.trim()) {
+      if (AI_DEBUG) console.warn('[AI][empty-content]');
+      return null;
+    }
+    // Fast path: Try parsing directly first (most common case)
+    try {
+      const trimmed = content.trim();
+      if ((trimmed[0] === '[' || trimmed[0] === '{') && (trimmed[trimmed.length - 1] === ']' || trimmed[trimmed.length - 1] === '}')) {
+        const result = JSON.parse(trimmed);
+        if (AI_DEBUG) {}
+        return result;
+      }
+    } catch {
+      // Continue to cleanup path
+    }
+
+    // Cleanup path: Remove markdown fences
+    const fenceMatch = content.match(regexCache.current.markdownFence);
+    if (fenceMatch?.[1]) {
+      content = fenceMatch[1].trim();
+      if (AI_DEBUG) {}
+    } else if (content.includes('```')) {
+      content = content.replace(regexCache.current.markdownCleanup, '').trim();
+      if (AI_DEBUG) {}
+    }
+
+    // Remove model prefixes (single pass)
+    if (content.startsWith('<s>') || content.startsWith('[OUT]')) {
+      const originalContent = content;
+      content = content.replace(regexCache.current.modelPrefixes, '').trim();
+      if (AI_DEBUG && originalContent !== content) {}
+    }
+    if (AI_DEBUG) {}
+
+    // Try direct parse after cleanup
+    try {
+      const result = JSON.parse(content);
+      if (AI_DEBUG) {}
+      return result;
+    } catch (error) {
+      if (AI_DEBUG) {
+        console.error('[AI][PARSE] JSON parse error:', error);
+      }
+
+      // Normalize and try again
+      try {
+        const normalized = normalizeJSON(content);
+        const result = JSON.parse(normalized);
+        if (AI_DEBUG) {}
+        return result;
+      } catch {
+        // Last resort: extract balanced brackets
+        const extracted = fastExtractBalanced(content);
+        if (extracted) {
+          if (AI_DEBUG) {}
+          try {
+            const result = JSON.parse(normalizeJSON(extracted));
+            if (AI_DEBUG) {}
+            return result;
+          } catch (extractError) {
+            if (AI_DEBUG) console.error('[AI][PARSE] Extracted content parse error:', extractError);
+          }
+        }
+      }
+    }
+    if (AI_DEBUG) {}
+    return null;
+  }
+  function normalizeJSON(text: string): string {
+    // Single pass replacement for smart quotes (most common issue)
+    const quotesFixed = text.replace(regexCache.current.smartQuotes, match => match === '\u201C' || match === '\u201D' ? '"' : "'");
+
+    // Remove trailing commas
+    return quotesFixed.replace(regexCache.current.trailingCommas, '$1').trim();
+  }
+  function fastExtractBalanced(text: string): string {
+    // Try array first (most common in our use case)
+    let start = text.indexOf('[');
+    if (start !== -1) {
+      let depth = 0;
+      const len = text.length;
+      for (let i = start; i < len; i++) {
+        const char = text[i];
+        if (char === '[') depth++;else if (char === ']') {
+          depth--;
+          if (depth === 0) return text.slice(start, i + 1);
+        }
+      }
+      // Incomplete array, return what we have
+      return text.slice(start);
+    }
+
+    // Try object
+    start = text.indexOf('{');
+    if (start !== -1) {
+      let depth = 0;
+      const len = text.length;
+      for (let i = start; i < len; i++) {
+        const char = text[i];
+        if (char === '{') depth++;else if (char === '}') {
+          depth--;
+          if (depth === 0) return text.slice(start, i + 1);
+        }
+      }
+      // Incomplete object, return what we have
+      return text.slice(start);
+    }
+    return '';
+  }
+  return <BaseModal
+    isOpen={true}
+    onClose={() => {
+      if (!aiLoading) onClose();
+    }}
+    title="AI Task Generator"
+    maxWidth="max-w-2xl"
+    showCloseButton={!aiLoading}
+    closeOnEsc={!aiLoading}
+    closeOnOverlayClick={!aiLoading}
+  >
+      <div className="space-y-4">
+        {/* Tab Selector */}
+        <div className="w-full flex justify-center items-center select-none mb-4 sm:mb-4 px-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="cursor-pointer font-semibold transition-colors duration-150 text-sm sm:text-base text-[var(--text-secondary)] hover:text-[var(--accent-primary)]" onClick={onSwitchToManual}>
+              Manual
+            </span>
+            <span className="text-[var(--border-primary)] font-bold text-sm sm:text-base mx-1">|</span>
+            <span className="cursor-pointer font-semibold transition-colors duration-150 text-sm sm:text-base text-[var(--accent-primary)]">
+              Auto (AI)
+            </span>
+          </div>
+        </div>
+
+        <form className="flex flex-col h-full items-stretch justify-start space-y-3 sm:space-y-4" onSubmit={handleAISubmit}>
+          <div className="w-full">
+            <textarea id="aiPrompt" ref={aiTextareaRef} value={aiPrompt} onChange={e => {
+            setAiPrompt(e.target.value);
+            localStorage.setItem('aiPromptDraft', e.target.value);
+          }} className="w-full min-h-[150px] sm:min-h-[120px] px-3 py-2 text-sm sm:text-base bg-[var(--bg-primary)] border-2 border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" placeholder="Example: Create tasks for: finish math worksheet by tomorrow (medium), study biology chapter 4 next Wednesday (hard), and write a short English essay this weekend (easy)." disabled={aiLoading} />
+          </div>
+
+          {aiError && <div className="text-red-500 text-xs sm:text-sm text-center">{aiError}</div>}
+
+          <div className="w-full">
+            <button type="submit" onClick={aiLoading ? handleCancelAI : handleAISubmit} disabled={false} title={aiLoading ? "Click to cancel" : "Send"} className={`w-full px-4 py-2 border-2 rounded-lg font-medium transition-colors duration-200 text-base sm:text-lg shadow-none ${aiLoading ? 'border-red-500 bg-transparent text-red-500 hover:text-red-600 focus:text-red-600' : 'border-[var(--accent-primary)] bg-transparent text-[var(--accent-primary)] hover:bg-transparent hover:text-[var(--accent-primary)] focus:bg-transparent focus:text-[var(--accent-primary)] disabled:opacity-70'}`}>
+              {aiLoading ? 'Cancel' : 'Send'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <AIPreviewModal isOpen={showAIPreview} tasks={aiParsedTasks || []} onAcceptAll={handleAIAcceptAll} onCancel={() => setShowAIPreview(false)} />
+    </BaseModal>;
+};
+export default AITaskForm;

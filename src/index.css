@@ -1,0 +1,2061 @@
+/* stylelint-disable at-rule-no-unknown */
+/* The above line disables stylelint for unknown at-rules */
+
+/* src/index.css */
+
+/* Import @dayflow/core styles */
+@import '@dayflow/core/dist/styles.css';
+
+/* Import highlight.js styles for syntax highlighting */
+@import 'highlight.js/styles/github.css';
+
+/* Importa las capas base, componentes y utilidades de Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme toggle icon animation */
+@keyframes theme-icon-in {
+  0% { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+  100% { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+.animate-theme-icon {
+  animation: none;
+}
+
+/* Slow pulse for on_hold status */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
+}
+
+/* FAB shine effect */
+@keyframes fab-shine {
+  0% { transform: translateX(-150%) rotate(25deg); }
+  100% { transform: translateX(250%) rotate(25deg); }
+}
+.fab-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+}
+.fab-shine::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: translateX(-150%) rotate(25deg);
+  animation: fab-shine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* DayFlow Calendar Custom CSS Variables */
+:root {
+  /* Light mode variables for DayFlow */
+  --dayflow-bg-primary: #ffffff;
+  --dayflow-bg-secondary: #f8fafc;
+  --dayflow-text-primary: #09090b;
+  --dayflow-text-secondary: #64748b;
+  --dayflow-border: #e2e8f0;
+  --dayflow-hover: #f1f5f9;
+  --dayflow-accent: #1e90ff;
+}
+
+.dark {
+  /* Dark mode variables for DayFlow */
+  --dayflow-bg-primary: #000000;
+  --dayflow-bg-secondary: #0d0d0e;
+  --dayflow-text-primary: #fafafa;
+  --dayflow-text-secondary: #a1a1aa;
+  --dayflow-border: rgba(255, 255, 255, 0.14);
+  --dayflow-hover: #17171a;
+  --dayflow-accent: #3b82f6;
+}
+
+/* Override DayFlow hardcoded colors */
+.bg-white {
+  background-color: var(--dayflow-bg-primary) !important;
+}
+
+.dark .bg-white {
+  background-color: var(--dayflow-bg-primary) !important;
+}
+
+.bg-gray-900 {
+  background-color: var(--dayflow-bg-secondary) !important;
+}
+
+.dark .bg-gray-900 {
+  background-color: var(--dayflow-bg-secondary) !important;
+}
+
+.bg-gray-100 {
+  background-color: var(--dayflow-hover) !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: var(--dayflow-hover) !important;
+}
+
+.bg-gray-800 {
+  background-color: var(--dayflow-bg-secondary) !important;
+}
+
+.dark .bg-gray-800 {
+  background-color: var(--dayflow-bg-secondary) !important;
+}
+
+/* Override text colors */
+.text-gray-500 {
+  color: var(--dayflow-text-secondary) !important;
+}
+
+.dark .text-gray-500 {
+  color: var(--dayflow-text-secondary) !important;
+}
+
+.text-gray-600 {
+  color: var(--dayflow-text-secondary) !important;
+}
+
+.dark .text-gray-600 {
+  color: var(--dayflow-text-secondary) !important;
+}
+
+.text-gray-400 {
+  color: var(--dayflow-text-secondary) !important;
+}
+
+.dark .text-gray-400 {
+  color: var(--dayflow-text-secondary) !important;
+}
+
+.text-gray-900 {
+  color: var(--dayflow-text-primary) !important;
+}
+
+.dark .text-gray-900 {
+  color: var(--dayflow-text-primary) !important;
+}
+
+.text-gray-100 {
+  color: var(--dayflow-text-primary) !important;
+}
+
+.dark .text-gray-100 {
+  color: var(--dayflow-text-primary) !important;
+}
+
+/* Override hover states */
+.hover\:bg-gray-50:hover {
+  background-color: var(--dayflow-hover) !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: var(--dayflow-hover) !important;
+}
+
+.hover\:bg-slate-800:hover {
+  background-color: var(--dayflow-bg-secondary) !important;
+}
+
+.dark .hover\:bg-slate-800:hover {
+  background-color: var(--dayflow-bg-secondary) !important;
+}
+
+/* Override border colors */
+.border-slate-200 {
+  border-color: var(--dayflow-border) !important;
+}
+
+.dark .border-slate-200 {
+  border-color: var(--dayflow-border) !important;
+}
+
+.border-gray-600 {
+  border-color: var(--dayflow-border) !important;
+}
+
+.dark .border-gray-600 {
+  border-color: var(--dayflow-border) !important;
+}
+
+/* DayFlow customizations */
+.df-event {
+  border-radius: 6px !important;
+  border-left: 3px solid var(--dayflow-accent) !important;
+}
+
+.df-current-time-line {
+  z-index: 100;
+}
+
+.df-current-time-bar {
+  height: 2px !important;
+  background-color: var(--dayflow-accent) !important;
+}
+
+/* Calendar container */
+.calendar-container {
+  --calendar-bg: var(--dayflow-bg-primary);
+  --calendar-border: var(--dayflow-border);
+}
+
+/* Event styles */
+.calendar-event {
+  --event-hover-opacity: 0.9;
+  --event-shadow: rgba(0, 0, 0, 0.1);
+}
+
+.dark .calendar-event {
+  --event-shadow: rgba(0, 0, 0, 0.3);
+}
+
+/* Time grid */
+.time-grid {
+  --grid-line-color: var(--dayflow-border);
+  --grid-line-width: 1px;
+}
+
+/* Customize specific view */
+.df-day-view .df-event {
+  border-left: 4px solid var(--dayflow-accent) !important;
+}
+
+/* Style the sidebar */
+.df-sidebar {
+  background-color: var(--dayflow-bg-secondary) !important;
+}
+
+/* Style mini calendar */
+.df-mini-calendar-day:hover {
+  background-color: var(--dayflow-hover);
+}
+
+/* Dark mode overrides */
+.dark .df-calendar {
+  background-color: var(--dayflow-bg-primary);
+}
+
+/* Style event detail panel */
+.df-event-detail-panel {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 768px) {
+  .df-event-title { 
+    font-size: 12px; 
+  }
+  .df-time-label { 
+    font-size: 12px; 
+  }
+}
+
+/* CSS for minimized columns */
+.minimized-column {
+  height: fit-content !important;
+}
+
+.minimized-column > div {
+  height: fit-content !important;
+}
+
+/* #1793d1 archlinux color */
+
+/* =========================
+   1. Variables CSS Globales
+   ========================= */
+
+/* Estilos globales para elementos span */
+
+@layer base {
+  :root {
+    /* Light mode variables */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    /* Paleta principal */
+    --bg-primary: #ffffff;
+    --border-primary: #e2e8f0;
+    --border-secondary: #f1f5f9;
+    --text-primary: #09090b;
+    --accent-primary: #1e90ff; /* Electric neon blue */
+    --accent-primary-transparent: rgba(30, 144, 255, 0.15);
+
+    --accent-primary-500-10: rgb(var(--accent-primary) / 0.1);
+
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    --text-secondary: #64748b;
+    --accent-deep: #187bcd; /* Darker electric blue */
+    --muted-strong: #444444cc;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    /* Dark mode variables */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 8%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 12%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+
+    /* Paleta principal - OLED Black Theme */
+    --bg-primary: #000000;
+    --border-primary: rgba(255, 255, 255, 0.14);
+    --border-secondary: rgba(255, 255, 255, 0.08);
+    --text-primary: #fafafa;
+    --accent-primary: #1e90ff; /* Electric neon blue */
+    --accent-primary-transparent: rgba(30, 144, 255, 0.18);
+
+    --bg-secondary: #0d0d0e;
+    --bg-tertiary: #17171a;
+    --text-secondary: #a1a1aa;
+    --accent-deep: #187bcd; /* Darker electric blue */
+    --muted-strong: #e0e0e0cc;
+  }
+
+  /* Fuente base */
+  html {
+    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    font-size: 1rem; /* text-base equivalent */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    backface-visibility: hidden;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "kern";
+    font-variant-numeric: tabular-nums;
+    font-size: 16px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: none;
+  }
+
+  html.dark {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    color-scheme: dark;
+  }
+
+  html:not(.dark) {
+    color-scheme: light;
+  }
+
+  /* Prevent white flash on page load for dark theme */
+  html, body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Ensure background extends under status bar on iOS */
+  @supports (-webkit-touch-callout: none) {
+    html, body {
+      min-height: -webkit-fill-available;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+    }
+  }
+
+  body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+  }
+
+  /* Ensure root element covers full height */
+  #root {
+    min-height: 100%;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    overflow-x: hidden;
+  }
+
+  /* Additional iOS Safari fixes */
+  @supports (-webkit-touch-callout: none) {
+    body {
+      background-color: var(--bg-primary) !important;
+    }
+    
+    #root {
+      height: -webkit-fill-available !important;
+      background-color: var(--bg-primary) !important;
+    }
+  }
+
+  * {
+    @apply border-border;
+    font-family: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Override specific text sizes */
+  .card-text {
+    @apply text-base;
+    color: var(--text-secondary);
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .card-text-lg {
+    @apply text-lg;
+    color: var(--text-secondary);
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .textinput {
+    @apply w-full p-3 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-opacity-50;
+    background-color: var(--bg-primary);
+    border: 2px solid var(--border-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .infomenu {
+    @apply flex items-center justify-between w-full py-2 px-3 rounded-lg text-left font-semibold text-base transition-colors duration-200;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .tasks {
+    @apply task-item-base task-item-default task-item-flex text-base;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+    transform: translateZ(0);
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+  }
+
+  .plslogin {
+    @apply text-center text-lg p-12 rounded-xl mb-4;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+  }
+
+  .modal-info-item {
+    @apply flex items-center gap-3 text-base;
+    color: var(--text-secondary);
+  }
+}
+
+/* =========================
+   2. Componentes Personalizados
+   ========================= */
+@layer components {
+  .cancel-button {
+    padding: 0.5rem 1rem;
+    border-width: 8px;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-primary);
+  }
+  
+
+  .maincard {
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    margin-bottom: 1rem;
+    width: 100%;
+  }
+
+  /* 1 columna: ancho grande, aspecto rectangular */
+  .card-cols-1 .maincard {
+    width: 100%;
+    aspect-ratio: 16/9;
+  }
+
+  /* 2 columnas: ancho medio, aspecto cuadrado */
+  .card-cols-2 .maincard {
+    width: 100%;
+    aspect-ratio: 1/1;
+  }
+
+  /* 3 columnas: más compacto y perfectamente cuadrado */
+  .card-cols-3 .maincard {
+    width: 100%;
+    min-width: 250px;
+    aspect-ratio: 1/1;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .deadline {
+    @apply text-base;
+    color: var(--accent-primary);
+  }
+  .maincard.editing {
+    border-style: dotted !important;
+    border-color: var(--border-primary) !important;
+  }
+  .cardtitle {
+    @apply text-2xl font-bold flex items-center;
+    margin-bottom: 0;
+    justify-content: space-between;
+    color: var(--text-primary);
+  }
+  .cardtitle > div:first-child {
+    @apply flex items-center gap-2;
+  }
+  .caltitle {
+    @apply text-2xl font-bold flex items-center;
+    margin-bottom: 0;
+    justify-content: space-between;
+    color: var(--text-primary);
+  }
+  .caltitle > div:first-child {
+    @apply flex items-center gap-2;
+  }
+  .card-subtitle {
+    @apply text-xl font-semibold mb-2;
+    color: var(--text-primary);
+  }
+  .border-dotted {
+    border-style: dotted !important;
+  }
+
+  .button,
+  .textbutton {
+    @apply btn-base btn-rounded-lg btn-padding-px4-py2 btn-bg-accent-primary btn-text-primary text-center;
+  }
+  .button:hover,
+  .textbutton:hover {
+    @apply btn-hover-bg-accent-deep;
+  }
+
+  .textinput:focus {
+    border: 2px solid var(--accent-primary);
+    box-shadow: 0px var(--accent-primary);
+  }
+  .infomenu:hover {
+    background-color: var(--bg-secondary);
+  }
+  .editbutton,
+  .cancelbutton {
+    @apply btn-base btn-rounded-lg btn-padding-px4-py2 btn-bg-secondary btn-text-primary btn-font-semibold btn-hover-bg-primary;
+  }
+  .editbutton {
+    @apply absolute right-0 bottom-9;
+  }
+  .editbutton:hover,
+  .cancelbutton:hover {
+    background-color: var(--bg-primary);
+  }
+  .bar {
+    @apply flex flex-col;
+  }
+  .noisegentitle {
+    @apply flex items-center gap-2 min-w-[120px] mb-4 mt-4;
+  }
+  .slider {
+    @apply flex items-center gap-4;
+  }
+  .bigaddtask {
+    @apply w-full mt-4 p-5 rounded-xl card-text-lg font-semibold cursor-pointer;
+  }
+
+  /* Fix for flex items with icons and text */
+  .flex.items-start {
+    align-items: flex-start; /* Align items to the top */
+    display: flex; /* Ensure it's a flex container */
+    gap: 0.75rem; /* Keep gap consistent with original */
+    width: 100%; /* Ensure it takes full width */
+  }
+
+  .flex.items-start .w-5.h-5 {
+    flex-shrink: 0; /* Prevent icon from shrinking */
+  }
+
+  .flex.items-start .flex-1 {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .flex.items-start .flex-1 span {
+    word-break: break-word;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.5;
+    transform: translateZ(0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .flex.items-start .block {
+    line-height: normal; /* Ensure consistent line height */
+  }
+
+  /* Add styles for the trash icon, assuming it's also a flex item */
+  .flex.items-start .trash-icon-container {
+    /* Assuming a class for the trash icon's parent */
+    flex-shrink: 0; /* Prevent trash icon from shrinking */
+    margin-left: auto; /* Push trash icon to the right */
+    align-self: flex-start; /* Align trash icon to the top */
+  }
+
+  /* Task Sort Button Styles */
+  .task-sort-button {
+    @apply p-2 rounded-lg transition-all duration-200 mr-2;
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: none;
+  }
+
+  .dark .task-sort-button {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .task-sort-button:hover {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transform: scale(1.05);
+  }
+
+  .task-sort-button[data-active="true"] {
+    background-color: var(--accent-primary);
+    color: white;
+  }
+
+  .dark .task-sort-button[data-active="true"] {
+    background-color: var(--accent-primary);
+    color: white;
+  }
+
+  .task-sort-button:hover:not([data-active="true"]) {
+    background-color: var(--bg-secondary);
+  }
+
+  /* Task Item Styles */
+  .task-item-base {
+    @apply p-5 rounded-xl cursor-pointer transition-colors duration-75;
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    will-change: transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+
+  .task-item-default {
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border-primary);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .task-item-default:hover {
+    background-color: var(--bg-primary);
+    transition: all 75ms ease-in-out;
+  }
+
+  .task-item-active {
+    background-color: var(--bg-secondary);
+    border: 2px solid;
+    border-color: var(--accent-primary);
+  }
+
+  .task-item-active[data-difficulty="easy"] {
+    border-color: #00ff41; /* Matrix green */
+  }
+
+  .task-item-active[data-difficulty="medium"] {
+    border-color: #00bfff; /* Deep sky blue */
+  }
+
+  .task-item-active[data-difficulty="hard"] {
+    border-color: #ff003c; /* Neon red */
+  }
+
+  .task-item-flex {
+    @apply flex items-center justify-between;
+  }
+
+  /* Modal Content Styles */
+  .modal-content-section {
+    @apply space-y-6;
+  }
+
+  .modal-info-item {
+    @apply flex items-center gap-3;
+    color: var(--text-secondary);
+  }
+
+  .modal-info-item .icon {
+    color: var(--text-primary);
+  }
+
+  /* Calendar Styles */
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    width: 100%;
+  }
+
+  .weekday-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    width: 100%;
+  }
+}
+
+/* =========================
+   Fluid Typography & Spacing Utilities
+   Uses clamp() for smooth scaling without breakpoint jumps.
+   Type scale ratio: ~1.2 (minor third)
+   ========================= */
+@layer utilities {
+  .text-fluid-hero {
+    font-size: clamp(2.25rem, 4vw + 1rem, 3.5rem);
+    line-height: 1.08;
+  }
+  .text-fluid-h2 {
+    font-size: clamp(1.75rem, 3vw + 0.5rem, 2.5rem);
+    line-height: 1.15;
+  }
+  .text-fluid-h3 {
+    font-size: clamp(1.125rem, 1vw + 0.75rem, 1.25rem);
+    line-height: 1.4;
+  }
+  .text-fluid-lead {
+    font-size: clamp(1.0625rem, 0.75vw + 0.75rem, 1.25rem);
+    line-height: 1.6;
+  }
+  .text-fluid-body {
+    font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem);
+    line-height: 1.6;
+  }
+  .px-fluid {
+    padding-left: clamp(1rem, 2vw, 2rem);
+    padding-right: clamp(1rem, 2vw, 2rem);
+  }
+  .py-fluid-section {
+    padding-top: clamp(3rem, 6vw, 5rem);
+    padding-bottom: clamp(3rem, 6vw, 5rem);
+  }
+  .pt-fluid-hero {
+    padding-top: clamp(3rem, 5vw, 5rem);
+  }
+  .pb-fluid-hero {
+    padding-bottom: clamp(4rem, 6vw, 6rem);
+  }
+  .font-heading {
+    font-family: "Helvetica Neue", Helvetica, "Inter", Arial, sans-serif;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* =========================
+   3. Utilidades Generales
+   ========================= */
+h1 {
+  @apply text-5xl font-bold mb-10;
+  color: var(--text-primary);
+}
+
+/* =========================
+   4. Toastify Custom Styles
+   ========================= */
+.Toastify__toast {
+  animation: fadeOut 0.5s ease-out 4s forwards;
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-primary) !important;
+}
+.Toastify__toast-body,
+.Toastify__close-button {
+  color: var(--text-primary) !important;
+}
+.Toastify__progress-bar {
+  background: var(--border-primary) !important;
+}
+
+/* =========================
+   5. Accesibilidad y Reset
+   ========================= */
+/* Puedes agregar resets y mejoras de accesibilidad aquí si lo deseas */
+
+/* =========================
+   6. Extra: Mejor integración con Tailwind
+   ========================= */
+/* Si usas Tailwind 3+, puedes mapear tus variables en tailwind.config.js para usar clases como bg-[color:var(--bg-primary)] directamente en JSX/HTML */
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Layout Grid */
+.layout-grid {
+  display: grid;
+  gap: 2rem;
+  padding: 2rem;
+  width: 100%;
+  margin: 0 auto;
+  align-items: center;
+  justify-items: center;
+}
+
+.layout-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.layout-item {
+  min-height: 240px;
+  background: var(--bg-surface);
+  border-radius: 0.5rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Grid */
+@media (min-width: 640px) {
+  .layout-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .layout-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Focus Styles */
+:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* High Contrast Mode */
+@media (forced-colors: active) {
+  .layout-item {
+    border: 1px solid CanvasText;
+  }
+
+}
+
+/* StudyTimer Controls */
+.timer-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+/* Modern unified timer control buttons — ghost style, accent-driven hover */
+.timer-ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 0.75rem;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.timer-ctrl-btn:hover:not(:disabled) {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+}
+
+.timer-ctrl-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Primary action — larger, accent-bordered, still ghost */
+.timer-ctrl-btn-primary {
+  width: 3rem;
+  height: 3rem;
+  color: var(--accent-primary);
+  border: 2px solid var(--accent-primary);
+  border-radius: 9999px;
+}
+
+.timer-ctrl-btn-primary:hover:not(:disabled) {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background-color: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-primary) 15%, transparent);
+}
+
+/* Pomodoro-specific primary button - red */
+.timer-ctrl-btn-pomo {
+  width: 3rem;
+  height: 3rem;
+  color: #ef4444;
+  border: 2px solid #ef4444;
+  border-radius: 9999px;
+}
+
+.timer-ctrl-btn-pomo:hover:not(:disabled) {
+  color: #ef4444;
+  border-color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.12);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+}
+
+/* Countdown-specific primary button - green */
+.timer-ctrl-btn-countdown {
+  width: 3rem;
+  height: 3rem;
+  color: #22c55e;
+  border: 2px solid #22c55e;
+  border-radius: 9999px;
+}
+
+.timer-ctrl-btn-countdown:hover:not(:disabled) {
+  color: #22c55e;
+  border-color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.12);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+}
+
+/* Modern time adjustment buttons — identical style to .timer-ctrl-btn */
+.timer-adjust-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+  background-color: transparent;
+  color: var(--text-secondary);
+  border: 2px solid var(--border-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.timer-adjust-btn:hover:not(:disabled) {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+}
+
+.timer-adjust-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Keep all timer controls on one line even on narrow panels */
+@media (max-width: 420px) {
+  .timer-ctrl-btn {
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 0.625rem;
+  }
+
+  .timer-ctrl-btn-primary,
+  .timer-ctrl-btn-pomo,
+  .timer-ctrl-btn-countdown {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .timer-adjust-btn {
+    width: 2.125rem;
+    height: 2.125rem;
+    font-size: 0.75rem;
+  }
+}
+
+.control-button {
+  @apply btn-base btn-rounded-full btn-padding-1 btn-bg-secondary  btn-hover-bg-secondary-opacity-30 btn-flex-center;
+}
+
+/* Timer text styles */
+.time-text {
+  @apply text-[var(--text-primary)];
+}
+
+.timer-display {
+  @apply text-[var(--text-primary)];
+}
+
+/* Prose text styles for markdown content */
+.prose {
+  @apply text-[var(--text-primary)];
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  @apply text-[var(--text-primary)];
+}
+
+.prose p {
+  @apply text-[var(--text-primary)];
+}
+
+.prose ul,
+.prose ol {
+  @apply text-[var(--text-primary)];
+}
+
+.prose li {
+  @apply text-[var(--text-primary)];
+}
+
+.prose strong {
+  @apply text-[var(--text-primary)];
+}
+
+.prose em {
+  @apply text-[var(--text-primary)];
+}
+
+.control-button:disabled {
+  @apply btn-disabled;
+}
+
+.time-adjust-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.time-adjust-button {
+  @apply btn-base btn-rounded-full btn-padding-1 btn-bg-secondary btn-text-white;
+}
+
+.time-adjust-button:hover {
+  @apply btn-hover-bg-accent-primary;
+}
+
+.session-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.session-button {
+  @apply btn-base btn-rounded-lg btn-padding-px4-py2 btn-bg-secondary btn-text-primary btn-flex-items-center-gap-2;
+}
+
+.session-button:hover:not(:disabled) {
+  @apply btn-hover-bg-accent-primary;
+}
+
+.session-button:disabled {
+  @apply btn-disabled;
+}
+
+/* Custom Utility Classes for Buttons */
+.btn-base {
+  @apply transition-colors duration-75;
+}
+
+.btn-rounded-full {
+  @apply rounded-full;
+}
+
+.btn-rounded-lg {
+  @apply rounded-lg;
+}
+
+.btn-padding-2 {
+  @apply p-4;
+}
+
+.btn-padding-1 {
+  @apply p-1;
+}
+
+.btn-padding-px4-py2 {
+  @apply px-6 py-3;
+}
+
+.btn-bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.btn-bg-accent-primary {
+  background-color: var(--accent-primary);
+}
+
+.btn-text-primary {
+  color: var(--text-primary);
+}
+
+.btn-text-secondary {
+  color: var(--text-secondary);
+}
+
+.btn-text-white {
+  color: #fff;
+}
+
+.btn-hover-bg-accent-primary:hover:not(:disabled) {
+  background-color: var(--accent-primary);
+}
+
+.btn-hover-bg-secondary-opacity-30:hover:not(:disabled) {
+  background-color: rgba(var(--bg-secondary), 0.3);
+}
+
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-flex-center {
+  @apply flex items-center justify-center;
+}
+
+.btn-flex-items-center-gap-2 {
+  @apply flex items-center gap-2;
+}
+
+.btn-hover-bg-accent-deep:hover {
+  background-color: var(--accent-deep);
+}
+
+.btn-font-semibold {
+  @apply font-semibold;
+}
+
+.btn-hover-bg-primary:hover {
+  background-color: var(--bg-primary);
+}
+
+/* Other styles */
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Elegant minimal gray scrollbar — opt-in via .custom-scrollbar */
+.custom-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--border-primary) transparent;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: block;
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-primary);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Remove Tiptap/ProseMirror focus border */
+.ProseMirror-focused {
+  outline: none !important;
+  box-shadow: none !important;
+  border-color: var(--border-primary) !important;
+}
+
+/* =========================
+   Drag and Drop Styles
+   ========================= */
+
+/* Ensure dragged items appear above all other elements */
+[data-dnd-kit-dragged="true"] {
+  z-index: 9999 !important;
+}
+
+/* High z-index for drag overlay */
+[data-dnd-kit-drag-overlay] {
+  z-index: 9999 !important;
+}
+
+/* Ensure sortable contexts don't clip dragged items */
+[data-dnd-kit-sortable-context] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Kanban board specific styles */
+.kanban-board {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure task items can be dragged outside their containers */
+.task-item-draggable {
+  position: relative;
+  z-index: 1;
+}
+
+/* Task drop zone indicator - change main card border */
+.task-drop-zone-active {
+  border-color: var(--accent-primary) !important;
+  border-radius: 0.5rem !important;
+}
+.stats-card {
+  @apply rounded-lg border border-border bg-bg-secondary;
+  padding: 1rem 1.25rem;
+  min-width: 160px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.stats-card-title {
+  @apply text-base font-semibold mb-1;
+}
+.stats-card-value {
+  @apply text-2xl font-bold;
+}
+.stats-card-subtext {
+  @apply text-base text-[var(--text-secondary)];
+}
+
+/* =========================
+   Section Title with Icon
+   ========================= */
+.section-title {
+  @apply flex items-center justify-center mb-4 gap-3 text-xl font-semibold text-[var(--text-primary)];
+}
+
+.section-title .icon {
+  @apply text-[var(--accent-primary)];
+}
+
+.Toastify__toast-container {
+  z-index: 999999 !important;
+}
+.Toastify__toast-container--top-right {
+  top: 3.5rem !important; /* clear the top bar on mobile/tablet */
+}
+@media (min-width: 1024px) {
+  .Toastify__toast-container--top-right {
+    top: 1em !important;
+  }
+}
+
+/* Pomodoro toast variants */
+.Toastify__toast.pomo-toast-work {
+  background: var(--accent-primary) !important;
+  color: #fff !important;
+  border: 1px solid var(--accent-primary) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18) !important;
+  font-weight: 600 !important;
+}
+.Toastify__toast.pomo-toast-work .Toastify__close-button,
+.Toastify__toast.pomo-toast-work .Toastify__progress-bar {
+  color: #fff !important;
+  background: #fff !important;
+}
+
+.Toastify__toast.pomo-toast-break {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1.5px solid #22c55e !important;
+  box-shadow: 0 4px 24px rgba(34,197,94,0.15) !important;
+  font-weight: 500 !important;
+}
+
+.Toastify__toast.pomo-toast-longBreak {
+  background: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+  border: 1.5px solid #3b82f6 !important;
+  box-shadow: 0 4px 24px rgba(59,130,246,0.15) !important;
+  font-weight: 500 !important;
+}
+
+/* =========================
+   Session Dashboard Styles
+   ========================= */
+.dashboard-stat-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 0.75rem;
+  padding: 0.875rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.dark .dashboard-stat-card {
+  background-color: var(--bg-primary);
+}
+
+.dashboard-timer-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dark .dashboard-timer-card {
+  background-color: var(--bg-primary);
+}
+
+.dashboard-unified-timer-card {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 1rem;
+  padding: 0;
+  min-height: 340px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-unified-timer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-primary), #ef4444 50%, #22c55e);
+  opacity: 0.7;
+}
+
+.dark .dashboard-unified-timer-card {
+  background-color: var(--bg-primary);
+}
+
+/* Timer Panels - individual styling per timer */
+.timer-panel {
+  border-radius: 1rem;
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-primary);
+  background-color: var(--bg-primary);
+  transition: all 0.3s ease;
+}
+
+.timer-panel:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Study Timer panel - blue accent */
+.timer-panel-study {
+  border: 1px solid var(--border-primary);
+}
+
+/* Pomodoro panel - red/tomato accent */
+.timer-panel-pomo {
+  border: 1px solid var(--border-primary);
+}
+
+/* Countdown panel - green accent */
+.timer-panel-countdown {
+  border: 1px solid var(--border-primary);
+}
+
+/* Drag and drop states */
+.timer-panel-dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.timer-panel-drag-over {
+  border-color: var(--accent-primary);
+  border-style: dashed;
+  border-width: 2px;
+}
+
+/* Panel labels */
+.timer-panel-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent-primary);
+  background-color: rgba(30, 144, 255, 0.08);
+  border-radius: 0.375rem;
+  width: 100%;
+}
+
+.timer-panel-label-pomo {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.timer-panel-label-countdown {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.08);
+}
+
+/* Status badges inside panel labels */
+.timer-status-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.0625rem 0.375rem;
+  border-radius: 0.25rem;
+  margin-left: 0.25rem;
+}
+
+.timer-status-idle {
+  color: var(--text-secondary);
+  background-color: var(--bg-primary);
+}
+
+.timer-status-active {
+  color: var(--accent-primary);
+  background-color: rgba(30, 144, 255, 0.12);
+}
+
+.timer-status-paused {
+  color: var(--text-secondary);
+  background-color: var(--bg-primary);
+}
+
+.timer-status-pomo-work {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.12);
+}
+
+.timer-status-pomo-break {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.12);
+}
+
+.timer-status-pomo-long {
+  color: #3b82f6;
+  background-color: rgba(59, 130, 246, 0.12);
+}
+
+/* Pomodoro break ring — red, pulsating */
+@keyframes pomo-ring-pulse {
+  0%, 100% {
+    stroke-opacity: 1;
+    filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0));
+  }
+  50% {
+    stroke-opacity: 0.4;
+    filter: drop-shadow(0 0 7px rgba(239, 68, 68, 0.65));
+  }
+}
+
+.pomo-ring-pulse {
+  animation: pomo-ring-pulse 1.4s ease-in-out infinite;
+}
+
+/* ── Document Picture-in-Picture floating timers ────────────────────────── */
+.pip-body {
+  margin: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+.pip-timer-stack {
+  display: flex;
+  gap: 0.5rem;
+  width: 100vw;
+  height: 100vh;
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.pip-timer-slot {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.pip-slot-label {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 0.2rem 0;
+  border-radius: 0.375rem;
+  color: var(--accent-primary);
+  background-color: rgba(30, 144, 255, 0.08);
+}
+
+.pip-slot-label-pomodoro {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.08);
+}
+
+.pip-slot-label-countdown {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.08);
+}
+
+.pip-slot-host {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pip-slot-host > * {
+  flex: 1;
+  min-height: 0;
+}
+
+.dashboard-noise-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 1rem;
+  padding: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dark .dashboard-noise-card {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-primary);
+}
+
+/* Chart responsive improvements */
+@media (max-width: 640px) {
+  .recharts-wrapper {
+    font-size: 12px !important;
+  }
+
+  .recharts-cartesian-axis-tick-value {
+    font-size: 12px !important;
+  }
+
+  .recharts-bar-rectangle {
+    rx: 3 !important;
+  }
+}
+
+/* Improve chart container spacing */
+.recharts-responsive-container {
+  min-height: 200px;
+}
+
+@media (max-width: 480px) {
+  .recharts-responsive-container {
+    min-height: 180px;
+  }
+
+  .recharts-cartesian-axis-tick-value {
+    font-size: 11px !important;
+  }
+}
+
+/* =========================
+   Responsive UI Foundation
+   Keep sizing in CSS pixels; adapt layout with viewport breakpoints instead of DPI hacks.
+   ========================= */
+:root {
+  --ui-border-width: 1px;
+  --ui-focus-width: 3px;
+  --ui-focus-color: rgba(30, 144, 255, 0.24);
+  --ui-control-height: 2.75rem;
+  --ui-content-gutter: clamp(1rem, 0.65rem + 1vw, 2rem);
+  --ui-content-max-width: 90rem;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+  letter-spacing: -0.025em;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 1.25rem + 0.8vw, 2.25rem);
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+a[role="button"] {
+  cursor: pointer;
+}
+
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  border-width: var(--ui-border-width);
+  border-color: var(--border-primary);
+  border-radius: 0.75rem;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+  box-shadow: 0 0 0 var(--ui-focus-width) var(--ui-focus-color);
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+/* Scratchpad: borderless writing area — the card owns the border */
+.scratchpad-textarea {
+  border: none !important;
+  box-shadow: none !important;
+}
+.scratchpad-textarea:focus,
+.scratchpad-textarea:focus-visible {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* Minimum readable size: remap text-xs (12px) up to text-sm scale (14px) */
+.text-xs {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+@media (min-width: 640px) {
+  .sm\:text-xs { font-size: 0.875rem; line-height: 1.25rem; }
+}
+@media (min-width: 768px) {
+  .md\:text-xs { font-size: 0.875rem; line-height: 1.25rem; }
+}
+@media (min-width: 1024px) {
+  .lg\:text-xs { font-size: 0.875rem; line-height: 1.25rem; }
+}
+@media (min-width: 1280px) {
+  .xl\:text-xs { font-size: 0.875rem; line-height: 1.25rem; }
+}
+
+svg.lucide {
+  flex-shrink: 0;
+  stroke-width: 1.9;
+}
+
+.responsive-content {
+  width: min(100%, var(--ui-content-max-width));
+  margin-inline: auto;
+  padding-inline: var(--ui-content-gutter);
+}
+
+/* Session page fluid spacing helpers */
+.session-page {
+  --fluid-gap: clamp(0.5rem, 0.4rem + 0.5vw, 0.75rem);
+  --fluid-gap-sm: clamp(0.375rem, 0.3rem + 0.4vw, 0.75rem);
+  --fluid-text-xs: clamp(0.625rem, 0.58rem + 0.2vw, 0.75rem);
+  --fluid-text-sm: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --fluid-text-base: clamp(0.875rem, 0.85rem + 0.15vw, 1rem);
+  --fluid-text-lg: clamp(1rem, 0.85rem + 0.8vw, 1.5rem);
+  --fluid-text-xl: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --ui-content-max-width: 96rem;
+  }
+}
+
+@media (max-width: 639px) {
+  :root {
+    --ui-control-height: 2.625rem;
+  }
+
+  h1 {
+    font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+  }
+}
+
+/* ══ Minimal clock face (full-screen mode + floating popup window) ═════════
+   White digits on black, dot separators, small labels under each segment,
+   status pill and pill buttons. The normal 3-in-a-row panels are untouched. */
+.timer-seg-label { display: none; }
+
+.timer-panel-fs {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  border-radius: 0;
+  border: 0 !important;
+  padding: 1.25rem 1.5rem 2rem;
+  background: #000 !important;
+  overflow: hidden;
+  --td-size: clamp(5rem, min(22vw, 32vh), 18rem);
+}
+.pip-slot-host { --td-size: clamp(2.2rem, 11vw, 3.6rem); }
+.pip-body { background-color: #000; }
+.pip-slot-label,
+.pip-slot-label-pomodoro,
+.pip-slot-label-countdown {
+  color: #9ca3af;
+  background-color: #0b0b0b;
+  border: 1px solid #1f1f1f;
+  border-radius: 999px;
+}
+
+/* header bar -> centred pill */
+.timer-panel-fs .timer-panel-label {
+  width: fit-content;
+  margin: 0 auto;
+  gap: 0.9rem;
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  background: #0b0b0b !important;
+  border: 1px solid #1f1f1f;
+  color: #d1d5db;
+}
+.timer-panel-fs .timer-fs-hide-label { display: none; }
+
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] {
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--td-size) * 0.12);
+}
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] svg[viewBox="0 0 120 120"] { display: none; }
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] .w-32 { width: 100% !important; height: auto !important; }
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] .absolute.inset-0 { position: static !important; }
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] .flex.items-center.gap-0\.5 {
+  align-items: flex-start;
+  justify-content: center;
+  gap: calc(var(--td-size) * 0.14);
+}
+
+/* digits: studiestimer.com style (.td-*) */
+.clock-only { display: none; }
+:is(.timer-panel-fs, .pip-slot-host) .clock-only { display: flex; flex-direction: column; align-items: center; gap: calc(var(--td-size) * 0.18); }
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] svg[viewBox="0 0 120 120"],
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] .relative.group,
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] .w-32 > .absolute.inset-0 { display: none !important; }
+/* countdown while idle shows its editable inputs instead of the clock */
+.timer-panel-fs-countdown [role="timer"][data-state="idle"] .clock-only,
+.pip-slot-host [role="timer"][aria-label="Current countdown time"][data-state="idle"] .clock-only { display: none; }
+.timer-panel-fs-countdown [role="timer"][data-state="idle"] .w-32 > .absolute.inset-0,
+.pip-slot-host [role="timer"][aria-label="Current countdown time"][data-state="idle"] .w-32 > .absolute.inset-0 { display: flex !important; }
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"][data-state="idle"] .clock-only .td-group { opacity: 0.45; }
+
+.td-group {
+  display: inline-flex; align-items: baseline;
+  font-size: var(--td-size);
+  line-height: 1;
+  font-family: "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-size-adjust: from-font;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums lining-nums;
+  letter-spacing: -0.035em;
+  color: #fff;
+  user-select: none;
+}
+.td-cell { position: relative; overflow: hidden; display: inline-block; }
+.td-glyph { display: inline-block; }
+.td-enter { animation: td-in 0.24s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.td-exit { position: absolute; top: 0; left: 0; width: 100%; animation: td-out 0.18s cubic-bezier(0.23, 1, 0.32, 1) both; }
+.td-colon { display: inline-block; padding: 0 0.1em; transform: translateY(-0.09em); opacity: 0.5; }
+.td-colon-running { animation: td-blink 2s ease-in-out infinite; }
+@keyframes td-in { 0% { transform: translateY(-0.3em); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes td-out { 0% { transform: translateY(0); opacity: 1; } to { transform: translateY(0.3em); opacity: 0; } }
+@keyframes td-blink { 0%, to { opacity: 0.3; } 50% { opacity: 0.65; } }
+@keyframes td-fade-in { 0% { opacity: 0; } to { opacity: 1; } }
+@keyframes td-fade-out { 0% { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .td-enter { animation: td-fade-in 0.15s ease both; }
+  .td-exit { animation: td-fade-out 0.12s ease both; }
+  .td-colon-running { animation: none; opacity: 0.5; }
+}
+.td-caption { font-size: calc(var(--td-size) * 0.14); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.td-pill {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.02);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.75rem; font-weight: 500; line-height: 1rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+/* countdown idle: editable inputs */
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] input[data-seg] {
+  width: 2.4ch; background: transparent; border: 0; border-bottom: 2px solid rgba(255,255,255,0.12);
+  border-radius: 0; text-align: center; color: #fff; padding: 0 0 0.12em; outline: none;
+  font-family: "SF Pro Display", "Segoe UI Variable Display", "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  font-size: calc(var(--td-size) * 0.86) !important; font-weight: 500; line-height: 1.05; letter-spacing: -0.035em;
+}
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] input[data-seg]:focus { border-bottom-color: rgba(255,255,255,0.85); }
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] .timer-seg-label { display: block; text-align: center; margin-top: 0.4rem; font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+.timer-panel-fs-countdown [role="timer"][data-state="idle"]::before {
+  content: "SET DURATION"; align-self: center; font-size: 0.8rem; letter-spacing: 0.4em; white-space: nowrap; color: rgba(255,255,255,0.4);
+}
+
+/* buttons */
+:is(.timer-panel-fs, .pip-slot-host) :is(.timer-ctrl-btn, .timer-adjust-btn) {
+  width: auto !important;
+  height: auto !important;
+  border-radius: 999px !important;
+  background: #0b0b0b !important;
+  border: 1px solid #262626 !important;
+  color: #e5e7eb !important;
+  font-weight: 600;
+  transform: none;
+}
+:is(.timer-panel-fs, .pip-slot-host) :is(.timer-ctrl-btn-primary, .timer-ctrl-btn-pomo, .timer-ctrl-btn-countdown) {
+  background: #fff !important;
+  border-color: #fff !important;
+  color: #000 !important;
+}
+:is(.timer-panel-fs, .pip-slot-host) .timer-adjust-btn { color: #9ca3af !important; }
+:is(.timer-panel-fs, .pip-slot-host) .timer-adjust-btn::after { content: "m"; }
+
+.timer-panel-fs :is(.timer-ctrl-btn, .timer-adjust-btn) { gap: 0.7rem; }
+.timer-panel-fs .timer-ctrl-btn { padding: 0.95rem 2rem; font-size: 1.1rem; }
+.timer-panel-fs .timer-ctrl-btn::after { content: attr(aria-label); text-transform: capitalize; }
+.timer-panel-fs .timer-adjust-btn { padding: 0.5rem 1.1rem; font-size: 0.95rem; gap: 0; }
+.timer-panel-fs .flex-nowrap { flex-wrap: wrap; gap: 0.9rem; }
+/* reset inside the clock area: pin it to the screen corner */
+.timer-panel-fs [role="timer"] .timer-ctrl-btn {
+  position: fixed !important;
+  right: 1.75rem; bottom: 1.75rem; left: auto !important; top: auto !important;
+  margin: 0 !important;
+}
+.pip-slot-host .timer-ctrl-btn { padding: 0.45rem 0.7rem; }
+.pip-slot-host [role="timer"] .timer-ctrl-btn { position: absolute !important; left: 0 !important; top: 0 !important; right: auto !important; bottom: auto !important; margin: 0 !important; }
+
+/* ══ Clock extras ═══════ */
+/* full screen opens with a soft zoom; buttons press in */
+@keyframes fs-in { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+.timer-panel-fs { animation: fs-in 0.28s ease-out; }
+:is(.timer-panel-fs, .pip-slot-host) :is(.timer-ctrl-btn, .timer-adjust-btn):active { transform: scale(0.96) !important; }
+
+/* floating windows hold a single timer: give it more room */
+.pip-single .pip-slot-host { --td-size: clamp(2.8rem, 16vw, 6rem); }
+.pip-single .pip-timer-stack { padding: 0.75rem; }
+.pip-slot-host .timer-adjust-btn { display: inline-flex; padding: 0.25rem 0.6rem; font-size: 0.72rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .timer-panel-fs { animation: none; }
+}
+
+/* countdown idle: colon between the inputs */
+:is(.timer-panel-fs, .pip-slot-host) [role="timer"] span.font-mono:not([data-seg]) {
+  font-size: calc(var(--td-size) * 0.86) !important; line-height: 1.05; font-weight: 500; color: #fff !important; opacity: 0.3;
+  padding: 0 0.08em; transform: translateY(-0.09em);
+}
+
+/* ══ Floating window: only the time on pure black; pause / resume appears on hover ═════ */
+html:has(.pip-body), .pip-body { background: #000 !important; }
+.pip-body .pip-slot-label,
+.pip-body .td-pill,
+.pip-body .td-caption,
+.pip-body .timer-adjust-btn,
+.pip-body .timer-ctrl-btn:not(.timer-ctrl-btn-primary):not(.timer-ctrl-btn-pomo):not(.timer-ctrl-btn-countdown) { display: none !important; }
+.pip-single .pip-slot-host { --td-size: clamp(2.8rem, min(21vw, 38vh), 9rem); }
+.pip-body .timer-panel-label { display: none; }
+.pip-body :is(.timer-ctrl-btn-primary, .timer-ctrl-btn-pomo, .timer-ctrl-btn-countdown) {
+  position: fixed !important; left: 50% !important; bottom: 0.9rem !important; margin: 0 0 0 -1.35rem !important;
+  width: 2.7rem !important; height: 2.7rem !important; padding: 0 !important; justify-content: center;
+  opacity: 0; transition: opacity 0.18s ease; z-index: 5;
+}
+.pip-body:hover :is(.timer-ctrl-btn-primary, .timer-ctrl-btn-pomo, .timer-ctrl-btn-countdown),
+.pip-body :is(.timer-ctrl-btn-primary, .timer-ctrl-btn-pomo, .timer-ctrl-btn-countdown):focus-visible { opacity: 1; }
+@media (hover: none) { .pip-body :is(.timer-ctrl-btn-primary, .timer-ctrl-btn-pomo, .timer-ctrl-btn-countdown) { opacity: 1; } }
+
+/* Theme text colour must always reach buttons and plain text (a stale `color: inherit !important` on html/body made them black) */
+html:root, html:root body, html:root #root { color: var(--text-primary) !important; }

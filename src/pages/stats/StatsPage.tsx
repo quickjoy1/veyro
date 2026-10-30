@@ -1,0 +1,84 @@
+import { memo, useEffect } from 'react';
+import { useFetchTasks, useWorkspace } from '@/store/appStore';
+
+import { Helmet } from "react-helmet-async";
+import Statistics from '@/pages/stats/Stats';
+import StatsChartsPanel from '@/pages/stats/StatsChartsPanel';
+import TaskStudyTimeCard from '@/pages/stats/TaskStudyTimeCard';
+import { fetchLaps } from '@/store/LapActions';
+import { useAuth } from '@/hooks/useAuth';
+import { useLapRealtimeSubscription } from '@/hooks/useLapRealtimeSubscription';
+import { useLocation } from 'react-router-dom';
+
+const StatsPage = memo(() => {
+  const location = useLocation();
+  const isVisible = location.pathname === '/analytics';
+  const fetchTasks = useFetchTasks();
+  const { user } = useAuth();
+  const { currentWorkspace: activeWorkspace } = useWorkspace();
+
+  // Use the real-time subscription hook
+  useLapRealtimeSubscription();
+
+  // Refresca tasks y laps solo cuando el usuario esté listo
+  useEffect(() => {
+    if (user && isVisible) {
+      fetchLaps();
+      fetchTasks(activeWorkspace?.id, false); // Use cache, don't force refresh
+    }
+  }, [user, isVisible]); // Remove fetchTasks from dependencies
+
+  // Escuchar eventos de actualización de laps únicamente
+  useEffect(() => {
+    if (!user) return;
+    const handleRefresh = () => {
+      fetchLaps();
+    };
+
+    window.addEventListener('refreshStats', handleRefresh);
+
+    return () => {
+      window.removeEventListener('refreshStats', handleRefresh);
+    };
+  }, [user]); // Remove fetchTasks from dependencies
+
+  return (
+    <>
+      <Helmet>
+        <title>Study Statistics & Analytics | Veyro</title>
+        <meta
+          name="description"
+          content="Track your study progress with detailed analytics. View study time statistics, productivity charts, and performance insights."
+        />
+        <meta
+          name="keywords"
+          content="study statistics, productivity analytics, study time tracking, performance charts, study insights, academic analytics"
+        />
+        <meta property="og:title" content="Study Statistics & Analytics | Veyro" />
+        <meta
+          property="og:description"
+          content="Track your study progress with detailed analytics. View study time statistics, productivity charts, and performance insights."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://veyro.app/analytics" />
+        <link rel="canonical" href="https://veyro.app/analytics" />
+      </Helmet>
+      <div className="w-full px-0 overflow-hidden mt-2">
+      <div className="space-y-3 mb-4 mx-2 sm:mx-2 md:mx-2 lg:mx-6">
+        {/* Stats Banner at the top */}
+        
+        {/* Charts and other content below */}
+        <div className="space-y-3">
+        <Statistics />
+          <TaskStudyTimeCard />
+          <StatsChartsPanel />
+        </div>
+      </div>
+    </div>
+    </>
+  );
+});
+
+StatsPage.displayName = 'StatsPage';
+
+export default StatsPage; 

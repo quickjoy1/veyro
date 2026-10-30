@@ -1,0 +1,186 @@
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
+
+import { User } from '@supabase/supabase-js';
+import { supabase, isSupabaseConfigured } from '@/utils/supabaseClient';
+import { LOCAL_USER } from '@/utils/localSupabase';
+import { toast } from 'react-toastify';
+
+interface AuthContextType {
+  user: User | null;
+  isLoggedIn: boolean;
+  isAuthLoading: boolean;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  // Local mode (no Supabase keys): the single local user is signed in from the first render
+  const [user, setUser] = useState<User | null>(isSupabaseConfigured ? null : (LOCAL_USER as unknown as User));
+  const [isLoggedIn, setIsLoggedIn] = useState(!isSupabaseConfigured);
+  const [isAuthLoading, setIsAuthLoading] = useState(isSupabaseConfigured);
+
+  useEffect(() => {
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setIsLoggedIn(!!session);
+      setIsAuthLoading(false);
+      if (session?.user) ensureProfile(session.user);
+    }).catch(() => {
+      setIsAuthLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setIsLoggedIn(!!session);
+      setIsAuthLoading(false);
+      if (session?.user) ensureProfile(session.user);
+      
+
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loginWithGoogle = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error logging in:', error instanceof Error ? error.message : 'Unknown error');
+      toast.error('Error logging in with Google');
+    }
+  };
+
+  const logout = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      // Clear all caches and local storage
+      clearAllCaches();
+
+      // Redirect to demo/landing with full reload
+      window.location.href = '/';
+      
+    } catch (error) {
+      console.error('Error logging out:', error instanceof Error ? error.message : 'Unknown error');
+      toast.error('Error logging out');
+    }
+  };
+
+  // Function to clear all caches and local storage
+  const clearAllCaches = () => {
+    try {
+      // Clear localStorage
+      localStorage.clear();
+      
+      // Clear sessionStorage
+      sessionStorage.clear();
+      
+      // Clear Zustand persist storage specifically
+      localStorage.removeItem('veyro-storage');
+      
+      // Clear any remaining app-specific keys
+      const appKeys = [
+        'localTasks',
+        'tasksHydrated',
+        'pomodoroModes',
+        'activeWorkspace',
+        'activeWorkspaceId',
+        'userPreferences',
+        'theme',
+        'accentColor'
+      ];
+      
+      appKeys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        } catch (e) {
+          console.warn(`Could not remove ${key} from storage:`, e);
+        }
+      });
+      
+      // Clear any noise generator settings
+      const noiseKeys = Object.keys(localStorage).filter(key => 
+        key.includes('Volume') || key.includes('IsPlaying')
+      );
+      
+      noiseKeys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+        } catch (e) {
+          console.warn(`Could not remove noise key ${key}:`, e);
+        }
+      });
+      
+      // Clear any remaining workspace-related keys
+      const workspaceKeys = Object.keys(localStorage).filter(key => 
+        key.toLowerCase().includes('workspace') || 
+        key.toLowerCase().includes('workspaces')
+      );
+      
+      workspaceKeys.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        } catch (e) {
+          console.warn(`Could not remove workspace key ${key}:`, e);
+        }
+      });
+    } catch (error) {
+      console.error('Error clearing caches:', error);
+    }
+  };
+
+  // Asegura que el perfil existe en la tabla profiles
+  async function ensureProfile(user: User) {
+    if (!user?.id || !user?.email) return;
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single();
+    if (!data && !error) {
+      await supabase.from('profiles').insert({
+        id: user.id,
+        email: user.email,
+      });
+    }
+  }
+
+  const value: AuthContextType = {
+    user,
+    isLoggedIn,
+    isAuthLoading,
+    loginWithGoogle,
+    logout
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}; 

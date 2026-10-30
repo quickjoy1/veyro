@@ -1,0 +1,247 @@
+import { Calendar, Info, Trash2 } from "lucide-react";
+import React, { KeyboardEvent, MouseEvent, useEffect, useRef, useState } from "react";
+import { Task } from "@/types/taskStorage";
+import { TASK_STATUSES, normalizeTaskStatus, getTaskStatusConfig } from "@/constants/taskStatus";
+interface ContextMenuState {
+  type?: string;
+  x: number;
+  y: number;
+  task: Task & {
+    status?: string;
+  };
+}
+interface TaskListMenuProps {
+  contextMenu: ContextMenuState | null;
+  onClose: () => void;
+  onSetTaskStatus: (task: Task & {
+    status?: string;
+  }) => void;
+  onDeleteTask: (taskId: string) => void;
+  onEditTask: (task: Task) => void;
+  onSetDate?: (task: Task, position: {
+    x: number;
+    y: number;
+  }) => void; // New prop for setting date with position
+}
+export const TaskListMenu: React.FC<TaskListMenuProps> = ({
+  contextMenu,
+  onClose,
+  onSetTaskStatus,
+  onDeleteTask,
+  onEditTask,
+  onSetDate
+}) => {
+  const menuRef = useRef<HTMLDivElement>(null);
+  const statusMenuRef = useRef<HTMLDivElement>(null);
+  const [showStatusMenu, setShowStatusMenu] = useState(false);
+  const [statusPosition, setStatusPosition] = useState({
+    x: 0,
+    y: 0
+  });
+  const [statusAnchor, setStatusAnchor] = useState<{
+    left: number;
+    top: number;
+    right: number;
+  } | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
+  // Cerrar con click fuera y Escape
+  useEffect(() => {
+    if (!contextMenu) return;
+    const handleClickOutside = (event: MouseEvent) => {
+      const clickedInsideMenu = menuRef.current && menuRef.current.contains(event.target as Node);
+      const clickedInsideStatusMenu = statusMenuRef.current && statusMenuRef.current.contains(event.target as Node);
+      if (!clickedInsideMenu && !clickedInsideStatusMenu) {
+        if (showStatusMenu) {
+          setShowStatusMenu(false);
+        } else {
+          onClose();
+        }
+      }
+    };
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        if (showStatusMenu) {
+          setShowStatusMenu(false);
+        } else {
+          onClose();
+        }
+      }
+    };
+    const handleScrollOrResize = () => onClose();
+    document.addEventListener("mousedown", handleClickOutside as unknown as EventListener);
+    document.addEventListener("keydown", handleEscape as unknown as EventListener);
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside as unknown as EventListener);
+      document.removeEventListener("keydown", handleEscape as unknown as EventListener);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [contextMenu, onClose, showStatusMenu]);
+
+  // Position the menu at the cursor, flipping when it would overflow the viewport
+  useEffect(() => {
+    if (!contextMenu) return;
+    setShowStatusMenu(false);
+    setMenuPosition({
+      x: contextMenu.x,
+      y: contextMenu.y
+    });
+    const adjust = () => {
+      const el = menuRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let x = contextMenu.x;
+      let y = contextMenu.y;
+      // Flip to the left / above the cursor when overflowing
+      if (x + rect.width > vw - 8) x = contextMenu.x - rect.width;
+      if (y + rect.height > vh - 8) y = contextMenu.y - rect.height;
+      // Final clamp so the menu never leaves the viewport
+      x = Math.min(Math.max(8, x), Math.max(8, vw - rect.width - 8));
+      y = Math.min(Math.max(8, y), Math.max(8, vh - rect.height - 8));
+      setMenuPosition({
+        x,
+        y
+      });
+    };
+    // Wait a frame to ensure dimensions ready
+    const raf = requestAnimationFrame(adjust);
+    return () => cancelAnimationFrame(raf);
+  }, [contextMenu]);
+
+  // Adjust the status submenu once rendered, keeping it attached to its button
+  useEffect(() => {
+    if (!showStatusMenu || !statusAnchor) return;
+    const adjust = () => {
+      const el = statusMenuRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      let x = statusAnchor.right + 6;
+      let y = statusAnchor.top - 4;
+      // Not enough room on the right -> open to the left of the button
+      if (x + rect.width > vw - 8) {
+        x = statusAnchor.left - rect.width - 6;
+      }
+      x = Math.min(Math.max(8, x), Math.max(8, vw - rect.width - 8));
+      y = Math.min(Math.max(8, y), Math.max(8, vh - rect.height - 8));
+      setStatusPosition({
+        x,
+        y
+      });
+    };
+    const raf = requestAnimationFrame(adjust);
+    return () => cancelAnimationFrame(raf);
+  }, [showStatusMenu, statusAnchor]);
+
+  const handleStatusButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const buttonElement = (e.target as HTMLElement).closest('button');
+    const rect = buttonElement?.getBoundingClientRect();
+    if (rect) {
+      setStatusAnchor({
+        left: rect.left,
+        top: rect.top,
+        right: rect.right
+      });
+      // Provisional position; the effect above corrects it after render
+      setStatusPosition({
+        x: rect.right + 6,
+        y: rect.top - 4
+      });
+      setShowStatusMenu(true);
+    }
+  };
+  const handleStatusSelect = (statusId: string) => {
+    const updatedTask = {
+      ...contextMenu!.task,
+      status: statusId,
+      activetask: statusId === 'in_progress' ? true : false
+    };
+    onSetTaskStatus(updatedTask);
+    setShowStatusMenu(false);
+    onClose();
+  };
+  if (!contextMenu) return null;
+  const currentStatus = normalizeTaskStatus(contextMenu.task.status);
+  const currentStatusInfo = getTaskStatusConfig(contextMenu.task.status);
+  const currentStatusLabel = currentStatusInfo.label;
+  const currentStatusTextColor = currentStatusInfo.textColor;
+  const currentStatusBgColor = currentStatusInfo.bgColor;
+  return <>
+      <div ref={menuRef} className="fixed z-50 min-w-[220px] rounded-lg bg-[var(--bg-primary)] p-2 shadow-xl" style={{
+      position: 'fixed',
+      left: menuPosition?.x ?? contextMenu.x,
+      top: menuPosition?.y ?? contextMenu.y,
+      border: '2px solid var(--border-primary)',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+    }}>
+        <div className="space-y-1">
+          <div className="relative">
+            <button onClick={handleStatusButtonClick} className="w-full px-2 py-2 text-left text-base text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] rounded-md flex items-center justify-between gap-2 transition-all duration-200 hover:ring-2 hover:ring-[var(--accent-primary)] hover:ring-opacity-50">
+              <div className="flex items-center gap-2">
+                <span className={`w-2 h-2 rounded-full ${currentStatusBgColor}`}></span>
+                <span className={currentStatusTextColor}>{currentStatusLabel}</span>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+          
+          <button onClick={() => {
+          onEditTask(contextMenu.task);
+          onClose();
+        }} className="w-full px-2 py-2 text-left text-base text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] rounded-md flex items-center gap-2 transition-all duration-200 hover:ring-2 hover:ring-[var(--accent-primary)] hover:ring-opacity-50">
+            <Info size={16} />
+            Edit Task
+          </button>
+          
+          <button onClick={() => {
+          const position = menuPosition ?? {
+            x: contextMenu.x,
+            y: contextMenu.y
+          };
+          onSetDate?.(contextMenu.task, position);
+          onClose();
+        }} className="w-full px-2 py-2 text-left text-base text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] rounded-md flex items-center gap-2 transition-all duration-200 hover:ring-2 hover:ring-[var(--accent-primary)] hover:ring-opacity-50">
+            <Calendar size={16} />
+            Date
+          </button>
+          
+          <button onClick={() => {
+          onDeleteTask(contextMenu.task.id);
+          onClose();
+        }} className="w-full px-2 py-2 text-left text-base text-red-500 hover:bg-[var(--bg-secondary)] rounded-md flex items-center gap-2 transition-all duration-200 hover:ring-2 hover:ring-red-500 hover:ring-opacity-30">
+            <Trash2 size={16} />
+            Delete Task
+          </button>
+        </div>
+      </div>
+
+      {showStatusMenu && <div ref={statusMenuRef} className="fixed z-50 min-w-[180px] rounded-lg bg-[var(--bg-primary)] p-2 shadow-xl" style={{
+      position: 'fixed',
+      left: statusPosition.x,
+      top: statusPosition.y,
+      border: '2px solid var(--border-primary)',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+    }} onClick={e => e.stopPropagation()}>
+          <div className="space-y-1">
+            {TASK_STATUSES.map(status => <button key={status.id} onClick={() => {
+          handleStatusSelect(status.id);
+        }} className={`w-full px-2 py-2 text-left text-base rounded-md flex items-center gap-2 transition-all duration-200 hover:bg-[var(--bg-secondary)] ${status.textColor} ${currentStatus === status.id ? 'font-semibold' : ''}`}>
+                <span className="w-2 h-2 rounded-full bg-current"></span>
+                {status.label}
+              </button>)}
+          </div>
+        </div>}
+    </>;
+};
