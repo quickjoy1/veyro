@@ -14,7 +14,10 @@ declare global {
 const DEFAULT_ACCENT = "#12A07C";
 
 type Theme = 'light' | 'dark';
-type ThemePreference = 'light' | 'dark' | 'auto';
+type ThemePreference = 'light' | 'dark' | 'black' | 'auto';
+
+// 'black' is the dark theme with true #000 surfaces (OLED).
+const toTheme = (pref: Exclude<ThemePreference, 'auto'>): Theme => (pref === 'black' ? 'dark' : pref);
 
 const useTheme = () => {
   const { isLoggedIn } = useAuth();
@@ -45,7 +48,7 @@ const useTheme = () => {
     if (preference === 'auto') {
       return getSystemTheme();
     }
-    return preference;
+    return toTheme(preference);
   };
 
   const [themePreference, setThemePreference] = useState<ThemePreference>(getThemePreference);
@@ -117,6 +120,7 @@ const useTheme = () => {
 
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
+    root.classList.toggle('oled', theme === 'dark' && localStorage.getItem('themePreference') === 'black');
     (root.style as any).colorScheme = theme;
 
     // Aplicar colores CSS a DayFlow
@@ -308,7 +312,7 @@ const useTheme = () => {
     localStorage.setItem("themePreference", newPreference);
 
     // Calcular el tema actual basado en la nueva preferencia
-    const actualTheme = newPreference === 'auto' ? getSystemTheme() : newPreference;
+    const actualTheme = newPreference === 'auto' ? getSystemTheme() : toTheme(newPreference);
     localStorage.setItem("theme", actualTheme);
     setCurrentTheme(actualTheme);
     applyTheme(actualTheme);
@@ -316,8 +320,8 @@ const useTheme = () => {
 
   // Función para alternar entre light y dark (manteniendo compatibilidad)
   const toggleTheme = useCallback(() => {
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    handleThemeChange(newTheme);
+    // From any dark variant (Dark or Black) go to Light; from Light go to Dark.
+    handleThemeChange(currentTheme === 'dark' ? 'light' : 'dark');
   }, [currentTheme, handleThemeChange]);
 
   // Efecto para manejar cambios en el tema

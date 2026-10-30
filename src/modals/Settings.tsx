@@ -4,6 +4,7 @@ import {
   Database,
   Info,
   List,
+  Circle,
   Monitor,
   Moon,
   Palette,
@@ -151,7 +152,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
                 {/* Theme selector */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
-                    {themePreference === "auto" ? <Monitor size={18} className="text-[var(--text-secondary)]" /> : currentTheme === "dark" ? <Moon size={18} className="text-[var(--text-secondary)]" /> : <Sun size={18} className="text-[var(--text-secondary)]" />}
+                    {themePreference === "auto" ? <Monitor size={18} className="text-[var(--text-secondary)]" /> : themePreference === "black" ? <Circle size={18} fill="currentColor" className="text-[var(--text-secondary)]" /> : currentTheme === "dark" ? <Moon size={18} className="text-[var(--text-secondary)]" /> : <Sun size={18} className="text-[var(--text-secondary)]" />}
                     <span className="text-sm font-medium text-[var(--text-primary)]">Theme</span>
                   </div>
                   <div className="relative">
@@ -160,39 +161,39 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
                         className="absolute top-1 bottom-1 rounded-md transition-all duration-300 ease-in-out"
                         style={{
                           backgroundColor: accentPalette,
-                          width: "calc(33.333% - 4px)",
+                          width: "calc(25% - 4px)",
                           left:
                             themePreference === "light"
                               ? "2px"
                               : themePreference === "auto"
-                                ? "calc(33.333% + 1px)"
-                                : "calc(66.666% + 0px)",
+                                ? "calc(25% + 1px)"
+                                : themePreference === "dark"
+                                  ? "calc(50% + 1px)"
+                                  : "calc(75% + 0px)",
                         }}
                       />
-                      <button
-                        onClick={() => handleThemeChange("light")}
-                        className="absolute left-0 top-0 w-1/3 h-full flex items-center justify-center gap-1.5 transition-colors"
-                        aria-label="Light theme"
-                      >
-                        <Sun size={17} className={themePreference === "light" ? "text-white" : "text-[var(--text-secondary)]"} />
-                        <span className={`text-sm ${themePreference === "light" ? "text-white" : "text-[var(--text-secondary)]"}`}>Light</span>
-                      </button>
-                      <button
-                        onClick={() => handleThemeChange("auto")}
-                        className="absolute left-1/3 top-0 w-1/3 h-full flex items-center justify-center gap-1.5 transition-colors"
-                        aria-label="System theme"
-                      >
-                        <Monitor size={17} className={themePreference === "auto" ? "text-white" : "text-[var(--text-secondary)]"} />
-                        <span className={`text-sm ${themePreference === "auto" ? "text-white" : "text-[var(--text-secondary)]"}`}>System</span>
-                      </button>
-                      <button
-                        onClick={() => handleThemeChange("dark")}
-                        className="absolute right-0 top-0 w-1/3 h-full flex items-center justify-center gap-1.5 transition-colors"
-                        aria-label="Dark theme"
-                      >
-                        <Moon size={17} className={themePreference === "dark" ? "text-white" : "text-[var(--text-secondary)]"} />
-                        <span className={`text-sm ${themePreference === "dark" ? "text-white" : "text-[var(--text-secondary)]"}`}>Dark</span>
-                      </button>
+                      {([
+                        { key: "light", label: "Light", aria: "Light theme", Icon: Sun, left: "0%" },
+                        { key: "auto", label: "System", aria: "System theme", Icon: Monitor, left: "25%" },
+                        { key: "dark", label: "Dark", aria: "Dark theme", Icon: Moon, left: "50%" },
+                        { key: "black", label: "Black", aria: "Pure black theme", Icon: Circle, left: "75%" },
+                      ] as const).map(({ key, label, aria, Icon, left }) => (
+                        <button
+                          key={key}
+                          onClick={() => handleThemeChange(key)}
+                          style={{ left }}
+                          className="absolute top-0 w-1/4 h-full flex items-center justify-center gap-1 transition-colors"
+                          aria-label={aria}
+                          aria-pressed={themePreference === key}
+                        >
+                          <Icon
+                            size={16}
+                            fill={key === "black" ? "currentColor" : "none"}
+                            className={themePreference === key ? "text-white" : "text-[var(--text-secondary)]"}
+                          />
+                          <span className={`text-sm ${themePreference === key ? "text-white" : "text-[var(--text-secondary)]"}`}>{label}</span>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>

@@ -292,22 +292,17 @@
         const theme = localStorage.getItem("theme");
         const effectivePref = pref || theme;
         const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isBlack = effectivePref === "black";
         const isDark =
+          isBlack ||
           effectivePref === "dark" ||
           (!effectivePref && systemDark) ||
           (effectivePref === "auto" && systemDark);
-        
-        if (isDark) {
-          document.documentElement.classList.add("dark");
-          document.documentElement.setAttribute("data-theme", "dark");
-          document.body.style.backgroundColor = "#000000";
-          document.body.style.color = "#f4f4f5";
-        } else {
-          document.documentElement.classList.remove("dark");
-          document.documentElement.setAttribute("data-theme", "light");
-          document.body.style.backgroundColor = "#ffffff";
-          document.body.style.color = "#09090b";
-        }
+
+        // Colours come from the CSS variables, so only the classes are set here.
+        document.documentElement.classList.toggle("dark", isDark);
+        document.documentElement.classList.toggle("oled", isBlack);
+        document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
       } catch (e) {}
     </script>
     <!-- Preload critical resources -->

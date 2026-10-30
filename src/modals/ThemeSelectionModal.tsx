@@ -1,9 +1,9 @@
-import { Monitor, Moon, Sun, X } from "lucide-react";
+import { Circle, Monitor, Moon, Sun, X } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 interface ThemeSelectionModalProps {
   onClose: () => void;
-  onThemeSelect: (theme: 'light' | 'dark' | 'auto') => void;
+  onThemeSelect: (theme: 'light' | 'dark' | 'black' | 'auto') => void;
 }
 
 const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({ onClose, onThemeSelect }) => {
@@ -32,7 +32,7 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({ onClose, onTh
     };
   }, [onClose]);
 
-  const handleThemeSelect = (theme: 'light' | 'dark' | 'auto') => {
+  const handleThemeSelect = (theme: 'light' | 'dark' | 'black' | 'auto') => {
     onThemeSelect(theme);
     onClose();
   };
@@ -86,8 +86,8 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({ onClose, onTh
             onClick={() => handleThemeSelect('dark')}
             className="w-full group flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-[var(--bg-secondary)]/30 border-2 border-[var(--border-primary)]/30 hover:border-[var(--accent-primary)]/30 hover:bg-[var(--bg-secondary)]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[var(--accent-primary)]/10 active:scale-[0.98]"
           >
-            <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-blue-600/20 to-purple-600/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-              <Moon className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+            <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-700/25 to-teal-900/30 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Moon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
             </div>
             <div className="flex-1 text-left">
               <h3 className="font-bold text-base sm:text-lg text-[var(--text-primary)] mb-1">Dark Mode</h3>
@@ -95,6 +95,19 @@ const ThemeSelectionModal: React.FC<ThemeSelectionModalProps> = ({ onClose, onTh
             </div>
           </button>
           
+          <button
+            onClick={() => handleThemeSelect('black')}
+            className="w-full group flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-[var(--bg-secondary)]/30 border-2 border-[var(--border-primary)]/30 hover:border-[var(--accent-primary)]/30 hover:bg-[var(--bg-secondary)]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[var(--accent-primary)]/10 active:scale-[0.98]"
+          >
+            <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-black ring-1 ring-white/15 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <Circle className="w-5 h-5 sm:w-6 sm:h-6 text-white/80" fill="currentColor" />
+            </div>
+            <div className="flex-1 text-left">
+              <h3 className="font-bold text-base sm:text-lg text-[var(--text-primary)] mb-1">Pure Black</h3>
+              <p className="text-[var(--text-secondary)] text-xs sm:text-sm">True black, best for OLED screens</p>
+            </div>
+          </button>
+
           <button
             onClick={() => handleThemeSelect('auto')}
             className="w-full group flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-xl sm:rounded-2xl bg-[var(--bg-secondary)]/30 border-2 border-[var(--border-primary)]/30 hover:border-[var(--accent-primary)]/30 hover:bg-[var(--bg-secondary)]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[var(--accent-primary)]/10 active:scale-[0.98]"
