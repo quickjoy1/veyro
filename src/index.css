@@ -69,7 +69,7 @@
   --dayflow-text-secondary: #64748b;
   --dayflow-border: #e2e8f0;
   --dayflow-hover: #f1f5f9;
-  --dayflow-accent: #1e90ff;
+  --dayflow-accent: var(--accent-primary);
 }
 
 .dark {
@@ -283,96 +283,99 @@
 @layer base {
   :root {
     /* Light mode variables */
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 100 20% 96%;
+    --foreground: 160 30% 9%;
+    --card: 90 25% 98%;
+    --card-foreground: 160 30% 9%;
+    --popover: 90 25% 98%;
+    --popover-foreground: 160 30% 9%;
+    --primary: 165 85% 30%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 110 15% 91%;
+    --secondary-foreground: 160 30% 9%;
+    --muted: 110 15% 91%;
+    --muted-foreground: 160 10% 36%;
+    --accent: 110 15% 91%;
+    --accent-foreground: 160 30% 9%;
+    --destructive: 8 72% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --border: 110 14% 83%;
+    --input: 110 14% 83%;
+    --ring: 165 85% 30%;
+    --chart-1: 165 85% 30%;
+    --chart-2: 40 92% 55%;
+    --chart-3: 200 55% 45%;
+    --chart-4: 12 75% 55%;
+    --chart-5: 265 35% 55%;
 
     /* Paleta principal */
-    --bg-primary: #ffffff;
-    --border-primary: #e2e8f0;
-    --border-secondary: #f1f5f9;
-    --text-primary: #09090b;
-    --accent-primary: #1e90ff; /* Electric neon blue */
-    --accent-primary-transparent: rgba(30, 144, 255, 0.15);
+    --bg-primary: #f4f6f1;
+    --border-primary: #d3dccf;
+    --border-secondary: #e3e9df;
+    --text-primary: #0f1f1a;
+    --accent-primary: #0a8f6f; /* Veyro pine */
+    --accent-primary-transparent: rgba(10, 143, 111, 0.15);
 
     --accent-primary-500-10: rgb(var(--accent-primary) / 0.1);
 
-    --bg-secondary: #f8fafc;
-    --bg-tertiary: #f1f5f9;
-    --text-secondary: #64748b;
-    --accent-deep: #187bcd; /* Darker electric blue */
-    --muted-strong: #444444cc;
+    --bg-secondary: #eaefe6;
+    --bg-tertiary: #dfe7da;
+    --text-secondary: #4f645b;
+    --accent-deep: #07715a; /* Deep pine */
+    --accent-sun: #e8a317; /* Marigold: today, streaks, highlights */
+    --muted-strong: #2a3a33cc;
 
-    --radius: 0.5rem;
+    --radius: 0.875rem;
+    --font-display: "Bricolage Grotesque Variable", "Figtree Variable", system-ui, sans-serif;
+    --font-body: "Figtree Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
 
   .dark {
     /* Dark mode variables */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 4%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 8%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 8%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 10%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
+    --background: 165 28% 6%;
+    --foreground: 150 25% 93%;
+    --card: 165 25% 9%;
+    --card-foreground: 150 25% 93%;
+    --popover: 165 25% 9%;
+    --popover-foreground: 150 25% 93%;
+    --primary: 165 82% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 165 22% 12%;
+    --secondary-foreground: 150 25% 93%;
+    --muted: 165 22% 12%;
+    --muted-foreground: 160 12% 62%;
+    --accent: 165 22% 14%;
+    --accent-foreground: 150 25% 93%;
+    --destructive: 8 70% 48%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14%;
-    --input: 0 0% 12%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --border: 165 18% 17%;
+    --input: 165 18% 15%;
+    --ring: 165 82% 36%;
+    --chart-1: 165 82% 40%;
+    --chart-2: 40 92% 58%;
+    --chart-3: 200 60% 55%;
+    --chart-4: 12 80% 62%;
+    --chart-5: 265 45% 70%;
 
-    /* Paleta principal - OLED Black Theme */
-    --bg-primary: #000000;
-    --border-primary: rgba(255, 255, 255, 0.14);
-    --border-secondary: rgba(255, 255, 255, 0.08);
-    --text-primary: #fafafa;
-    --accent-primary: #1e90ff; /* Electric neon blue */
-    --accent-primary-transparent: rgba(30, 144, 255, 0.18);
+    /* Night pine */
+    --bg-primary: #0a1412;
+    --border-primary: rgba(196, 255, 228, 0.14);
+    --border-secondary: rgba(196, 255, 228, 0.07);
+    --text-primary: #e9f3ee;
+    --accent-primary: #12a07c; /* Veyro pine */
+    --accent-primary-transparent: rgba(18, 160, 124, 0.2);
 
-    --bg-secondary: #0d0d0e;
-    --bg-tertiary: #17171a;
-    --text-secondary: #a1a1aa;
-    --accent-deep: #187bcd; /* Darker electric blue */
-    --muted-strong: #e0e0e0cc;
+    --bg-secondary: #101c19;
+    --bg-tertiary: #172723;
+    --text-secondary: #8fa89f;
+    --accent-deep: #0b7f63; /* Deep pine */
+    --accent-sun: #f5b53b; /* Marigold: today, streaks, highlights */
+    --muted-strong: #dcebe4cc;
   }
 
   /* Fuente base */
   html {
-    font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-      Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-body);
     min-height: 100vh;
     scroll-behavior: smooth;
     scrollbar-gutter: stable;
@@ -382,7 +385,7 @@
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
     backface-visibility: hidden;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "kern";
+    font-feature-settings: "kern", "liga";
     font-variant-numeric: tabular-nums;
     font-size: 16px;
     background-color: var(--bg-primary);
@@ -840,8 +843,9 @@
     padding-bottom: clamp(4rem, 6vw, 6rem);
   }
   .font-heading {
-    font-family: "Helvetica Neue", Helvetica, "Inter", Arial, sans-serif;
-    letter-spacing: -0.02em;
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.025em;
   }
 }
 

@@ -11,6 +11,8 @@ declare global {
   }
 }
 
+const DEFAULT_ACCENT = "#12A07C";
+
 type Theme = 'light' | 'dark';
 type ThemePreference = 'light' | 'dark' | 'auto';
 
@@ -56,9 +58,20 @@ const useTheme = () => {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showTour, setShowTour] = useState(false);
 
-  const [accentPalette, setAccentPalette] = useState(
-    typeof window !== 'undefined' ? localStorage.getItem("accentPalette") || "#0A84FF" : "#0A84FF"
-  );
+  const [accentPalette, setAccentPalette] = useState(() => {
+    if (typeof window === 'undefined') return DEFAULT_ACCENT;
+    const saved = localStorage.getItem("accentPalette");
+    // One-time move from the old default blue to the Veyro default.
+    // After that, Blue stays available as a normal choice.
+    if (!localStorage.getItem("veyroAccentMigrated")) {
+      localStorage.setItem("veyroAccentMigrated", "1");
+      if (!saved || saved.toLowerCase() === "#0a84ff") {
+        localStorage.setItem("accentPalette", DEFAULT_ACCENT);
+        return DEFAULT_ACCENT;
+      }
+    }
+    return saved || DEFAULT_ACCENT;
+  });
 
   // Show tour for demo users after welcome modal closes
   useEffect(() => {

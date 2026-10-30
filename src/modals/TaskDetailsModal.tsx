@@ -144,7 +144,7 @@ const TaskDetailsModal: React.FC<TaskDetailsModalProps> = ({
       case 'easy':
         return 'text-[#00FF41]'; /* Matrix green */
       case 'medium':
-        return 'text-[#1E90FF]'; /* Electric neon blue */
+        return 'text-[var(--accent-primary)]';
       case 'hard':
         return 'text-[#FF003C]'; /* Neon red */
       default:

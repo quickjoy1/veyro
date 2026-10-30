@@ -65,7 +65,7 @@ function getISOWeekNumber(date: Date) {
   return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1)/7);
 }
 
-const getAccentColor = () => getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '#1E90FF';
+const getAccentColor = () => getComputedStyle(document.documentElement).getPropertyValue('--accent-primary') || '#12A07C';
 
 let cachedAccentColor: string | null = null;
 const getCachedAccentColor = () => {

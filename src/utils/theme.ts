@@ -5,7 +5,8 @@ interface AccentColor {
 }
 
 export const ACCENT_COLORS: AccentColor[] = [
-  // Primary Colors (Blue first as default)
+  // Primary Colors (Veyro Pine first as default)
+  { name: "Pine", value: "#12A07C", class: "bg-[#12A07C]" },
   { name: "Blue", value: "#0A84FF", class: "bg-[#0A84FF]" },
   { name: "Matrix Green", value: "#00FF41", class: "bg-[#00FF41]" },
   { name: "Neon Red", value: "#FF003C", class: "bg-[#FF003C]" },
@@ -26,4 +27,5 @@ export const ACCENT_COLORS: AccentColor[] = [
   { name: "Lavender", value: "#E4B4F4", class: "bg-[#E4B4F4]" },
   { name: "Yellow", value: "#FFD60A", class: "bg-[#FFD60A]" },
   { name: "Pastel Pink", value: "#FFC0CB", class: "bg-[#FFC0CB]" },
+  { name: "Marigold", value: "#F5B53B", class: "bg-[#F5B53B]" },
 ]; 

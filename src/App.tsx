@@ -149,7 +149,7 @@ const PageContent: FC = () => {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] w-full overflow-x-hidden flex flex-row">
       <Sidebar />
-      <div className="min-w-0 flex-1 relative lg:pl-16">
+      <div className="min-w-0 flex-1 relative lg:pl-[84px]">
         <Suspense fallback={<PageLoader />}>
           <div className="px-4 pb-4 pt-[4.5rem] lg:pt-4 sm:px-6 lg:px-8 2xl:px-12 overflow-x-hidden">
             {activePage === 'session' && <SessionPage />}
@@ -355,6 +355,7 @@ const App: FC = () => {
           <UserModalGate />
           <Routes>
             <Route path="/" element={<RootRoute />} />
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="/app" element={<Navigate to={PAGE_PATHS.session} replace />} />
             <Route path={PAGE_PATHS.session} element={<AppRoute />} />
             <Route path={PAGE_PATHS.tasks} element={<AppRoute />} />

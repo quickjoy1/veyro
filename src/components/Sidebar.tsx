@@ -20,11 +20,11 @@ interface SidebarContentProps {
 const SidebarContent = ({ activePage, navigateTo, openSettings }: SidebarContentProps) => {
   return (
     <>
-      <div className="flex h-16 items-center justify-center border-b border-[var(--border-primary)]">
-        <img src="/assets/logo.svg" alt="Veyro" title="Veyro - Make every day count." className="h-8 w-8 shrink-0 select-none rounded-lg" />
+      <div className="flex h-16 items-center justify-center">
+        <img src="/assets/logo.svg" alt="Veyro" title="Veyro - Make every day count." className="h-9 w-9 shrink-0 select-none rounded-[10px] shadow-[0_4px_14px_-4px_var(--accent-primary)]" />
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 px-2 py-3">
+      <nav className="flex flex-1 flex-col items-center gap-1.5 px-2 py-2">
         {navItems.map(({ page, label, icon: Icon }) => {
           const isActive = activePage === page;
 
@@ -32,26 +32,32 @@ const SidebarContent = ({ activePage, navigateTo, openSettings }: SidebarContent
             <button
               key={page}
               onClick={() => navigateTo(page)}
-              className={`flex items-center justify-center rounded-lg px-3 py-2.5 ${
+              aria-label={label}
+              aria-current={isActive ? 'page' : undefined}
+              className={`group relative flex h-11 w-11 items-center justify-center rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] ${
                 isActive
-                  ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
-                  : 'text-[var(--text-secondary)]'
+                  ? 'bg-[var(--accent-primary)] text-white shadow-[0_6px_18px_-6px_var(--accent-primary)]'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
               }`}
               title={label}
             >
-              <Icon size={20} className="flex-shrink-0" />
+              {isActive && (
+                <span className="absolute -left-[7px] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[var(--accent-sun)]" />
+              )}
+              <Icon size={20} strokeWidth={isActive ? 2.25 : 1.75} className="flex-shrink-0" />
             </button>
           );
         })}
       </nav>
 
-      <div className="border-t border-[var(--border-primary)] p-2">
+      <div className="flex justify-center p-2 pb-3">
         <button
           onClick={openSettings}
-          className="flex w-full items-center justify-center rounded-lg px-3 py-2.5 text-[var(--text-secondary)]"
+          aria-label="Settings"
+          className="flex h-11 w-11 items-center justify-center rounded-xl text-[var(--text-secondary)] transition-colors hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
           title="Settings"
         >
-          <Settings size={20} className="flex-shrink-0" />
+          <Settings size={20} strokeWidth={1.75} className="flex-shrink-0" />
         </button>
       </div>
     </>
@@ -88,7 +94,7 @@ const TopBar = () => {
             onClick={() => handleNavigate(page)}
             className={`flex items-center gap-1.5 rounded-lg p-2 text-sm font-medium transition-colors ${
               activePage === page
-                ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
+                ? 'bg-[var(--accent-primary)] text-white'
                 : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]'
             }`}
             title={label}
@@ -137,7 +143,7 @@ const TopBar = () => {
                   onClick={() => handleNavigate(page)}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                     activePage === page
-                      ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
+                      ? 'bg-[var(--accent-primary)] text-white'
                       : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]'
                   }`}
                 >
@@ -169,7 +175,7 @@ const Sidebar = () => {
   return (
     <>
       <TopBar />
-      <aside className="fixed left-0 top-0 z-40 hidden h-screen w-16 flex-col overflow-hidden border-r border-[var(--border-primary)] bg-[var(--bg-secondary)] lg:flex">
+      <aside className="fixed bottom-3 left-3 top-3 z-40 hidden w-[60px] flex-col rounded-[22px] border border-[var(--border-primary)] bg-[var(--bg-secondary)] shadow-[0_10px_40px_-18px_rgba(0,0,0,0.45)] lg:flex">
         <SidebarContent
           activePage={activePage}
           navigateTo={navigateTo}

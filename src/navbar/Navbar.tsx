@@ -240,13 +240,13 @@ const Navbar = () => {
           <div className="flex items-center gap-2 min-w-0">
             {isNavCollapsed && !mobileOpen ? (
               <span className="font-bold text-lg">
-                <span className="text-[var(--text-primary)]">U</span>
-                <span className="text-[var(--accent-primary)]">T</span>
+                <span className="text-[var(--text-primary)]">V</span>
+                <span className="text-[var(--accent-sun)]">.</span>
               </span>
             ) : (
               <span className="font-semibold text-lg truncate">
-                <span className="text-[var(--text-primary)]">Uni</span>
-                <span className="text-[var(--accent-primary)]">Tracker</span>
+                <span className="text-[var(--text-primary)]">Vey</span>
+                <span className="text-[var(--accent-primary)]">ro</span>
               </span>
             )}
             <button

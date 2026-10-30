@@ -3,7 +3,7 @@ export const getDifficultyColor = (difficulty?: string) => {
     case 'easy':
       return 'text-[#00FF41]';
     case 'medium':
-      return 'text-[#1E90FF]';
+      return 'text-[var(--accent-primary)]';
     case 'hard':
       return 'text-[#FF003C]';
     default:

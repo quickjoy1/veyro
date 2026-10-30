@@ -80,12 +80,12 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onClose }) => {
         <div className="flex flex-col items-center relative z-10" style={{ marginBottom: 'clamp(1rem, 0.8rem + 1vw, 2.5rem)' }}>
           {/* Logo with animation */}
           <div className="flex items-center justify-center" style={{ marginBottom: 'clamp(0.5rem, 0.4rem + 0.5vw, 1rem)' }}>
-            <span className="text-[var(--text-primary)] font-bold" style={{ fontSize: 'clamp(1.25rem, 1rem + 1.5vw, 3rem)' }}>Uni</span>
-            <span className="text-[var(--accent-primary)] font-bold" style={{ fontSize: 'clamp(1.25rem, 1rem + 1.5vw, 3rem)' }}>Tracker</span>
+            <span className="text-[var(--text-primary)] font-bold font-heading" style={{ fontSize: 'clamp(1.25rem, 1rem + 1.5vw, 3rem)' }}>Vey</span>
+            <span className="text-[var(--accent-primary)] font-bold font-heading" style={{ fontSize: 'clamp(1.25rem, 1rem + 1.5vw, 3rem)' }}>ro</span>
           </div>
           
           <h2 className="font-semibold text-[var(--text-primary)] text-center bg-gradient-to-r from-[var(--text-primary)] to-[var(--accent-primary)] bg-clip-text text-transparent" style={{ fontSize: 'clamp(1rem, 0.9rem + 0.6vw, 1.5rem)', marginBottom: 'clamp(0.375rem, 0.3rem + 0.3vw, 0.75rem)', paddingLeft: 'clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem)', paddingRight: 'clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem)' }}>
-            Your all-in-one study companion
+            Make every day count.
           </h2>
           
           <p className="text-[var(--text-secondary)] text-center max-w-2xl leading-relaxed" style={{ fontSize: 'clamp(0.75rem, 0.7rem + 0.3vw, 1.125rem)', paddingLeft: 'clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem)', paddingRight: 'clamp(0.5rem, 0.4rem + 0.3vw, 0.75rem)' }}>

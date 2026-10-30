@@ -11,7 +11,7 @@ export interface EmailConfig {
 
 export const defaultEmailConfig: EmailConfig = {
   appName: 'Veyro',
-  primaryColor: '#0A84FF',
+  primaryColor: '#0a8f6f',
   footerText: '© 2026 Veyro. Make every day count.',
   socialLinks: [
     { label: 'Website', url: 'https://veyro.app' },

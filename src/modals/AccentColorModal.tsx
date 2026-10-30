@@ -7,6 +7,7 @@ interface AccentColorModalProps {
 }
 
 const ACCENT_COLORS = [
+  { name: 'Pine', value: '#12A07C', description: 'Veyro default' },
   { name: 'Blue', value: '#0A84FF', description: 'Classic blue' },
   { name: 'Purple', value: '#BF5AF2', description: 'Creative purple' },
   { name: 'Pink', value: '#FF2D92', description: 'Playful pink' },
@@ -20,7 +21,7 @@ const ACCENT_COLORS = [
 const AccentColorModal: React.FC<AccentColorModalProps> = ({ onClose, onAccentColorSelect }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [selectedColor, setSelectedColor] = useState('#0A84FF');
+  const [selectedColor, setSelectedColor] = useState('#12A07C');
 
   // Close on click outside or Escape
   useEffect(() => {
