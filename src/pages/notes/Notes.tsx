@@ -87,19 +87,15 @@ const Notes: React.FC = () => {
       const safeDate = getSafeDate(noteData.date);
       
       if (user) {
-        try {
-          const data = await NoteService.createNote({
-            title: noteData.title || '',
-            assignment: noteData.assignment ?? null,
-            description: noteData.description || '',
-            date: safeDate,
-            user_id: user.id,
-          });
-          setNotes([data as Note, ...notes]);
-          return (data as Note).id || null;
-        } catch (err) {
-          throw err;
-        }
+        const data = await NoteService.createNote({
+          title: noteData.title || '',
+          assignment: noteData.assignment ?? null,
+          description: noteData.description || '',
+          date: safeDate,
+          user_id: user.id,
+        });
+        setNotes([data as Note, ...notes]);
+        return (data as Note).id || null;
       } else {
         const now = new Date().toISOString();
         const newNote: Note = {

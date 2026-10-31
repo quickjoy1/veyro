@@ -49,7 +49,6 @@ const AITaskForm = ({
   }
   const handleAIAcceptAll = async (tasks: any[]) => {
     const mappedTasks = tasks.map(mapAITaskToFormData);
-    if (AI_DEBUG) {}
     await Promise.all(mappedTasks.map(addTask));
     setShowAIPreview(false);
     onClose();
@@ -116,16 +115,13 @@ const AITaskForm = ({
     // Check cache first
     const cacheKey = `${aiPrompt}_${currentDate}`;
     if (aiCache.current.has(cacheKey)) {
-      if (AI_DEBUG) {}
       return {
         success: true,
         data: aiCache.current.get(cacheKey)
       };
     }
     const modelCandidates = getModelCandidates();
-    if (AI_DEBUG) {}
     for (const model of modelCandidates) {
-      if (AI_DEBUG) {}
       try {
         const requestBody = {
           model,
@@ -139,7 +135,6 @@ const AITaskForm = ({
           temperature: 0.0,
           stream: false
         };
-        if (AI_DEBUG) {}
         const response = await fetch('/api/openrouter', {
           method: 'POST',
           headers: {
@@ -154,7 +149,6 @@ const AITaskForm = ({
             error: 'Cancelled'
           };
         }
-        if (AI_DEBUG) {}
         if (!response.ok) {
           const errorText = await response.text();
           if (AI_DEBUG) {
@@ -164,26 +158,19 @@ const AITaskForm = ({
           continue;
         }
         const data = await response.json();
-        if (AI_DEBUG) {
-          if (data.usage) {}
-          if (data.choices?.[0]?.finish_reason) {}
-        }
         const parsed = parseAIResponse(data);
         if (!parsed) {
-          if (AI_DEBUG) {}
           continue;
         }
 
         // Cache the successful result
         aiCache.current.set(cacheKey, parsed);
-        if (AI_DEBUG) {}
         return {
           success: true,
           data: parsed
         };
       } catch (err: any) {
         if (err?.name === 'AbortError') {
-          if (AI_DEBUG) {}
           return {
             success: false,
             error: 'Aborted'
@@ -255,30 +242,24 @@ EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"M
   function parseAIResponse(data: any): any {
     const choice = data?.choices?.[0];
     const msg = choice?.message || {};
-    if (AI_DEBUG) {}
     let content = '';
 
     // Extract content from various formats
     if (typeof msg.content === 'string' && msg.content.trim()) {
       content = msg.content;
-      if (AI_DEBUG) {}
     } else if (Array.isArray(msg.tool_calls) && msg.tool_calls.length) {
       const arg = msg.tool_calls[0]?.function?.arguments;
       if (typeof arg === 'string' && arg.trim()) {
         content = arg;
-        if (AI_DEBUG) {}
       }
     } else if (Array.isArray(msg.content)) {
       const firstText = msg.content.find((p: any) => typeof p?.text === 'string' && p.text.trim());
       if (firstText?.text) {
         content = firstText.text;
-        if (AI_DEBUG) {}
       }
     } else if (typeof choice?.text === 'string') {
       content = choice.text;
-      if (AI_DEBUG) {}
     }
-    if (AI_DEBUG) {}
     if (!content.trim()) {
       if (AI_DEBUG) console.warn('[AI][empty-content]');
       return null;
@@ -288,7 +269,6 @@ EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"M
       const trimmed = content.trim();
       if ((trimmed[0] === '[' || trimmed[0] === '{') && (trimmed[trimmed.length - 1] === ']' || trimmed[trimmed.length - 1] === '}')) {
         const result = JSON.parse(trimmed);
-        if (AI_DEBUG) {}
         return result;
       }
     } catch {
@@ -299,24 +279,18 @@ EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"M
     const fenceMatch = content.match(regexCache.current.markdownFence);
     if (fenceMatch?.[1]) {
       content = fenceMatch[1].trim();
-      if (AI_DEBUG) {}
     } else if (content.includes('```')) {
       content = content.replace(regexCache.current.markdownCleanup, '').trim();
-      if (AI_DEBUG) {}
     }
 
     // Remove model prefixes (single pass)
     if (content.startsWith('<s>') || content.startsWith('[OUT]')) {
-      const originalContent = content;
       content = content.replace(regexCache.current.modelPrefixes, '').trim();
-      if (AI_DEBUG && originalContent !== content) {}
     }
-    if (AI_DEBUG) {}
 
     // Try direct parse after cleanup
     try {
       const result = JSON.parse(content);
-      if (AI_DEBUG) {}
       return result;
     } catch (error) {
       if (AI_DEBUG) {
@@ -327,16 +301,13 @@ EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"M
       try {
         const normalized = normalizeJSON(content);
         const result = JSON.parse(normalized);
-        if (AI_DEBUG) {}
         return result;
       } catch {
         // Last resort: extract balanced brackets
         const extracted = fastExtractBalanced(content);
         if (extracted) {
-          if (AI_DEBUG) {}
           try {
             const result = JSON.parse(normalizeJSON(extracted));
-            if (AI_DEBUG) {}
             return result;
           } catch (extractError) {
             if (AI_DEBUG) console.error('[AI][PARSE] Extracted content parse error:', extractError);
@@ -344,7 +315,6 @@ EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"M
         }
       }
     }
-    if (AI_DEBUG) {}
     return null;
   }
   function normalizeJSON(text: string): string {

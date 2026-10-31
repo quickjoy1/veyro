@@ -38,7 +38,7 @@ export function useStorage<T>(key: StorageKey, options: UseStorageOptions<T> = {
   // Guardar valor en localStorage
   const setValue = useCallback((newValue: T | ((prev: StorageValue<T>) => T)) => {
     try {
-      const valueToStore = typeof newValue === 'function' ? (newValue as Function)(getValue()) : newValue;
+      const valueToStore = typeof newValue === 'function' ? (newValue as (prev: StorageValue<T>) => T)(getValue()) : newValue;
       setValueState(valueToStore);
       localStorage.setItem(key, serialize(valueToStore));
     } catch (error) {
@@ -241,7 +241,7 @@ export class StorageMigrator {
     try {
       let total = 0;
       for (const key in localStorage) {
-        if (localStorage.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
           total += localStorage[key].length + key.length;
         }
       }

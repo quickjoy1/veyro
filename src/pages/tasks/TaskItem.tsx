@@ -148,7 +148,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (match) return `${match[1]}-${match[2]}-${match[3]}`;
         // DD/MM/YYYY format
-        const slashMatch = dateStr.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+        const slashMatch = dateStr.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
         if (slashMatch && slashMatch[1] && slashMatch[2] && slashMatch[3]) {
             return `${slashMatch[3]}-${slashMatch[2].padStart(2, '0')}-${slashMatch[1].padStart(2, '0')}`;
         }

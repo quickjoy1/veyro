@@ -1,4 +1,4 @@
-import { BookOpen, Calendar, CheckCircle2, Clock, Notebook, TrendingUp } from 'lucide-react';
+import { BookOpen, CheckCircle2, Clock, Notebook, TrendingUp } from 'lucide-react';
 import { useNavigation } from '@/navbar/NavigationContext';
 
 const sections = [

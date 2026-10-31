@@ -139,10 +139,10 @@ const StatsChart = ({ data, title, accentColor, small = false, customTitle, xAxi
       return () => mql.removeEventListener('change', handler);
     } else {
       // Safari
-      // @ts-ignore
+      // @ts-ignore: addListener is the deprecated Safari fallback
       mql.addListener(handler);
       return () => {
-        // @ts-ignore
+        // @ts-ignore: removeListener is the deprecated Safari fallback
         mql.removeListener(handler);
       };
     }

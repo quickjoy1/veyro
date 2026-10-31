@@ -289,7 +289,7 @@ const WEEKDAY_MAP: Record<number, string> = {
 export const generateICSFile = (tasks: Task[]): string => {
   const events = tasksToCalendarEvents(tasks);
   
-  let icsContent = [
+  const icsContent = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
     'PRODID:-//Veyro//Export//EN',
@@ -310,7 +310,7 @@ export const generateICSFile = (tasks: Task[]): string => {
     // Fechas
     if (event.start?.dateTime) {
       const startDateTime = `${formatDateTimeForICS(event.start.dateTime)}Z`;
-      const endDateTime = `${formatDateTimeForICS(event.end?.dateTime!)}Z`;
+      const endDateTime = `${formatDateTimeForICS(event.end?.dateTime ?? event.start.dateTime)}Z`;
       icsContent.push(`DTSTART:${startDateTime}`);
       icsContent.push(`DTEND:${endDateTime}`);
     } else if (event.start?.date) {

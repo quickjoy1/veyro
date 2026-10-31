@@ -35,6 +35,7 @@ export const createLap = async (lapData: any) => {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
     useAppStore.getState().lapError(errorMsg);
+    return undefined;
   }
 };
 
@@ -49,6 +50,7 @@ export const updateLap = async (id: string, updates: any) => {
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : 'Unknown error';
     useAppStore.getState().lapError(errorMsg);
+    return undefined;
   }
 };
 

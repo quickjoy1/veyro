@@ -61,7 +61,7 @@ const ScratchPad = memo(() => {
 
     const next = [...lines];
     const parsed = parseLine(next[index] ?? "");
-    next[index] = parsed.type === "checkbox" ? parsed.text : `[ ] ${next[index] ?? ""}`;
+    next[index] = parsed.type === "checkbox" ? (parsed.text ?? "") : `[ ] ${next[index] ?? ""}`;
     handleChange(next.join("\n"));
     requestAnimationFrame(() => {
       const el = inputRefs.current[index];

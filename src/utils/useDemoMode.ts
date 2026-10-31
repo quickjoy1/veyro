@@ -26,7 +26,7 @@ export default function useDemoMode() {
       // Set demo workspaces
       setWorkspaces(demoWorkspaces);
       // Set first demo workspace as current
-      setCurrentWorkspace(demoWorkspaces[0]);
+      setCurrentWorkspace(demoWorkspaces[0] ?? null);
     }
   }, [isDemo, workspaces.length]); // Remove setWorkspaces and setCurrentWorkspace from dependencies
 

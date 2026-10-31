@@ -39,7 +39,6 @@ const TIME_ADJUSTMENTS = {
   PLUS_FIVE: 300,
   PLUS_TEN: 600
 } as const;
-const isDev = import.meta.env.DEV;
 
 // ─── Utilities ───────────────────────────────────────────────────────────────
 
@@ -89,7 +88,6 @@ const formatDuration = (totalSeconds: number): string => {
   return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
 };
 const devLog = (..._args: unknown[]) => {
-  if (isDev) {}
 };
 
 const formatPauseDuration = (seconds: number): string => {

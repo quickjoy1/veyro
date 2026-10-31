@@ -20,7 +20,7 @@ export function parseDateFromString(dateStr: string): Date | null {
     const trimmed = dateStr.trim();
     if (!trimmed) return null;
 
-    const slashMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/);
+    const slashMatch = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
     if (slashMatch) {
         const day = slashMatch[1];
         const month = slashMatch[2];
@@ -144,7 +144,7 @@ export function formatDateShort(dateStr: string | null | undefined): string {
 function getDateOnlyString(dateStr: string): string | null {
     const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (match) return `${match[1]}-${match[2]}-${match[3]}`;
-    const slashMatch = dateStr.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})/);
+    const slashMatch = dateStr.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})/);
     if (slashMatch && slashMatch[1] && slashMatch[2] && slashMatch[3]) {
         return `${slashMatch[3]}-${slashMatch[2].padStart(2, '0')}-${slashMatch[1].padStart(2, '0')}`;
     }

@@ -27,9 +27,7 @@ export interface CollapsedColumns {
   [key: string]: boolean;
 }
 
-export interface KanbanBoardProps {
-  // Add any props if needed
-}
+export type KanbanBoardProps = Record<string, never>;
 
 export interface AssignmentDropZoneProps {
   assignment: string;

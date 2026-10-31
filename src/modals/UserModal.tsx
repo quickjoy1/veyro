@@ -211,7 +211,7 @@ const UserModal = ({ isOpen, onClose }: UserModalProps) => {
       const { error } = await supabase
         .from('profiles')
         .update({ username })
-        .eq('id', user?.id!);
+        .eq('id', user?.id ?? '');
       if (error) {
         setUsernameError('Error saving username: ' + error.message);
         return;

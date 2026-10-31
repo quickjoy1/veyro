@@ -1,4 +1,6 @@
-import type { AnyAction, Dispatch } from "redux";
+// Minimal local types: this module only needs to call dispatch(action).
+type AnyAction = { type: string; [key: string]: unknown };
+type Dispatch<A = AnyAction> = (action: A) => unknown;
 import { deleteTask, toggleTaskStatus, updateTaskAction } from "@/store/TaskActions";
 import { getLocalTasks, setLocalTasks } from "@/types/taskStorage";
 

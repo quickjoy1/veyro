@@ -113,7 +113,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ tasks, onFilteredTasksChange, s
           );
         });
 
-      case "nextmonth":
+      case "nextmonth": {
         const nextMonth = today.getMonth() === 11 ? 0 : today.getMonth() + 1;
         const nextYear = today.getMonth() === 11 ? today.getFullYear() + 1 : today.getFullYear();
         return filtered.filter(task => {
@@ -139,6 +139,7 @@ const TaskFilter: React.FC<TaskFilterProps> = ({ tasks, onFilteredTasksChange, s
             taskDate.getFullYear() === nextYear
           );
         });
+      }
 
       case "overdue":
         return filtered.filter(task => {

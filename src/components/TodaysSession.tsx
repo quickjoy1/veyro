@@ -13,9 +13,7 @@ const TodaysSession = () => {
 
   // Function to refresh data
   const refreshData = useCallback(async () => {
-    try {} catch (error) {
-      console.error('Error refreshing data:', error);
-    }
+    // Data comes from the stores, so there is nothing to refresh here.
   }, []);
 
   // Listen for session completion events to refresh data

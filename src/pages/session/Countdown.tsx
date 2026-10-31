@@ -439,7 +439,7 @@ const Countdown: React.FC<CountdownProps> = ({
     setLastSyncTimestamp(baseTimestamp);
     if (isCountdownRunning) {
       handlePause(true);
-    } else {}
+    }
   }, [isSynced, syncCountdownWithTimer, isCountdownRunning, lastSyncTimestamp, handlePause]);
 
   // También responder a eventos de Pomodoro (originados por StudyTimer)
@@ -452,7 +452,7 @@ const Countdown: React.FC<CountdownProps> = ({
     setLastSyncTimestamp(baseTimestamp);
     if (isCountdownRunning) {
       handlePause(true);
-    } else {}
+    }
   }, [isSynced, syncCountdownWithTimer, isCountdownRunning, lastSyncTimestamp, handlePause]);
   useEventListener('resetTimerSync', (event: CustomEvent<{
     baseTimestamp?: number;

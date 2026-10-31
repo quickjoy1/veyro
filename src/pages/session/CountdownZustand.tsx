@@ -14,7 +14,6 @@ import {
 
 type Field = 'hours' | 'minutes' | 'seconds';
 const fields: Field[] = ['hours', 'minutes', 'seconds'];
-const fieldMax: Record<Field, number> = { hours: 23, minutes: 59, seconds: 59 };
 
 
 const DEFAULT_TIME: CountdownTime = { hours: 2, minutes: 0, seconds: 0 };

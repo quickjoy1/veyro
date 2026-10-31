@@ -229,10 +229,6 @@ const FocusWidgetPage = () => {
         isOpen={isSessionsModalOpen}
         onClose={() => setIsSessionsModalOpen(false)}
         onSessionSelected={() => {}}
-        onStartNewSession={() => {
-          setIsSessionsModalOpen(false);
-          setIsStartSessionModalOpen(true);
-        }}
       />
 
       {/* Start Session Modal */}

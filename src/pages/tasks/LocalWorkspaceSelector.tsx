@@ -25,7 +25,7 @@ const LocalWorkspaceSelector: React.FC<LocalWorkspaceSelectorProps> = ({
     setIsOpen(false);
   };
 
-  const getWorkspaceIcon = (iconName: string, isActive: boolean = false) => {
+  const getWorkspaceIcon = (iconName: string | null | undefined, isActive: boolean = false) => {
     // Icon mapping using lucide-react icons
     const iconMap: { [key: string]: React.ComponentType<any> } = {
       Workflow,
@@ -50,7 +50,7 @@ const LocalWorkspaceSelector: React.FC<LocalWorkspaceSelectorProps> = ({
       Wifi,
     };
     
-    const IconComp = iconMap[iconName] || Briefcase;
+    const IconComp = (iconName && iconMap[iconName]) || Briefcase;
     return <IconComp className={`w-4 h-4 ${isActive ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'}`} />;
   };
 

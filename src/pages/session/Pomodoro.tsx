@@ -599,7 +599,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
           sounds[soundKey].currentTime = 0;
           sounds[soundKey].play().catch(console.error);
           localStorage.setItem('lastPomoSoundTs', String(nowTs));
-        } else {}
+        }
       } catch (e) {
         console.warn('[Pomodoro] Could not process sound dedupe:', e);
       }
@@ -612,7 +612,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
         const lastTs = Number(localStorage.getItem('lastPomoIncrementTs') || '0');
         const nowTs = Date.now();
         const recentlyIncremented = lastTs && Math.abs(nowTs - lastTs) < 1500;
-        if (recentlyIncremented) {} else {
+        if (!recentlyIncremented) {
           // Use centralized count increment
           await incrementPomodoroCount();
         }
@@ -953,7 +953,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
         };
         return newState;
       });
-    } else {}
+    }
   }, []));
 
   // También armar el guard si sólo llega la duración primero
