@@ -106,11 +106,11 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[9999] max-w-[calc(100%-1rem)]">
-        <div className="flex items-center gap-2 px-3 py-2 rounded-full border-2 border-[var(--border-primary)]/70 bg-[var(--bg-primary)]/70 backdrop-blur-[12px] shadow-[0_12px_30px_rgba(15,23,42,0.35)] text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-full border border-[var(--border-primary)] bg-[var(--bg-secondary)]/80 backdrop-blur-xl shadow-[0_16px_40px_-14px_rgba(0,0,0,0.55)] text-[var(--text-secondary)]">
           {/* Workspace selector with task badge */}
           <button
             onClick={() => setShowWorkspaceMenu(prev => !prev)}
-            className="flex items-center gap-2 hover:text-[var(--text-primary)] transition-colors"
+            className="flex h-8 items-center gap-2 rounded-full bg-[var(--bg-tertiary)] pl-3 pr-2.5 text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
             aria-label={`Workspace selector. Current workspace: ${activeWorkspace?.name || 'None'}. Click to open workspace selector.`}
             aria-expanded={showWorkspaceMenu}
             title={activeWorkspace?.name || 'Select Workspace'}
@@ -131,7 +131,7 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
             href="https://discord.gg/8sRswbPQQm"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
             aria-label="Discord"
           >
             <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" aria-hidden="true">
@@ -144,7 +144,7 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
             href="https://github.com/quickjoy1/veyro"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
             aria-label="GitHub"
           >
             <Github className="w-4 h-4" />
@@ -155,14 +155,13 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
           {/* Active Session Timer */}
           {showSessionTimer && (
             <>
-              <span className="w-px h-4 bg-[var(--border-primary)]" aria-hidden="true" />
               <button
                 onClick={() => navigateTo('session')}
-                className="flex items-center gap-1.5 px-2 py-0.5 rounded-full hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] transition-colors"
+                className="flex h-8 items-center gap-1.5 px-3 rounded-full bg-[var(--bg-tertiary)] hover:bg-[var(--bg-primary)] hover:text-[var(--text-primary)] transition-colors"
                 aria-label="Active study session"
                 title="Go to study session"
               >
-                <span className={`w-2 h-2 rounded-full ${studyState.isRunning ? 'bg-emerald-500 animate-pulse' : 'bg-[var(--text-secondary)]'}`} />
+                <span className={`w-2 h-2 rounded-full ${studyState.isRunning ? 'bg-[var(--accent-sun)] animate-pulse' : 'bg-[var(--text-secondary)]'}`} />
                 <span className="text-xs font-mono tabular-nums text-[var(--text-primary)]">
                   {formatTime(studyTime)}
                 </span>
@@ -174,12 +173,12 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
             aria-label="Toggle theme"
             title="Toggle theme"
           >
             {currentTheme === 'dark' ? (
-              <svg key="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-amber-400 animate-theme-icon"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
+              <svg key="sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 text-[var(--accent-sun)] animate-theme-icon"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m17.66 17.66 1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="m6.34 17.66-1.41 1.41"></path><path d="m19.07 4.93-1.41 1.41"></path></svg>
             ) : (
               <Moon key="moon" className="w-4 h-4 animate-theme-icon" />
             )}
@@ -190,7 +189,7 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
           {/* Quick Add Task */}
           <button
             onClick={handleQuickAddTask}
-            className="flex items-center justify-center w-7 h-7 rounded-full hover:bg-[var(--bg-secondary)] hover:text-[var(--accent-primary)] transition-colors"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-deep)] hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-secondary)] focus-visible:ring-[var(--accent-primary)]"
             aria-label="Quick add task"
             title="Quick add task"
           >
@@ -206,7 +205,7 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
             className="fixed inset-0 z-[9998]"
             onClick={() => setShowWorkspaceMenu(false)}
           />
-          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] w-64 max-w-[calc(100vw-2rem)] rounded-xl border-2 border-[var(--border-primary)] bg-[var(--bg-primary)] shadow-xl overflow-hidden">
+          <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[9999] w-64 max-w-[calc(100vw-2rem)] rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-secondary)] shadow-[0_24px_60px_-20px_rgba(0,0,0,0.6)] overflow-hidden">
             <div className="max-h-64 overflow-y-auto py-1">
               {[{
                 id: 'all',
