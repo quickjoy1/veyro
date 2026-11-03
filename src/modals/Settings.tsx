@@ -19,6 +19,7 @@ import { ACCENT_COLORS } from "@/utils/theme";
 import AddFriendModal from "@/modals/AddFriendModal";
 import BaseModal from "./BaseModal";
 import DataExportImportPanel from "@/components/DataExportImportPanel";
+import GithubChangelog from "@/components/GithubChangelog";
 import FriendsModal from "@/modals/FriendsModal";
 import ManageAssignmentsModal from "@/modals/ManageAssignmentsModal";
 import ManageCompletedTasksModal from "@/modals/ManageCompletedTasksModal";
@@ -336,6 +337,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
             )}
 
             {activeTab === "whatsNew" && (
+              <GithubChangelog fallback={
               <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-2">
                 {changelogData.map((entry, index) => (
                   <div key={index} className="border-2 border-[var(--border-primary)] rounded-lg p-4 bg-[var(--bg-secondary)]/30">
@@ -413,6 +415,7 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
                   </div>
                 ))}
               </div>
+              } />
             )}
 
             {activeTab === "about" && (

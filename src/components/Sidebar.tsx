@@ -108,9 +108,6 @@ const SidebarContent = ({ activePage, navigateTo, openSettings }: SidebarContent
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {isActive && (
-                <span className="absolute -left-[7px] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-[var(--accent-sun)]" />
-              )}
               <Icon size={20} strokeWidth={isActive ? 2.25 : 1.75} className="shrink-0" />
               <span className={labelClass}>{label}</span>
             </button>
