@@ -64,23 +64,29 @@
 :root {
   /* Light mode variables for DayFlow */
   --dayflow-bg-primary: #ffffff;
-  --dayflow-bg-secondary: #f8fafc;
-  --dayflow-text-primary: #09090b;
-  --dayflow-text-secondary: #64748b;
-  --dayflow-border: #e2e8f0;
-  --dayflow-hover: #f1f5f9;
+  --dayflow-bg-secondary: #f7f6f3;
+  --dayflow-text-primary: #37352f;
+  --dayflow-text-secondary: #787774;
+  --dayflow-border: #e9e9e7;
+  --dayflow-hover: #efeeeb;
   --dayflow-accent: var(--accent-primary);
 }
 
 .dark {
   /* Dark mode variables for DayFlow */
+  --dayflow-bg-primary: #191919;
+  --dayflow-bg-secondary: #202020;
+  --dayflow-text-primary: #ebebeb;
+  --dayflow-text-secondary: #9b9b9b;
+  --dayflow-border: rgba(255, 255, 255, 0.13);
+  --dayflow-hover: #2f2f2f;
+  --dayflow-accent: #2383e2;
+}
+
+.dark.oled {
   --dayflow-bg-primary: #000000;
-  --dayflow-bg-secondary: #0d0d0e;
-  --dayflow-text-primary: #fafafa;
-  --dayflow-text-secondary: #a1a1aa;
-  --dayflow-border: rgba(255, 255, 255, 0.14);
-  --dayflow-hover: #17171a;
-  --dayflow-accent: #3b82f6;
+  --dayflow-bg-secondary: #0a0a0a;
+  --dayflow-hover: #151515;
 }
 
 /* Override DayFlow hardcoded colors */
@@ -282,95 +288,140 @@
 
 @layer base {
   :root {
-    /* Light mode variables */
-    --background: 100 20% 96%;
-    --foreground: 160 30% 9%;
-    --card: 90 25% 98%;
-    --card-foreground: 160 30% 9%;
-    --popover: 90 25% 98%;
-    --popover-foreground: 160 30% 9%;
-    --primary: 165 85% 30%;
+    /* Light mode variables — Notion-inspired: white page, warm greys, blue accent */
+    --background: 0 0% 100%;
+    --foreground: 45 8% 20%; /* #37352F */
+    --card: 0 0% 100%;
+    --card-foreground: 45 8% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 45 8% 20%;
+    --primary: 210 75% 52%; /* #2383E2 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 110 15% 91%;
-    --secondary-foreground: 160 30% 9%;
-    --muted: 110 15% 91%;
-    --muted-foreground: 160 10% 36%;
-    --accent: 110 15% 91%;
-    --accent-foreground: 160 30% 9%;
-    --destructive: 8 72% 50%;
+    --secondary: 40 20% 96%; /* #F7F6F3 */
+    --secondary-foreground: 45 8% 20%;
+    --muted: 40 20% 96%;
+    --muted-foreground: 45 2% 46%; /* #787774 */
+    --accent: 40 10% 93%; /* #EFEEEB */
+    --accent-foreground: 45 8% 20%;
+    --destructive: 0 72% 56%; /* #E03E3E */
     --destructive-foreground: 0 0% 98%;
-    --border: 110 14% 83%;
-    --input: 110 14% 83%;
-    --ring: 165 85% 30%;
-    --chart-1: 165 85% 30%;
-    --chart-2: 40 92% 55%;
-    --chart-3: 200 55% 45%;
-    --chart-4: 12 75% 55%;
-    --chart-5: 265 35% 55%;
+    --border: 60 3% 91%; /* #E9E9E7 */
+    --input: 60 3% 91%;
+    --ring: 210 75% 52%;
+    --chart-1: 210 75% 52%; /* blue */
+    --chart-2: 45 99% 44%; /* yellow */
+    --chart-3: 173 79% 27%; /* green */
+    --chart-4: 28 88% 45%; /* orange */
+    --chart-5: 266 45% 46%; /* purple */
 
     /* Paleta principal */
-    --bg-primary: #f4f6f1;
-    --border-primary: #d3dccf;
-    --border-secondary: #e3e9df;
-    --text-primary: #0f1f1a;
-    --accent-primary: #0a8f6f; /* Veyro pine */
-    --accent-primary-transparent: rgba(10, 143, 111, 0.15);
+    --bg-primary: #ffffff;
+    --border-primary: #e9e9e7;
+    --border-secondary: #f1f1ef;
+    --text-primary: #37352f;
+    --accent-primary: #2383e2; /* Notion blue */
+    --accent-primary-transparent: rgba(35, 131, 226, 0.15);
 
     --accent-primary-500-10: rgb(var(--accent-primary) / 0.1);
 
-    --bg-secondary: #eaefe6;
-    --bg-tertiary: #dfe7da;
-    --text-secondary: #4f645b;
-    --accent-deep: #07715a; /* Deep pine */
-    --accent-sun: #e8a317; /* Marigold: today, streaks, highlights */
-    --muted-strong: #2a3a33cc;
+    --bg-secondary: #f7f6f3;
+    --bg-tertiary: #efeeeb;
+    --text-secondary: #787774;
+    --accent-deep: #0b6bcb; /* Pressed blue */
+    --accent-sun: #dfab01; /* Notion yellow: today, streaks, highlights */
+    --muted-strong: #37352fcc;
 
-    --radius: 0.875rem;
-    --font-display: "Bricolage Grotesque Variable", "Figtree Variable", system-ui, sans-serif;
-    --font-body: "Figtree Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    /* Notion-style helpers */
+    --hover-bg: rgba(55, 53, 47, 0.08);
+    --shadow-popover: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 3px 6px, rgba(15, 15, 15, 0.2) 0 9px 24px;
+    --shadow-card: rgba(15, 15, 15, 0.05) 0 0 0 1px;
+    --notion-red: #e03e3e;
+    --notion-orange: #d9730d;
+    --notion-yellow: #dfab01;
+    --notion-green: #0f7b6c;
+    --notion-blue: #0b6e99;
+    --notion-purple: #6940a5;
+    --notion-pink: #ad1a72;
+    --notion-brown: #64473a;
+    --notion-gray: #787774;
+    --notion-red-bg: #fbe4e4;
+    --notion-orange-bg: #faebdd;
+    --notion-yellow-bg: #fbf3db;
+    --notion-green-bg: #ddedea;
+    --notion-blue-bg: #ddebf1;
+    --notion-purple-bg: #eae4f2;
+    --notion-pink-bg: #f4dfeb;
+    --notion-brown-bg: #e9e5e3;
+    --notion-gray-bg: #ebeced;
+
+    --radius: 0.5rem;
+    --font-display: "Inter", ui-sans-serif, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "Inter", ui-sans-serif, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   }
 
   .dark {
-    /* Dark mode variables */
-    --background: 165 28% 6%;
-    --foreground: 150 25% 93%;
-    --card: 165 25% 9%;
-    --card-foreground: 150 25% 93%;
-    --popover: 165 25% 9%;
-    --popover-foreground: 150 25% 93%;
-    --primary: 165 82% 36%;
+    /* Dark mode variables — Notion dark: #191919 page, #202020 sidebar */
+    --background: 0 0% 10%; /* #191919 */
+    --foreground: 0 0% 92%; /* #EBEBEB */
+    --card: 0 0% 12.5%; /* #202020 */
+    --card-foreground: 0 0% 92%;
+    --popover: 0 0% 14.5%; /* #252525 */
+    --popover-foreground: 0 0% 92%;
+    --primary: 210 75% 52%; /* #2383E2 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 165 22% 12%;
-    --secondary-foreground: 150 25% 93%;
-    --muted: 165 22% 12%;
-    --muted-foreground: 160 12% 62%;
-    --accent: 165 22% 14%;
-    --accent-foreground: 150 25% 93%;
-    --destructive: 8 70% 48%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 165 18% 17%;
-    --input: 165 18% 15%;
-    --ring: 165 82% 36%;
-    --chart-1: 165 82% 40%;
-    --chart-2: 40 92% 58%;
-    --chart-3: 200 60% 55%;
-    --chart-4: 12 80% 62%;
-    --chart-5: 265 45% 70%;
+    --secondary: 0 0% 18%; /* #2F2F2F */
+    --secondary-foreground: 0 0% 92%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 61%; /* #9B9B9B */
+    --accent: 0 0% 18%;
+    --accent-foreground: 0 0% 92%;
+    --destructive: 5 100% 72%; /* #FF7369 */
+    --destructive-foreground: 0 0% 10%;
+    --border: 0 0% 21%;
+    --input: 0 0% 19%;
+    --ring: 210 75% 52%;
+    --chart-1: 205 55% 57%; /* blue */
+    --chart-2: 48 100% 64%; /* yellow */
+    --chart-3: 169 33% 49%; /* green */
+    --chart-4: 28 100% 62%; /* orange */
+    --chart-5: 270 50% 65%; /* purple */
 
-    /* Night pine */
-    --bg-primary: #0a1412;
-    --border-primary: rgba(196, 255, 228, 0.14);
-    --border-secondary: rgba(196, 255, 228, 0.07);
-    --text-primary: #e9f3ee;
-    --accent-primary: #12a07c; /* Veyro pine */
-    --accent-primary-transparent: rgba(18, 160, 124, 0.2);
+    /* Notion dark */
+    --bg-primary: #191919;
+    --border-primary: rgba(255, 255, 255, 0.13);
+    --border-secondary: rgba(255, 255, 255, 0.07);
+    --text-primary: #ebebeb;
+    --accent-primary: #2383e2; /* Notion blue */
+    --accent-primary-transparent: rgba(35, 131, 226, 0.25);
 
-    --bg-secondary: #101c19;
-    --bg-tertiary: #172723;
-    --text-secondary: #8fa89f;
-    --accent-deep: #0b7f63; /* Deep pine */
-    --accent-sun: #f5b53b; /* Marigold: today, streaks, highlights */
-    --muted-strong: #dcebe4cc;
+    --bg-secondary: #202020;
+    --bg-tertiary: #2f2f2f;
+    --text-secondary: #9b9b9b;
+    --accent-deep: #1a6bc0; /* Pressed blue */
+    --accent-sun: #ffdc49; /* Notion yellow: today, streaks, highlights */
+    --muted-strong: #ebebebcc;
+
+    --hover-bg: rgba(255, 255, 255, 0.055);
+    --shadow-popover: rgba(15, 15, 15, 0.1) 0 0 0 1px, rgba(15, 15, 15, 0.2) 0 3px 6px, rgba(15, 15, 15, 0.4) 0 9px 24px;
+    --shadow-card: rgba(255, 255, 255, 0.06) 0 0 0 1px;
+    --notion-red: #ff7369;
+    --notion-orange: #ffa344;
+    --notion-yellow: #ffdc49;
+    --notion-green: #4dab9a;
+    --notion-blue: #529cca;
+    --notion-purple: #9a6dd7;
+    --notion-pink: #e255a1;
+    --notion-brown: #937264;
+    --notion-gray: #9b9b9b;
+    --notion-red-bg: #594141;
+    --notion-orange-bg: #594a3a;
+    --notion-yellow-bg: #59563b;
+    --notion-green-bg: #354c4b;
+    --notion-blue-bg: #364954;
+    --notion-purple-bg: #443f57;
+    --notion-pink-bg: #533b4c;
+    --notion-brown-bg: #434040;
+    --notion-gray-bg: #454b4e;
   }
 
   /* Pure black (OLED): same dark theme, true #000 surfaces and neutral greys */
@@ -503,7 +554,7 @@
   .textinput {
     @apply w-full p-3 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-opacity-50;
     background-color: var(--bg-primary);
-    border: 2px solid var(--border-primary);
+    border: 1px solid var(--border-primary);
     color: var(--text-primary);
     -webkit-font-smoothing: subpixel-antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -569,6 +620,7 @@
     border: 1px solid var(--border-primary);
     margin-bottom: 1rem;
     width: 100%;
+    transition: background-color 120ms ease, box-shadow 120ms ease;
   }
 
   /* 1 columna: ancho grande, aspecto rectangular */
@@ -639,11 +691,11 @@
   }
 
   .textinput:focus {
-    border: 2px solid var(--accent-primary);
-    box-shadow: 0px var(--accent-primary);
+    border: 1px solid var(--accent-primary);
+    box-shadow: 0 0 0 3px var(--accent-primary-transparent);
   }
   .infomenu:hover {
-    background-color: var(--bg-secondary);
+    background-color: var(--hover-bg);
   }
   .editbutton,
   .cancelbutton {
@@ -752,9 +804,9 @@
 
   /* Task Item Styles */
   .task-item-base {
-    @apply p-5 rounded-xl cursor-pointer transition-colors duration-75;
+    @apply p-5 rounded-lg cursor-pointer transition-colors duration-75;
     background-color: var(--bg-secondary);
-    border: 2px solid var(--border-primary);
+    border: 1px solid var(--border-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -766,32 +818,36 @@
 
   .task-item-default {
     background-color: var(--bg-secondary);
-    border: 2px solid var(--border-primary);
+    border: 1px solid var(--border-primary);
     font-weight: 500;
-    letter-spacing: 0.01em;
+    letter-spacing: 0;
   }
 
   .task-item-default:hover {
-    background-color: var(--bg-primary);
+    background-color: var(--bg-tertiary);
     transition: all 75ms ease-in-out;
   }
 
   .task-item-active {
     background-color: var(--bg-secondary);
-    border: 2px solid;
+    border: 1px solid;
     border-color: var(--accent-primary);
+    box-shadow: 0 0 0 1px var(--accent-primary);
   }
 
   .task-item-active[data-difficulty="easy"] {
-    border-color: #00ff41; /* Matrix green */
+    border-color: var(--notion-green);
+    box-shadow: 0 0 0 1px var(--notion-green);
   }
 
   .task-item-active[data-difficulty="medium"] {
-    border-color: #00bfff; /* Deep sky blue */
+    border-color: var(--notion-blue);
+    box-shadow: 0 0 0 1px var(--notion-blue);
   }
 
   .task-item-active[data-difficulty="hard"] {
-    border-color: #ff003c; /* Neon red */
+    border-color: var(--notion-red);
+    box-shadow: 0 0 0 1px var(--notion-red);
   }
 
   .task-item-flex {
@@ -1003,10 +1059,10 @@ h1 {
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   background-color: transparent;
   color: var(--text-secondary);
-  border: 2px solid var(--border-primary);
+  border: 1px solid var(--border-primary);
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -1029,7 +1085,7 @@ h1 {
   width: 3rem;
   height: 3rem;
   color: var(--accent-primary);
-  border: 2px solid var(--accent-primary);
+  border: 1px solid var(--accent-primary);
   border-radius: 9999px;
 }
 
@@ -1044,32 +1100,32 @@ h1 {
 .timer-ctrl-btn-pomo {
   width: 3rem;
   height: 3rem;
-  color: #ef4444;
-  border: 2px solid #ef4444;
+  color: var(--notion-red);
+  border: 1px solid var(--notion-red);
   border-radius: 9999px;
 }
 
 .timer-ctrl-btn-pomo:hover:not(:disabled) {
-  color: #ef4444;
-  border-color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.12);
-  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15);
+  color: var(--notion-red);
+  border-color: var(--notion-red);
+  background-color: color-mix(in srgb, var(--notion-red) 12%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--notion-red) 15%, transparent);
 }
 
 /* Countdown-specific primary button - green */
 .timer-ctrl-btn-countdown {
   width: 3rem;
   height: 3rem;
-  color: #22c55e;
-  border: 2px solid #22c55e;
+  color: var(--notion-green);
+  border: 1px solid var(--notion-green);
   border-radius: 9999px;
 }
 
 .timer-ctrl-btn-countdown:hover:not(:disabled) {
-  color: #22c55e;
-  border-color: #22c55e;
-  background-color: rgba(34, 197, 94, 0.12);
-  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+  color: var(--notion-green);
+  border-color: var(--notion-green);
+  background-color: color-mix(in srgb, var(--notion-green) 12%, transparent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--notion-green) 15%, transparent);
 }
 
 /* Modern time adjustment buttons — identical style to .timer-ctrl-btn */
@@ -1080,7 +1136,7 @@ h1 {
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   font-size: 0.8rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -1088,7 +1144,7 @@ h1 {
   white-space: nowrap;
   background-color: transparent;
   color: var(--text-secondary);
-  border: 2px solid var(--border-primary);
+  border: 1px solid var(--border-primary);
   transition: all 0.2s ease;
   cursor: pointer;
 }
@@ -1429,7 +1485,7 @@ h1 {
 .Toastify__toast.pomo-toast-break {
   background: var(--bg-primary) !important;
   color: var(--text-primary) !important;
-  border: 1.5px solid #22c55e !important;
+  border: 1.5px solid var(--notion-green) !important;
   box-shadow: 0 4px 24px rgba(34,197,94,0.15) !important;
   font-weight: 500 !important;
 }
@@ -1437,7 +1493,7 @@ h1 {
 .Toastify__toast.pomo-toast-longBreak {
   background: var(--bg-primary) !important;
   color: var(--text-primary) !important;
-  border: 1.5px solid #3b82f6 !important;
+  border: 1.5px solid var(--notion-blue) !important;
   box-shadow: 0 4px 24px rgba(59,130,246,0.15) !important;
   font-weight: 500 !important;
 }
@@ -1448,7 +1504,7 @@ h1 {
 .dashboard-stat-card {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-primary);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   padding: 0.875rem 1rem;
   display: flex;
   flex-direction: column;
@@ -1462,7 +1518,7 @@ h1 {
 .dashboard-timer-card {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-primary);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   padding: 0.5rem 0.75rem 1rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   min-height: 280px;
@@ -1477,7 +1533,7 @@ h1 {
 .dashboard-unified-timer-card {
   background-color: var(--bg-primary);
   border: 1px solid var(--border-primary);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   padding: 0;
   min-height: 340px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -1492,7 +1548,7 @@ h1 {
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, var(--accent-primary), #ef4444 50%, #22c55e);
+  background: linear-gradient(90deg, var(--accent-primary), var(--notion-red) 50%, var(--notion-green));
   opacity: 0.7;
 }
 
@@ -1502,7 +1558,7 @@ h1 {
 
 /* Timer Panels - individual styling per timer */
 .timer-panel {
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   padding: 1rem 0.5rem;
   display: flex;
   flex-direction: column;
@@ -1554,19 +1610,19 @@ h1 {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--accent-primary);
-  background-color: rgba(30, 144, 255, 0.08);
+  background-color: color-mix(in srgb, var(--accent-primary) 8%, transparent);
   border-radius: 0.375rem;
   width: 100%;
 }
 
 .timer-panel-label-pomo {
-  color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.08);
+  color: var(--notion-red);
+  background-color: color-mix(in srgb, var(--notion-red) 8%, transparent);
 }
 
 .timer-panel-label-countdown {
-  color: #22c55e;
-  background-color: rgba(34, 197, 94, 0.08);
+  color: var(--notion-green);
+  background-color: color-mix(in srgb, var(--notion-green) 8%, transparent);
 }
 
 /* Status badges inside panel labels */
@@ -1587,7 +1643,7 @@ h1 {
 
 .timer-status-active {
   color: var(--accent-primary);
-  background-color: rgba(30, 144, 255, 0.12);
+  background-color: color-mix(in srgb, var(--accent-primary) 12%, transparent);
 }
 
 .timer-status-paused {
@@ -1596,29 +1652,29 @@ h1 {
 }
 
 .timer-status-pomo-work {
-  color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.12);
+  color: var(--notion-red);
+  background-color: color-mix(in srgb, var(--notion-red) 12%, transparent);
 }
 
 .timer-status-pomo-break {
-  color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.12);
+  color: var(--notion-red);
+  background-color: color-mix(in srgb, var(--notion-red) 12%, transparent);
 }
 
 .timer-status-pomo-long {
-  color: #3b82f6;
-  background-color: rgba(59, 130, 246, 0.12);
+  color: var(--notion-blue);
+  background-color: color-mix(in srgb, var(--notion-blue) 12%, transparent);
 }
 
 /* Pomodoro break ring — red, pulsating */
 @keyframes pomo-ring-pulse {
   0%, 100% {
     stroke-opacity: 1;
-    filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0));
+    filter: drop-shadow(0 0 0 color-mix(in srgb, var(--notion-red) 0%, transparent));
   }
   50% {
     stroke-opacity: 0.4;
-    filter: drop-shadow(0 0 7px rgba(239, 68, 68, 0.65));
+    filter: drop-shadow(0 0 7px color-mix(in srgb, var(--notion-red) 65%, transparent));
   }
 }
 
@@ -1662,17 +1718,17 @@ h1 {
   padding: 0.2rem 0;
   border-radius: 0.375rem;
   color: var(--accent-primary);
-  background-color: rgba(30, 144, 255, 0.08);
+  background-color: color-mix(in srgb, var(--accent-primary) 8%, transparent);
 }
 
 .pip-slot-label-pomodoro {
-  color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.08);
+  color: var(--notion-red);
+  background-color: color-mix(in srgb, var(--notion-red) 8%, transparent);
 }
 
 .pip-slot-label-countdown {
-  color: #22c55e;
-  background-color: rgba(34, 197, 94, 0.08);
+  color: var(--notion-green);
+  background-color: color-mix(in srgb, var(--notion-green) 8%, transparent);
 }
 
 .pip-slot-host {
@@ -1691,7 +1747,7 @@ h1 {
 .dashboard-noise-card {
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-primary);
-  border-radius: 1rem;
+  border-radius: 0.75rem;
   padding: 1rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1738,7 +1794,7 @@ h1 {
 :root {
   --ui-border-width: 1px;
   --ui-focus-width: 3px;
-  --ui-focus-color: rgba(30, 144, 255, 0.24);
+  --ui-focus-color: color-mix(in srgb, var(--accent-primary) 24%, transparent);
   --ui-control-height: 2.75rem;
   --ui-content-gutter: clamp(1rem, 0.65rem + 1vw, 2rem);
   --ui-content-max-width: 90rem;
@@ -1802,7 +1858,7 @@ textarea,
 select {
   border-width: var(--ui-border-width);
   border-color: var(--border-primary);
-  border-radius: 0.75rem;
+  border-radius: 0.5rem;
   transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
@@ -2090,3 +2146,75 @@ html:has(.pip-body), .pip-body { background: #000 !important; }
 
 /* Theme text colour must always reach buttons and plain text (a stale `color: inherit !important` on html/body made them black) */
 html:root, html:root body, html:root #root { color: var(--text-primary) !important; }
+
+/* ══ Notion-inspired touches ═══════════════════════════════════════════════
+   Soft selection, layered popover shadows, hover washes, and reusable
+   callout / tag / divider building blocks that follow Notion's look.        */
+::selection {
+  background: rgba(35, 131, 226, 0.28);
+}
+
+/* Menus, selects and toasts float with Notion's three-layer shadow */
+[role="menu"],
+[role="listbox"],
+.Toastify__toast {
+  box-shadow: var(--shadow-popover) !important;
+  border-radius: 0.5rem;
+}
+
+@layer components {
+  /* Quiet row/button hover — the grey wash Notion uses everywhere */
+  .notion-hover {
+    border-radius: 0.375rem;
+    transition: background-color 120ms ease;
+  }
+  .notion-hover:hover {
+    background-color: var(--hover-bg);
+  }
+
+  /* Callout block: soft tinted box with a leading icon slot */
+  .notion-callout {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1rem;
+    border-radius: 0.375rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
+    color: var(--text-primary);
+  }
+  .notion-callout-blue   { background-color: var(--notion-blue-bg);   border-color: transparent; }
+  .notion-callout-green  { background-color: var(--notion-green-bg);  border-color: transparent; }
+  .notion-callout-yellow { background-color: var(--notion-yellow-bg); border-color: transparent; }
+  .notion-callout-red    { background-color: var(--notion-red-bg);    border-color: transparent; }
+
+  /* Colored tag / status pill */
+  .notion-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    border-radius: 0.1875rem;
+    font-size: 0.875rem;
+    line-height: 1.5rem;
+    font-weight: 500;
+    white-space: nowrap;
+    background-color: var(--notion-gray-bg);
+    color: var(--text-primary);
+  }
+  .notion-tag-red    { background-color: var(--notion-red-bg); }
+  .notion-tag-orange { background-color: var(--notion-orange-bg); }
+  .notion-tag-yellow { background-color: var(--notion-yellow-bg); }
+  .notion-tag-green  { background-color: var(--notion-green-bg); }
+  .notion-tag-blue   { background-color: var(--notion-blue-bg); }
+  .notion-tag-purple { background-color: var(--notion-purple-bg); }
+  .notion-tag-pink   { background-color: var(--notion-pink-bg); }
+  .notion-tag-brown  { background-color: var(--notion-brown-bg); }
+
+  /* Hairline divider */
+  .notion-divider {
+    height: 1px;
+    width: 100%;
+    background-color: var(--border-primary);
+    border: 0;
+  }
+}

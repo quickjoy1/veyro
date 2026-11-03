@@ -19,11 +19,11 @@ function openPrintWindow(title: string, bodyHTML: string): void {
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; padding: 32px; }
-  h1 { font-size: 24px; margin-bottom: 4px; color: #0a8f6f; }
-  h2 { font-size: 18px; margin: 24px 0 12px; color: #333; border-bottom: 2px solid #0a8f6f; padding-bottom: 4px; }
+  h1 { font-size: 24px; margin-bottom: 4px; color: #2383e2; }
+  h2 { font-size: 18px; margin: 24px 0 12px; color: #333; border-bottom: 2px solid #2383e2; padding-bottom: 4px; }
   .meta { font-size: 12px; color: #666; margin-bottom: 24px; }
   table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px; }
-  th { background: #eaf3ee; padding: 8px 10px; text-align: left; font-weight: 600; color: #0a8f6f; border-bottom: 2px solid #0a8f6f; }
+  th { background: #f7f6f3; padding: 8px 10px; text-align: left; font-weight: 600; color: #2383e2; border-bottom: 2px solid #2383e2; }
   td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; }
   tr:nth-child(even) td { background: #fafafa; }
   .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
@@ -31,7 +31,7 @@ function openPrintWindow(title: string, bodyHTML: string): void {
   .badge-pending { background: #fff3cd; color: #856404; }
   .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
   .stat-card { border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; }
-  .stat-value { font-size: 28px; font-weight: 700; color: #0a8f6f; }
+  .stat-value { font-size: 28px; font-weight: 700; color: #2383e2; }
   .stat-label { font-size: 11px; color: #666; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
   .footer { margin-top: 32px; text-align: center; font-size: 11px; color: #999; }
   @media print { body { padding: 16px; } .no-print { display: none; } }
