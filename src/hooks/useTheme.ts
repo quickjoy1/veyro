@@ -11,7 +11,8 @@ declare global {
   }
 }
 
-const DEFAULT_ACCENT = "#12A07C";
+const DEFAULT_ACCENT = "#2383E2"; // Notion blue
+const LEGACY_PINE_ACCENT = "#12a07c";
 
 type Theme = 'light' | 'dark';
 type ThemePreference = 'light' | 'dark' | 'black' | 'auto';
@@ -69,6 +70,15 @@ const useTheme = () => {
     if (!localStorage.getItem("veyroAccentMigrated")) {
       localStorage.setItem("veyroAccentMigrated", "1");
       if (!saved || saved.toLowerCase() === "#0a84ff") {
+        localStorage.setItem("accentPalette", DEFAULT_ACCENT);
+        return DEFAULT_ACCENT;
+      }
+    }
+    // One-time move from the old Pine default to the Notion-style blue default.
+    // Pine stays available as a normal choice afterwards.
+    if (!localStorage.getItem("veyroNotionAccentMigrated")) {
+      localStorage.setItem("veyroNotionAccentMigrated", "1");
+      if (!saved || saved.toLowerCase() === LEGACY_PINE_ACCENT) {
         localStorage.setItem("accentPalette", DEFAULT_ACCENT);
         return DEFAULT_ACCENT;
       }

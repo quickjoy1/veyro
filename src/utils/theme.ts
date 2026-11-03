@@ -5,7 +5,8 @@ interface AccentColor {
 }
 
 export const ACCENT_COLORS: AccentColor[] = [
-  // Primary Colors (Veyro Pine first as default)
+  // Primary Colors (Notion Blue first as default)
+  { name: "Notion Blue", value: "#2383E2", class: "bg-[#2383E2]" },
   { name: "Pine", value: "#12A07C", class: "bg-[#12A07C]" },
   { name: "Blue", value: "#0A84FF", class: "bg-[#0A84FF]" },
   { name: "Matrix Green", value: "#00FF41", class: "bg-[#00FF41]" },
