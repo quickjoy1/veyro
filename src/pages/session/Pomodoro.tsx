@@ -84,6 +84,10 @@ const sounds = loadSounds();
 // STORAGE HELPERS
 // ============================================================================
 
+// If the timer goes this long without ticking while "running", the laptop slept (or the page was
+// frozen/closed). Throttled background tabs still tick about once a minute, so they stay under it.
+const SLEEP_GAP_MS = 2 * 60 * 1000;
+
 const loadLocalPomoState = (): LocalPomoState => {
   const today = getLocalDateString();
 
@@ -124,11 +128,20 @@ const loadLocalPomoState = (): LocalPomoState => {
   }
   try {
     const parsed = JSON.parse(savedState);
+    // A timer that was running when the page closed / the laptop slept keeps running:
+    // elapsed time is rebuilt from the saved timestamps, so the time asleep still counts.
+    const savedLastStart = typeof parsed.lastStart === 'number' && Number.isFinite(parsed.lastStart) ? parsed.lastStart : null;
+    const wasRunning = localStorage.getItem('pomodoroIsRunning') === 'true' && savedLastStart !== null && !parsed.manuallyPaused;
+    // Time spent asleep / closed doesn't count: move lastStart forward by the gap since the last save,
+    // so the timer resumes exactly where it was instead of finishing or resetting.
+    const savedAt = typeof parsed.savedAt === 'number' && Number.isFinite(parsed.savedAt) ? parsed.savedAt : null;
+    const asleepMs = savedAt !== null ? Date.now() - savedAt : 0;
+    const resumedLastStart = wasRunning && savedLastStart !== null && asleepMs > SLEEP_GAP_MS ? savedLastStart + asleepMs : savedLastStart;
     const state: LocalPomoState = {
       modeIndex: safeNumber(parsed.modeIndex, DEFAULT_STATE.modeIndex),
       currentMode: ['work', 'break', 'longBreak'].includes(parsed.currentMode) ? parsed.currentMode : 'work',
       timeLeft: safeNumber(parsed.timeLeft, DEFAULT_STATE.timeLeft),
-      isRunning: false,
+      isRunning: wasRunning,
       pomodoroToday: authoritativeDailyCount,
       // Always use the authoritative value
       pomodorosThisSession: authoritativeSessionCount,
@@ -138,12 +151,14 @@ const loadLocalPomoState = (): LocalPomoState => {
       // Always use the authoritative value
       timeAtStart: safeNumber(parsed.timeAtStart ?? parsed.startTime, 0),
       // Migrate from startTime
-      lastStart: parsed.lastStart ?? null,
+      lastStart: resumedLastStart,
       // Keep existing lastStart or null
       lastManualAdjustment: 0,
       manuallyPaused: parsed.manuallyPaused || false // Load manual pause state
     };
-    const hasInvalidValues = Object.values(state).some(v => v === null || v === undefined || typeof v === 'number' && !Number.isFinite(v));
+    // lastStart is legitimately null whenever the timer is paused or idle, so it must not count as
+    // invalid (it used to, which threw away every paused timer and reset it on reload).
+    const hasInvalidValues = Object.entries(state).some(([key, v]) => key !== 'lastStart' && (v === null || v === undefined || typeof v === 'number' && !Number.isFinite(v)));
     if (hasInvalidValues) {
       localStorage.removeItem('pomodoroIsRunning');
       localStorage.removeItem('pomodorosThisSession');
@@ -172,6 +187,7 @@ const saveLocalPomoState = (state: LocalPomoState) => {
     timeLeft: safeNumber(state.timeLeft, DEFAULT_STATE.timeLeft),
     timeAtStart: safeNumber(state.timeAtStart, 0),
     lastStart: state.lastStart,
+    savedAt: Date.now(), // heartbeat: lets a later load tell how long the app was asleep
     workSessionsBeforeLongBreak: safeNumber(state.workSessionsBeforeLongBreak, 4),
     workSessionsCompleted: safeNumber(state.workSessionsCompleted, 0),
     // Don't save pomodoroToday here - localStorage is the authoritative source
@@ -1203,19 +1219,46 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
     }));
   });
 
+  // Time of the previous tick, to notice when the laptop slept between two ticks
+  const lastTickRef = useRef(0);
+
   // Internal timer for when NOT synced - using 100ms intervals and StudyTimer's elapsed time pattern
   useEffect(() => {
     if (syncPomodoroWithTimer) return; // Don't run internal timer when synced
 
-    if (!pomoState.isRunning || !pomoState.lastStart) return;
+    if (!pomoState.isRunning || !pomoState.lastStart) {
+      lastTickRef.current = 0;
+      return;
+    }
 
     // Use StudyTimer's exact elapsed time calculation: timeAtStart + ((now - lastStart) / 1000)
     const interval = window.setInterval(() => {
       const now = Date.now();
+      // Laptop slept (or the page was frozen) since the last tick: don't count that gap, keep the
+      // timer where it was instead of finishing or resetting it.
+      const gap = lastTickRef.current ? now - lastTickRef.current : 0;
+      lastTickRef.current = now;
+      if (gap > SLEEP_GAP_MS) {
+        setLocalPomoState(prev => (prev.isRunning && prev.lastStart ? { ...prev, lastStart: prev.lastStart + gap } : prev));
+        return;
+      }
       const elapsed = pomoState.timeAtStart + (now - pomoState.lastStart!) / 1000;
       const currentModeDuration = currentModeConfig?.[pomoState.currentMode] || (pomoState.currentMode === 'break' ? 600 : pomoState.currentMode === 'longBreak' ? 1800 : 3000);
       const newTimeLeft = Math.max(0, currentModeDuration - elapsed);
       if (newTimeLeft <= 0) {
+        // Woke up long after the session should have ended (laptop slept / tab frozen):
+        // don't award a Pomodoro that wasn't worked, just reset this phase.
+        if (elapsed - currentModeDuration > 5 * 60) {
+          setLocalPomoState(prev => ({
+            ...prev,
+            isRunning: false,
+            lastStart: null,
+            timeAtStart: 0,
+            timeLeft: currentModeDuration,
+            manuallyPaused: false
+          }));
+          return;
+        }
         // Stop the timer immediately to prevent multiple completion calls
         setLocalPomoState(prev => ({
           ...prev,

@@ -9,6 +9,7 @@ import Countdown from "./Countdown";
 import Pomodoro from "./Pomodoro";
 import StudyTimer from "./StudyTimer";
 import { useAppStore } from "@/store/appStore";
+import { useWakeLock } from "@/hooks/useWakeLock";
 
 type TimerId = "study" | "pomodoro" | "countdown";
 
@@ -30,6 +31,9 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
   // ── Full-screen clock (big colourful digits on black) ─────────────────────
   const [fsId, setFsId] = useState<TimerId | null>(null);
   const panelRefs = useRef<Partial<Record<TimerId, HTMLElement | null>>>({});
+
+  // Don't let the laptop go to sleep while a timer is shown full screen
+  useWakeLock(fsId !== null);
 
   const exitFullscreen = useCallback(() => {
     setFsId(null);
