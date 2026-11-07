@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   applyPlan,
   buildAiInstructions,
+  looksLikeChangeCommands,
   reviewChangeText,
   type ChangePlan,
   type ExistingTask,
@@ -283,6 +284,23 @@ describe('DELETE (needs explicit command and confirmation)', () => {
   it('cannot apply a plan that has errors', async () => {
     const plan = review("INSERT INTO tasks (title) VALUES ('Fine one'); INSERT INTO tasks (title) VALUES ('x');");
     await expect(applyPlan(plan, fakeGateway())).rejects.toThrow(/errors/);
+  });
+});
+
+describe('telling commands apart from a normal sentence (AI task box)', () => {
+  it('recognises commands, with or without a fence or comments', () => {
+    expect(looksLikeChangeCommands("INSERT INTO tasks (title) VALUES ('Read');")).toBe(true);
+    expect(looksLikeChangeCommands("  update tasks set title = 'x' where id = '1';")).toBe(true);
+    expect(looksLikeChangeCommands("Here you go:\n```sql\n-- plan\nDELETE FROM tasks WHERE id = '1';\n```")).toBe(true);
+    expect(looksLikeChangeCommands("USE WORKSPACE 'Uni'; INSERT INTO tasks (title) VALUES ('Read');")).toBe(true);
+    expect(looksLikeChangeCommands('{"operations":[{"op":"add_task","title":"Read"}]}')).toBe(true);
+  });
+
+  it('leaves normal sentences for the AI generator', () => {
+    expect(looksLikeChangeCommands('Create tasks for: finish math worksheet by tomorrow')).toBe(false);
+    expect(looksLikeChangeCommands('Delete the dentist task please')).toBe(false);
+    expect(looksLikeChangeCommands('Update my study plan for next week')).toBe(false);
+    expect(looksLikeChangeCommands('')).toBe(false);
   });
 });
 

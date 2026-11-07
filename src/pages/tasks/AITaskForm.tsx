@@ -3,7 +3,9 @@ import BaseModal from '@/modals/BaseModal';
 import { addTask } from '@/store/TaskActions';
 import { getLocalDateString } from '@/utils/dateUtils';
 import { normalizeNaturalOrYMDDate } from '@/hooks/tasks/useTaskDateUtils';
-import { useRef } from 'react';
+import ChangePlanReview from '@/components/ChangePlanReview';
+import { looksLikeChangeCommands } from '@/utils/changeImport';
+import { useRef, useState } from 'react';
 import { useTaskAI } from '@/hooks/tasks/useTaskAI';
 type AITaskFormProps = {
   onClose: () => void;
@@ -33,6 +35,19 @@ const AITaskForm = ({
 
   // Simple cache to avoid repeated requests
   const aiCache = useRef<Map<string, any>>(new Map());
+
+  // Set when the pasted text is commands for Veyro (INSERT/UPDATE/DELETE) instead of a sentence.
+  const [commandText, setCommandText] = useState<string | null>(null);
+  const handleCommandsApplied = () => {
+    setCommandText(null);
+    setAiPrompt('');
+    try {
+      localStorage.removeItem('aiPromptDraft');
+    } catch {
+      // storage may be unavailable; the draft is only a convenience
+    }
+    onClose();
+  };
   function mapAITaskToFormData(task: any) {
     const normalizedDate = task.date && task.date !== 'null' ? normalizeNaturalOrYMDDate(task.date) : null;
     return {
@@ -60,6 +75,11 @@ const AITaskForm = ({
       return;
     }
     setAiError('');
+    // Commands written by an AI for Veyro are read locally, no model call needed.
+    if (looksLikeChangeCommands(aiPrompt)) {
+      setCommandText(aiPrompt);
+      return;
+    }
     setAiLoading(true);
     aiCancelledRef.current = false;
     const controller = new AbortController();
@@ -383,12 +403,17 @@ EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"M
           </div>
         </div>
 
-        <form className="flex flex-col h-full items-stretch justify-start space-y-3 sm:space-y-4" onSubmit={handleAISubmit}>
+        {commandText !== null ? <div className="space-y-3">
+            <ChangePlanReview text={commandText} onApplied={handleCommandsApplied} />
+            <button type="button" onClick={() => setCommandText(null)} className="w-full px-4 py-2 border-2 border-[var(--border-primary)] rounded-lg text-sm font-medium text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]/50 transition-colors">
+              Back to edit
+            </button>
+          </div> : <form className="flex flex-col h-full items-stretch justify-start space-y-3 sm:space-y-4" onSubmit={handleAISubmit}>
           <div className="w-full">
             <textarea id="aiPrompt" ref={aiTextareaRef} value={aiPrompt} onChange={e => {
             setAiPrompt(e.target.value);
             localStorage.setItem('aiPromptDraft', e.target.value);
-          }} className="w-full min-h-[150px] sm:min-h-[120px] px-3 py-2 text-sm sm:text-base bg-[var(--bg-primary)] border-2 border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" placeholder="Example: Create tasks for: finish math worksheet by tomorrow (medium), study biology chapter 4 next Wednesday (hard), and write a short English essay this weekend (easy)." disabled={aiLoading} />
+          }} className="w-full min-h-[150px] sm:min-h-[120px] px-3 py-2 text-sm sm:text-base bg-[var(--bg-primary)] border-2 border-[var(--border-primary)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]" placeholder="Example: Create tasks for: finish math worksheet by tomorrow (medium), study biology chapter 4 next Wednesday (hard), and write a short English essay this weekend (easy). Or paste commands from an AI (INSERT INTO tasks ...) and press Send." disabled={aiLoading} />
           </div>
 
           {aiError && <div className="text-red-500 text-xs sm:text-sm text-center">{aiError}</div>}
@@ -398,7 +423,7 @@ EN:[{"task":"Do math","description":"Exercises","date":"2025-11-30","subject":"M
               {aiLoading ? 'Cancel' : 'Send'}
             </button>
           </div>
-        </form>
+        </form>}
       </div>
 
       <AIPreviewModal isOpen={showAIPreview} tasks={aiParsedTasks || []} onAcceptAll={handleAIAcceptAll} onCancel={() => setShowAIPreview(false)} />

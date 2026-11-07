@@ -14,7 +14,7 @@
  * This file is pure (no UI, no database) so all of it can be unit tested.
  */
 import { z } from 'zod';
-import { parseSqlCommands } from '@/utils/sqlCommands';
+import { looksLikeSql, parseSqlCommands } from '@/utils/sqlCommands';
 
 export const MAX_OPERATIONS = 200;
 const DEFAULT_ASSIGNMENT = 'General';
@@ -259,6 +259,15 @@ function validateRaw(raw: unknown, index: number): ParsedOperation {
   const parsed = OP_SCHEMAS[opName as keyof typeof OP_SCHEMAS].safeParse(raw);
   if (!parsed.success) return { index, error: formatIssues(parsed.error) };
   return { index, operation: parsed.data as Operation };
+}
+
+/**
+ * True when pasted text is a set of commands for Veyro (SQL-style, or JSON with "operations")
+ * rather than a normal sentence for the AI task generator.
+ */
+export function looksLikeChangeCommands(text: string): boolean {
+  const body = extractJson(text);
+  return looksLikeSql(body) || /^\{[\s\S]*"operations"\s*:/.test(body);
 }
 
 /** SQL-like text (the main format) or JSON (fallback). */

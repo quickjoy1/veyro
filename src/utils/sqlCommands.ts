@@ -255,7 +255,9 @@ function parseDelete(cur: Cursor): Record<string, unknown> {
 
 /** True when the text looks like SQL statements rather than JSON. */
 export function looksLikeSql(text: string): boolean {
-  return /^\s*(?:(?:--|#)[^\n]*\n\s*|\/\*[\s\S]*?\*\/\s*)*(insert|update|delete|use)\b/i.test(text);
+  // Must have the real shape (INSERT INTO, UPDATE x SET, DELETE FROM, USE WORKSPACE) so that an
+  // ordinary sentence such as "Delete the dentist task" is not mistaken for a command.
+  return /^\s*(?:(?:--|#)[^\n]*\n\s*|\/\*[\s\S]*?\*\/\s*)*(?:insert\s+into\b|update\s+\w+\s+set\b|delete\s+from\b|use\s+workspace\b)/i.test(text);
 }
 
 export function parseSqlCommands(text: string): SqlParseResult | { fatal: string } {
