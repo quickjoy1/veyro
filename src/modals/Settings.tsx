@@ -18,6 +18,7 @@ import React, { useEffect, useState } from "react";
 import { ACCENT_COLORS } from "@/utils/theme";
 import AddFriendModal from "@/modals/AddFriendModal";
 import BaseModal from "./BaseModal";
+import AiChangeImportPanel from "@/components/AiChangeImportPanel";
 import DataExportImportPanel from "@/components/DataExportImportPanel";
 import GithubChangelog from "@/components/GithubChangelog";
 import FriendsModal from "@/modals/FriendsModal";
@@ -328,6 +329,10 @@ const SettingsContent: React.FC<SettingsContentProps> = ({
                     <CheckCircle size={20} className="text-[var(--accent-primary)]" />
                     Manage Completed Tasks
                   </button>
+                </div>
+
+                <div className="border-t border-[var(--border-primary)]/50 pt-4">
+                  <AiChangeImportPanel />
                 </div>
 
                 <div className="border-t border-[var(--border-primary)]/50 pt-4">
