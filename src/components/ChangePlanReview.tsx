@@ -1,7 +1,8 @@
-import { AlertTriangle, Check, HardDriveDownload, Loader2, Minus, Pencil, Plus, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Check, HardDriveDownload, Loader2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
+import PlanPreviewCard from '@/components/PlanPreviewCard';
 import { TaskService } from '@/services/TaskService';
 import { useAppStore, useWorkspace } from '@/store/appStore';
 import { forceTaskRefresh } from '@/store/TaskActions';
@@ -11,7 +12,6 @@ import {
   reviewChangeText,
   type ChangePlan,
   type ExistingTask,
-  type PlanAction,
   type PlanContext,
   type TaskGateway,
 } from '@/utils/changeImport';
@@ -21,14 +21,6 @@ const gateway: TaskGateway = {
   create: (fields) => TaskService.createTask(fields),
   update: (id, fields) => TaskService.updateTask(id, fields),
   remove: (id) => TaskService.deleteTask(id),
-};
-
-const ACTION_STYLE: Record<PlanAction, { label: string; className: string; icon: typeof Plus }> = {
-  add: { label: 'Add', className: 'text-green-600 dark:text-green-400 bg-green-500/10', icon: Plus },
-  update: { label: 'Update', className: 'text-blue-600 dark:text-blue-400 bg-blue-500/10', icon: Pencil },
-  delete: { label: 'Delete', className: 'text-red-600 dark:text-red-400 bg-red-500/10', icon: Trash2 },
-  skip: { label: 'Skip', className: 'text-[var(--text-secondary)] bg-[var(--bg-secondary)]', icon: Minus },
-  error: { label: 'Error', className: 'text-red-600 dark:text-red-400 bg-red-500/10', icon: X },
 };
 
 const btn = 'inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all active:scale-95 disabled:opacity-50';
@@ -140,24 +132,10 @@ const ChangePlanReview = ({ text, onApplied }: ChangePlanReviewProps) => {
         </div>
       ))}
 
-      <ul className="max-h-64 space-y-1.5 overflow-y-auto pr-1">
-        {plan.items.map((item, i) => {
-          const style = ACTION_STYLE[item.action];
-          const Icon = style.icon;
-          return (
-            <li key={`${item.opIndex}-${i}`} className="flex items-start gap-2 rounded-lg border border-[var(--border-primary)] p-2 text-xs">
-              <span className={`inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 font-semibold ${style.className}`}>
-                <Icon size={11} />
-                {style.label}
-              </span>
-              <span className="min-w-0 break-words text-[var(--text-primary)]">
-                <span className="text-[var(--text-secondary)]">#{item.opIndex} </span>
-                {item.summary}
-                {item.reason && <span className="block text-[var(--text-secondary)]">{item.reason}</span>}
-              </span>
-            </li>
-          );
-        })}
+      <ul className="max-h-[22rem] space-y-2 overflow-y-auto pr-1" role="list">
+        {plan.items.map((item, i) => (
+          <PlanPreviewCard key={`${item.opIndex}-${i}`} item={item} />
+        ))}
       </ul>
 
       {plan.hasDeletes && (

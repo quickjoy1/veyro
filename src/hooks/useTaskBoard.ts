@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useFetchTasks, useTasksLoading, useUpdateTaskSuccess, useWorkspace, useWorkspaceActions } from '@/store/appStore';
 
+import { isEventTask } from '@/utils/eventTasks';
 import useDemoMode from '@/utils/useDemoMode';
 import { useTaskManager } from '@/hooks/useTaskManager';
 
@@ -18,11 +19,14 @@ export const useTaskBoard = () => {
   const { isDemo, demoTasks, loginPromptOpen, showLoginPrompt, closeLoginPrompt } = useDemoMode();
 
   const {
-    tasks: realTasks,
+    tasks: allStoredTasks,
     handleToggleCompletion,
     handleUpdateTask,
     handleDeleteTask: originalHandleDeleteTask,
   } = useTaskManager(activeWorkspace);
+
+  // Events (calendar + reminders only) are not shown on the task board
+  const realTasks = useMemo(() => allStoredTasks.filter((task: any) => !isEventTask(task)), [allStoredTasks]);
 
   // Create workspaces with "All" option
   const workspacesWithAll = useMemo(() => {

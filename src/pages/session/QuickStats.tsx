@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock, Flame, Timer } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useLaps, useTasksOnly } from '@/store/appStore';
+import { useLaps, useRegularTasks } from '@/store/appStore';
 import { supabase } from '@/utils/supabaseClient';
 
 const durationToSeconds = (duration?: string | number | null): number => {
@@ -42,7 +42,7 @@ function getLongestStreak(tasks: any[]): number {
 const QuickStats = () => {
   const { user } = useAuth();
   const { laps } = useLaps();
-  const tasks = useTasksOnly();
+  const tasks = useRegularTasks();
 
   const [pomodorosAllTime, setPomodorosAllTime] = useState(0);
 

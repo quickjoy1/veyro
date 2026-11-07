@@ -1,4 +1,6 @@
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { useMemo } from 'react';
+import { isEventTask } from '@/utils/eventTasks';
 
 import type {
   PomodoroModeType,
@@ -925,6 +927,11 @@ export const useTimerStates = () => useAppStore(state => ({
 // 🎯 Selectors para Redux replacement
 export const useTasks = () => useAppStore(state => state.tasks);
 export const useTasksOnly = () => useAppStore(state => state.tasks.tasks);
+/** Tasks without events. Events live in the same rows but belong on the calendar and in reminders only. */
+export const useRegularTasks = () => {
+  const tasks = useAppStore(state => state.tasks.tasks);
+  return useMemo(() => tasks.filter(task => !isEventTask(task)), [tasks]);
+};
 export const useTasksLoading = () => useAppStore(state => state.tasks.loading);
 export const useFetchTasks = (): ((workspaceId?: string, forceRefresh?: boolean) => Promise<void>) => useAppStore(state => state.fetchTasks);
 export const useAddTaskSuccess = () => useAppStore(state => state.addTaskSuccess);

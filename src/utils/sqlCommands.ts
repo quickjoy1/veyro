@@ -2,6 +2,7 @@
  * Tiny SQL-like language for AI change imports.
  *
  *   INSERT INTO tasks (title, date, start_time) VALUES ('Dentist', '2026-11-12', '15:00');
+ *   INSERT INTO events (title, date, start_time) VALUES ('Exam', '2026-11-20', '09:00');   -- calendar + reminders only
  *   UPDATE tasks SET date = '2026-11-14', completed = TRUE WHERE id = 'abc';
  *   DELETE FROM tasks WHERE title = 'Dentist' AND date = '2026-11-12';
  *   USE WORKSPACE 'Uni';
@@ -162,10 +163,17 @@ function coerceColumn(column: string, value: Scalar): unknown {
   return value;
 }
 
-function expectTasksTable(cur: Cursor): void {
+/** `tasks` are shown in the task lists; `events` only on the calendar and in reminders. */
+function parseTable(cur: Cursor): 'task' | 'event' {
   const table = cur.identifier();
-  if (table !== 'tasks') throw new Error(`Unknown table "${table}". The only table is tasks.`);
+  if (table === 'tasks' || table === 'task') return 'task';
+  if (table === 'events' || table === 'event') return 'event';
+  throw new Error(`Unknown table "${table}". Use tasks or events.`);
 }
+
+/** Only events carry a target; plain tasks keep the original shape. */
+const withTarget = (stmt: Record<string, unknown>, target: 'task' | 'event'): Record<string, unknown> =>
+  target === 'event' ? { ...stmt, target } : stmt;
 
 function parseWhere(cur: Cursor): Record<string, unknown> {
   cur.keyword('WHERE');
@@ -187,7 +195,7 @@ function parseWhere(cur: Cursor): Record<string, unknown> {
 
 function parseInsert(cur: Cursor): Record<string, unknown>[] {
   cur.keyword('INTO');
-  expectTasksTable(cur);
+  const target = parseTable(cur);
   cur.symbol('(');
   const columns: string[] = [cur.identifier()];
   while (cur.peekSymbol(',')) { cur.symbol(','); columns.push(cur.identifier()); }
@@ -203,7 +211,7 @@ function parseInsert(cur: Cursor): Record<string, unknown>[] {
     if (values.length !== columns.length) {
       throw new Error(`${columns.length} columns but a row has ${values.length} values.`);
     }
-    const row: Record<string, unknown> = { op: 'add_task' };
+    const row: Record<string, unknown> = withTarget({ op: 'add_task' }, target);
     columns.forEach((col, i) => {
       if (col in row) throw new Error(`Column "${col}" is listed twice.`);
       row[col] = coerceColumn(col, values[i] ?? null);
@@ -217,7 +225,7 @@ function parseInsert(cur: Cursor): Record<string, unknown>[] {
 }
 
 function parseUpdate(cur: Cursor): Record<string, unknown> {
-  expectTasksTable(cur);
+  const target = parseTable(cur);
   cur.keyword('SET');
   const set: Record<string, unknown> = {};
   for (;;) {
@@ -229,21 +237,21 @@ function parseUpdate(cur: Cursor): Record<string, unknown> {
     break;
   }
   if (!cur.peekKeyword('WHERE')) {
-    throw new Error('UPDATE needs a WHERE (id or title). Veyro never updates every task at once.');
+    throw new Error('UPDATE needs a WHERE (id or title). Veyro never updates everything at once.');
   }
   const match = parseWhere(cur);
   cur.end();
-  return { op: 'update_task', match, set };
+  return withTarget({ op: 'update_task', match, set }, target);
 }
 
 function parseDelete(cur: Cursor): Record<string, unknown> {
   cur.keyword('FROM');
-  expectTasksTable(cur);
+  const target = parseTable(cur);
   if (!cur.peekKeyword('WHERE')) {
-    throw new Error('DELETE needs a WHERE (id or title). Veyro never deletes every task at once.');
+    throw new Error('DELETE needs a WHERE (id or title). Veyro never deletes everything at once.');
   }
   const match = parseWhere(cur);
-  const stmt: Record<string, unknown> = { op: 'delete_task', match };
+  const stmt: Record<string, unknown> = withTarget({ op: 'delete_task', match }, target);
   if (cur.peekKeyword('LIMIT')) {
     cur.keyword('LIMIT');
     cur.keyword('ALL');

@@ -6,6 +6,7 @@ import BaseModal from '@/modals/BaseModal';
 import DeleteCompletedModal from '@/modals/DeleteTasksPop';
 import { getTaskStatusConfig } from '@/constants/taskStatus';
 import type { Task } from '@/types/taskStorage';
+import { isEventTask } from '@/utils/eventTasks';
 
 const pluralize = (count: number, suffix: string = 's') => (count === 1 ? '' : suffix);
 
@@ -20,7 +21,8 @@ const ManageAssignmentsModal: React.FC<ManageAssignmentsModalProps> = ({
 }) => {
   const deleteTaskSuccess = useDeleteTaskSuccess();
   const updateTaskSuccess = useUpdateTaskSuccess();
-  const { tasks } = useTasks();
+  const { tasks: allTasks } = useTasks();
+  const tasks = useMemo(() => allTasks.filter((task: Task) => !isEventTask(task)), [allTasks]);
   const [assignments, setAssignments] = useState<string[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [assignmentToDelete, setAssignmentToDelete] = useState<string | null>(null);

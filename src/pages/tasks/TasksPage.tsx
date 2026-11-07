@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import { KanbanBoard } from '@/pages/tasks/KanbanBoard';
 import LoginPromptModal from '@/modals/LoginPromptModal';
 import TaskFormManager from '@/pages/tasks/TaskFormManager';
+import UpcomingEventsCard from '@/pages/tasks/UpcomingEventsCard';
 import TaskPageSettingsModal, { type ColumnCount, type FabPosition, type ViewMode } from '@/modals/TaskPageSettingsModal';
 import WorkspaceCreateModal from '@/modals/WorkspaceCreateModal';
 import WorkspaceSelector from '@/pages/calendar/WorkspaceSelector';
@@ -240,6 +241,7 @@ const TasksPage = memo(() => {
         <WorkspaceSelector />
       </div>
       
+      <UpcomingEventsCard />
       <KanbanBoard columnCount={columnCount} viewMode={viewMode} />
       {/* Task Page Settings Button */}
       <button

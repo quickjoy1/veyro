@@ -1,6 +1,6 @@
 import { BookOpen, CheckCircle2, Flame, Timer } from 'lucide-react';
 import { ReactElement, useEffect, useState } from 'react';
-import { useLaps, useTasksOnly } from '@/store/appStore';
+import { useLaps, useRegularTasks } from '@/store/appStore';
 
 import { supabase } from '@/utils/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
@@ -207,7 +207,7 @@ const sessionPeriods: { key: keyof Pick<StatData, 'sessionsToday' | 'sessionsYes
 ];
 
 const Statistics = (): ReactElement => {
-  const tasks = useTasksOnly();
+  const tasks = useRegularTasks();
   const { laps } = useLaps();
   const { user } = useAuth();
   const { isDemo, demoStats } = useDemoMode();

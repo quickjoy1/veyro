@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import AutocompleteInput from "@/modals/AutocompleteInput";
 import BaseModal from "@/modals/BaseModal";
 import { supabase } from "@/utils/supabaseClient";
-import { useAppStore, useWorkspace, useTasksOnly, useUpdateTaskSuccess } from "@/store/appStore";
+import { useAppStore, useWorkspace, useRegularTasks, useUpdateTaskSuccess } from "@/store/appStore";
 import { StudyService, SessionTaskService } from "@/services/StudyService";
 import { formatDue, parseDeadline } from "@/utils/reminderEngine";
 import { ALL_WORKSPACE_ID } from "@/hooks/useTaskBoard";
@@ -43,7 +43,7 @@ const StartSessionModal = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [workspaceId, setWorkspaceId] = useState<string | null>(null);
   const [taskId, setTaskId] = useState("");
-  const allTasks = useTasksOnly();
+  const allTasks = useRegularTasks();
   const updateTaskSuccess = useUpdateTaskSuccess();
   const openTasks = useMemo(() => allTasks
     .filter((t: any) => !t.completed && t.status !== "completed")

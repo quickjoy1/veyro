@@ -8,6 +8,7 @@ import {
   type ExistingTask,
   type TaskGateway,
 } from './changeImport';
+import { EVENT_ASSIGNMENT, isEventTask } from './eventTasks';
 import { parseSqlCommands } from './sqlCommands';
 
 const now = new Date(2026, 10, 7, 12, 0, 0); // Sat 7 Nov 2026, local time
@@ -304,6 +305,114 @@ describe('telling commands apart from a normal sentence (AI task box)', () => {
   });
 });
 
+
+describe('events (calendar + reminders, not the task list)', () => {
+  const eventRow = (id: string, title: string, extra: Partial<ExistingTask> = {}): ExistingTask =>
+    existing(id, title, { assignment: EVENT_ASSIGNMENT, ...extra });
+
+  it('INSERT INTO events marks the row as an event and sets the reminder time to the start', () => {
+    const plan = review("INSERT INTO events (title, date, start_time, end_time, description) VALUES ('Physics exam', '2026-11-20', '09:00', '11:00', 'Hall B');");
+    const item = plan.items[0];
+    expect(item?.action).toBe('add');
+    expect(item?.kind).toBe('event');
+    const f = item?.fields as Record<string, unknown>;
+    expect(isEventTask(f as { assignment: string })).toBe(true);
+    expect(f['assignment']).toBe(EVENT_ASSIGNMENT);
+    expect(f['deadline']).toBe('2026-11-20T09:00:00'); // reminders count down to the start
+    expect(clock(f['start_at'])).toBe('09:00');
+    expect(clock(f['end_at'])).toBe('11:00');
+    expect(f['description']).toBe('Hall B');
+  });
+
+  it('a date-only event stays an all-day item at the start of that day', () => {
+    const f = review("INSERT INTO events (title, date) VALUES ('Sports day', '2026-11-21');").items[0]?.fields as Record<string, unknown>;
+    expect(f['deadline']).toBe('2026-11-21T00:00:00');
+    expect(f['start_at']).toBeNull();
+  });
+
+  it('weekly events repeat like weekly tasks', () => {
+    const f = review("INSERT INTO events (title, start_time, repeat_weekly_on) VALUES ('Club meeting', '17:00', 'fri');").items[0]?.fields as Record<string, unknown>;
+    expect(f['recurrence_weekdays']).toEqual([5]);
+    expect(f['deadline']).toBeNull();
+  });
+
+  it('events do not accept task-only columns', () => {
+    const valid: Record<string, string> = { assignment: 'Maths', difficulty: 'easy', status: 'todo' };
+    for (const col of ['assignment', 'difficulty', 'status']) {
+      const out = review(`INSERT INTO events (title, ${col}) VALUES ('Exam day', '${valid[col]}');`);
+      expect(out.items[0]?.action).toBe('error');
+      expect(out.items[0]?.reason).toMatch(/events only have/);
+    }
+    expect(review("UPDATE events SET completed = TRUE WHERE id = '1';", [eventRow('1', 'Exam day')]).items[0]?.reason).toMatch(/events only have/);
+  });
+
+  it('a task and an event with the same title are different things', () => {
+    const plan = review(
+      `INSERT INTO tasks (title, date) VALUES ('Biology', '2026-11-12');
+       INSERT INTO events (title, date) VALUES ('Biology', '2026-11-12');`,
+    );
+    expect(plan.items.map((i) => i.action)).toEqual(['add', 'add']);
+    expect(plan.items.map((i) => i.kind)).toEqual(['task', 'event']);
+  });
+
+  it('importing the same event twice adds nothing the second time', () => {
+    const sql = "INSERT INTO events (title, date, start_time) VALUES ('Dentist visit', '2026-11-12', '15:00');";
+    const created = review(sql).items[0]?.fields as Record<string, unknown>;
+    const second = review(sql, [{ id: 'e1', title: 'Dentist visit', ...created } as ExistingTask]);
+    expect(second.counts.add).toBe(0);
+    expect(second.items[0]?.reason).toMatch(/Already in your events/);
+  });
+
+  it('task commands never touch events, and event commands never touch tasks', () => {
+    const rows = [existing('t1', 'Biology'), eventRow('e1', 'Biology')];
+    expect(review("DELETE FROM tasks WHERE title = 'Biology';", rows).items.map((i) => i.taskId)).toEqual(['t1']);
+    expect(review("DELETE FROM events WHERE title = 'Biology';", rows).items.map((i) => i.taskId)).toEqual(['e1']);
+    expect(review("UPDATE tasks SET description = 'x' WHERE id = 'e1';", rows).items[0]?.action).toBe('skip');
+    expect(review("DELETE FROM events WHERE id = 't1';", rows).items[0]?.action).toBe('skip');
+  });
+
+  it('moving an event keeps its reminder time in step with the start', () => {
+    const rows = [eventRow('e1', 'Exam day', { deadline: '2026-11-20T09:00:00', start_at: new Date(2026, 10, 20, 9, 0).toISOString(), end_at: new Date(2026, 10, 20, 11, 0).toISOString() })];
+    const f = review("UPDATE events SET date = '2026-11-22', start_time = '14:00' WHERE id = 'e1';", rows).items[0]?.fields as Record<string, unknown>;
+    expect(f['deadline']).toBe('2026-11-22T14:00:00');
+    expect(clock(f['start_at'])).toBe('14:00');
+    expect(clock(f['end_at'])).toBe('16:00'); // the 2 hour length is kept
+  });
+
+  it('applying an event add goes through the same safe path (no deletes)', async () => {
+    const gateway = fakeGateway();
+    await applyPlan(review("INSERT INTO events (title, date) VALUES ('Open day', '2026-12-01');"), gateway);
+    expect(gateway.create).toHaveBeenCalledTimes(1);
+    expect(gateway.remove).not.toHaveBeenCalled();
+  });
+});
+
+describe('plan previews (drawn like the task cards)', () => {
+  it('add: has the final look of the item', () => {
+    const p = review("INSERT INTO tasks (title, date, start_time, end_time, assignment, difficulty) VALUES ('Lab report', '2026-11-12', '15:00', '16:30', 'Physics', 'hard');").items[0]?.preview;
+    expect(p).toMatchObject({ kind: 'task', title: 'Lab report', assignment: 'Physics', difficulty: 'hard', date: '2026-11-12', start: '15:00', end: '16:30', weekdays: null });
+  });
+
+  it('update: shows the state after the change plus what changed', () => {
+    const tasks = [existing('1', 'Lab report', { assignment: 'Physics', difficulty: 'hard' })];
+    const p = review("UPDATE tasks SET date = '2026-11-15', title = 'Lab report v2' WHERE id = '1';", tasks).items[0]?.preview;
+    expect(p).toMatchObject({ title: 'Lab report v2', assignment: 'Physics', date: '2026-11-15' });
+    expect(p?.changes?.length).toBe(2);
+  });
+
+  it('delete: shows the task that will be removed', () => {
+    const p = review("DELETE FROM tasks WHERE id = '1';", [existing('1', 'Old task', { assignment: 'Maths' })]).items[0]?.preview;
+    expect(p).toMatchObject({ kind: 'task', title: 'Old task', assignment: 'Maths', date: '2026-11-12' });
+  });
+
+  it('events do not carry task columns in the preview', () => {
+    const p = review("INSERT INTO events (title, date) VALUES ('Open day', '2026-12-01');").items[0]?.preview;
+    expect(p?.kind).toBe('event');
+    expect(p?.assignment).toBeUndefined();
+    expect(p?.difficulty).toBeUndefined();
+  });
+});
+
 describe('AI instructions', () => {
   it('teach the SQL syntax, today, and optionally the open tasks', () => {
     const text = buildAiInstructions({ now, timeZone: 'Asia/Calcutta', tasks: [existing('abc', 'Dentist'), existing('z', 'Done', { completed: true })] });
@@ -312,5 +421,14 @@ describe('AI instructions', () => {
     expect(text).toContain('DELETE FROM tasks');
     expect(text).toContain('id=abc');
     expect(text).not.toContain('id=z');
+  });
+
+  it('explain events and list tasks and events separately', () => {
+    const text = buildAiInstructions({ now, timeZone: 'Asia/Calcutta', tasks: [existing('t1', 'Homework'), existing('e1', 'Exam', { assignment: EVENT_ASSIGNMENT })] });
+    expect(text).toContain('INSERT INTO events');
+    const [tasksPart, eventsPart] = text.split('MY CURRENT EVENTS');
+    expect(tasksPart).toContain('id=t1');
+    expect(tasksPart).not.toContain('id=e1');
+    expect(eventsPart).toContain('id=e1');
   });
 });

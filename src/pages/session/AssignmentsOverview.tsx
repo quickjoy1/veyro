@@ -1,6 +1,6 @@
 import { BookOpen, ChevronRight, Loader2, Plus } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useFetchTasks, useTasksOnly, useTasksLoading, useWorkspace } from '@/store/appStore';
+import { useFetchTasks, useRegularTasks, useTasksLoading, useWorkspace } from '@/store/appStore';
 import { ALL_WORKSPACE_ID } from '@/hooks/useTaskBoard';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigation } from '@/navbar/NavigationContext';
@@ -18,7 +18,7 @@ type AssignmentSummary = {
 };
 
 const AssignmentsOverview = () => {
-  const tasks = useTasksOnly();
+  const tasks = useRegularTasks();
   const tasksLoading = useTasksLoading();
   const { workspaces, currentWorkspace: activeWorkspace } = useWorkspace();
   const fetchTasks = useFetchTasks();

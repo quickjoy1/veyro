@@ -14,6 +14,7 @@
  * This file is pure (no UI, no database) so all of it can be unit tested.
  */
 import { z } from 'zod';
+import { EVENT_ASSIGNMENT, isEventTask } from '@/utils/eventTasks';
 import { looksLikeSql, parseSqlCommands } from '@/utils/sqlCommands';
 
 export const MAX_OPERATIONS = 200;
@@ -80,7 +81,7 @@ function timestampToMs(ts: string | null | undefined): number | null {
 }
 
 /** HH:MM of a stored timestamp (or legacy "HH:MM[:SS]"). `utc` is for weekly tasks. */
-function clockFromTimestamp(ts: string | null | undefined, utc: boolean): string | null {
+export function clockFromTimestamp(ts: string | null | undefined, utc: boolean): string | null {
   if (!ts) return null;
   const trimmed = ts.trim();
   if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(trimmed)) return normalizeHM(trimmed);
@@ -92,7 +93,7 @@ function clockFromTimestamp(ts: string | null | undefined, utc: boolean): string
     : `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
 }
 
-function localYmd(deadline: string | null | undefined): string | null {
+export function localYmd(deadline: string | null | undefined): string | null {
   if (!deadline) return null;
   // Date-only or date + time without a zone: the date part is what the user picked.
   if (/^\d{4}-\d{2}-\d{2}(T[\d:.]+)?$/.test(deadline)) return deadline.slice(0, 10);
@@ -152,18 +153,29 @@ const matchSchema = z
   })
   .refine((m) => Boolean(m.id) || Boolean(m.title), 'match needs an "id" or a "title"');
 
-const addOpSchema = z.strictObject({
-  op: z.literal('add_task'),
-  title: titleSchema,
-  assignment: assignmentSchema.optional(),
-  description: descriptionSchema.optional(),
-  difficulty: difficultySchema.optional(),
-  status: statusSchema.optional(),
-  date: dateSchema.nullish(),
-  start_time: timeSchema.nullish(),
-  end_time: timeSchema.nullish(),
-  repeat_weekly_on: weekdayListSchema.nullish(),
-});
+/** `tasks` (default) or `events`: events show on the calendar and in reminders, not in the task lists. */
+const targetSchema = z.enum(['task', 'event']).optional();
+const EVENT_ONLY_MESSAGE =
+  'events only have title, date, start_time, end_time, description and repeat_weekly_on (no assignment, difficulty, status or completed)';
+
+const addOpSchema = z
+  .strictObject({
+    op: z.literal('add_task'),
+    target: targetSchema,
+    title: titleSchema,
+    assignment: assignmentSchema.optional(),
+    description: descriptionSchema.optional(),
+    difficulty: difficultySchema.optional(),
+    status: statusSchema.optional(),
+    date: dateSchema.nullish(),
+    start_time: timeSchema.nullish(),
+    end_time: timeSchema.nullish(),
+    repeat_weekly_on: weekdayListSchema.nullish(),
+  })
+  .refine(
+    (o) => o.target !== 'event' || (o.assignment === undefined && o.difficulty === undefined && o.status === undefined),
+    EVENT_ONLY_MESSAGE,
+  );
 
 const setSchema = z
   .strictObject({
@@ -180,14 +192,23 @@ const setSchema = z
   })
   .refine((s) => Object.values(s).some((v) => v !== undefined), '"set" must change at least one field');
 
-const updateOpSchema = z.strictObject({
-  op: z.literal('update_task'),
-  match: matchSchema,
-  set: setSchema,
-});
+const updateOpSchema = z
+  .strictObject({
+    op: z.literal('update_task'),
+    target: targetSchema,
+    match: matchSchema,
+    set: setSchema,
+  })
+  .refine(
+    (o) =>
+      o.target !== 'event' ||
+      (o.set.assignment === undefined && o.set.difficulty === undefined && o.set.status === undefined && o.set.completed === undefined),
+    EVENT_ONLY_MESSAGE,
+  );
 
 const deleteOpSchema = z.strictObject({
   op: z.literal('delete_task'),
+  target: targetSchema,
   match: matchSchema,
   all_matches: z.boolean().optional(),
 });
@@ -344,8 +365,10 @@ interface ScheduleFields {
   recurrence_weekdays: number[] | null;
 }
 
+export type ItemKind = 'task' | 'event';
+
 /** Throws an Error with a plain-language message when the combination is not valid. */
-function buildSchedule(input: ScheduleInput, now: Date): ScheduleFields {
+function buildSchedule(input: ScheduleInput, now: Date, kind: ItemKind = 'task'): ScheduleFields {
   const { date, start, end, weekdays } = input;
   if (weekdays && date) {
     throw new Error('use either "date" or "repeat_weekly_on", not both (set the other to null to switch)');
@@ -373,8 +396,10 @@ function buildSchedule(input: ScheduleInput, now: Date): ScheduleFields {
     };
   }
 
+  // Reminders count down to `deadline`. A timed event "is due" when it starts, a task at the day's start.
+  const deadlineTime = kind === 'event' && startHM ? `${startHM}:00` : '00:00:00';
   return {
-    deadline: date ? `${date}T00:00:00` : null,
+    deadline: date ? `${date}T${deadlineTime}` : null,
     start_at: date && startHM ? localTimestamp(date, startHM) : null,
     end_at: date && endHM ? localTimestamp(date, endHM) : null,
     recurrence_type: 'none',
@@ -418,11 +443,32 @@ export interface PlanContext {
 
 export type PlanAction = 'add' | 'update' | 'delete' | 'skip' | 'error';
 
+/** What a task or event looks like after the change, so the UI can draw it like the real task card. */
+export interface PlanPreview {
+  kind: ItemKind;
+  title: string;
+  assignment?: string | undefined;
+  difficulty?: string | undefined;
+  status?: string | undefined;
+  description?: string | undefined;
+  /** YYYY-MM-DD */
+  date: string | null;
+  /** HH:MM (24-hour) */
+  start: string | null;
+  end: string | null;
+  weekdays: number[] | null;
+  completed?: boolean | undefined;
+  /** for updates: what changes, in words */
+  changes?: string[] | undefined;
+}
+
 export interface PlanItem {
   /** which operation in the pasted JSON this comes from (1-based) */
   opIndex: number;
   action: PlanAction;
+  kind: ItemKind;
   summary: string;
+  preview?: PlanPreview | undefined;
   reason?: string | undefined;
   /** task that will be updated or deleted */
   taskId?: string | undefined;
@@ -452,20 +498,24 @@ function existingClock(t: ExistingTask, which: 'start_at' | 'end_at'): string | 
   return clockFromTimestamp(t[which], isRecurringTask(t));
 }
 
-/** One string per "same task": used to skip duplicates when the same JSON is imported twice. */
+const kindOfTask = (t: ExistingTask): ItemKind => (isEventTask(t) ? 'event' : 'task');
+const kindOfOp = (op: { target?: ItemKind | undefined }): ItemKind => (op.target === 'event' ? 'event' : 'task');
+
+/** One string per "same task": used to skip duplicates when the same text is imported twice. */
 function dedupeKey(
   workspaceId: string | null,
+  kind: ItemKind,
   title: string,
   s: { weekdays: number[] | null; date: string | null; startAt: string | null },
 ): string {
-  const head = `${workspaceId ?? ''}|${normTitle(title)}`;
+  const head = `${kind}|${workspaceId ?? ''}|${normTitle(title)}`;
   if (s.weekdays) return `${head}|weekly:${s.weekdays.join(',')}|${clockFromTimestamp(s.startAt, true) ?? ''}`;
   return `${head}|${s.date ?? ''}|${timestampToMs(s.startAt) ?? clockFromTimestamp(s.startAt, false) ?? ''}`;
 }
 
 function existingKey(t: ExistingTask): string {
   const weekdays = isRecurringTask(t) ? [...(t.recurrence_weekdays ?? [])].sort((a, b) => a - b) : null;
-  return dedupeKey(normWorkspace(t.workspace_id), t.title, {
+  return dedupeKey(normWorkspace(t.workspace_id), kindOfTask(t), t.title, {
     weekdays,
     date: weekdays ? null : localYmd(t.deadline),
     startAt: t.start_at ?? null,
@@ -477,8 +527,14 @@ function scheduleSignature(s: { weekdays: number[] | null; date: string | null; 
   return `${s.weekdays ? `w${s.weekdays.join(',')}` : `d${s.date ?? ''}`}|${clock(s.startAt)}|${clock(s.endAt)}`;
 }
 
-function findMatches(match: { id?: string | undefined; title?: string | undefined; date?: string | undefined }, tasks: ExistingTask[]): ExistingTask[] {
+/** Only rows of the same kind: `DELETE FROM tasks` can never remove an event and the other way round. */
+function findMatches(
+  match: { id?: string | undefined; title?: string | undefined; date?: string | undefined },
+  tasks: ExistingTask[],
+  kind: ItemKind,
+): ExistingTask[] {
   return tasks.filter((t) => {
+    if (kindOfTask(t) !== kind) return false;
     if (match.id !== undefined && String(t.id) !== match.id) return false;
     if (match.title !== undefined && normTitle(t.title) !== normTitle(match.title)) return false;
     if (match.date !== undefined && localYmd(t.deadline) !== match.date) return false;
@@ -504,6 +560,24 @@ function describeMatch(m: { id?: string | undefined; title?: string | undefined;
   return `id ${m.id}`;
 }
 
+function existingPreview(t: ExistingTask): PlanPreview {
+  const kind = kindOfTask(t);
+  const weekdays = isRecurringTask(t) ? [...(t.recurrence_weekdays ?? [])].sort((a, b) => a - b) : null;
+  return {
+    kind,
+    title: t.title,
+    assignment: kind === 'task' ? (t.assignment ?? undefined) : undefined,
+    difficulty: kind === 'task' ? (t.difficulty ?? undefined) : undefined,
+    status: kind === 'task' ? (t.status ?? undefined) : undefined,
+    description: t.description || undefined,
+    date: weekdays ? null : localYmd(t.deadline),
+    start: existingClock(t, 'start_at'),
+    end: existingClock(t, 'end_at'),
+    weekdays,
+    completed: Boolean(t.completed),
+  };
+}
+
 interface PlanEnv {
   now: Date;
   tasks: ExistingTask[];
@@ -513,6 +587,8 @@ interface PlanEnv {
 }
 
 function planAdd(op: AddOp, opIndex: number, env: PlanEnv): PlanItem[] {
+  const kind = kindOfOp(op);
+  const noun = kind === 'event' ? 'event ' : '';
   const weekdays = op.repeat_weekly_on ? toWeekdays(op.repeat_weekly_on) : null;
   const input: ScheduleInput = {
     date: op.date ?? null,
@@ -524,35 +600,50 @@ function planAdd(op: AddOp, opIndex: number, env: PlanEnv): PlanItem[] {
 
   let schedule: ScheduleFields;
   try {
-    schedule = buildSchedule(input, env.now);
+    schedule = buildSchedule(input, env.now, kind);
   } catch (err) {
-    return [{ opIndex, action: 'error', summary: `Add ${label}`, reason: err instanceof Error ? err.message : 'invalid schedule' }];
+    return [{ opIndex, action: 'error', kind, summary: `Add ${noun}${label}`, reason: err instanceof Error ? err.message : 'invalid schedule' }];
   }
 
-  const summary = `Add ${label} - ${describeSchedule({ ...input, end: schedule.end_at ? clockFromTimestamp(schedule.end_at, Boolean(weekdays)) : null })}`;
-  const key = dedupeKey(env.workspaceId, op.title, {
-    weekdays,
-    date: input.date,
-    startAt: schedule.start_at,
-  });
+  const start = schedule.start_at ? clockFromTimestamp(schedule.start_at, Boolean(weekdays)) : null;
+  const end = schedule.end_at ? clockFromTimestamp(schedule.end_at, Boolean(weekdays)) : null;
+  const summary = `Add ${noun}${label} - ${describeSchedule({ date: input.date, start, end, weekdays })}`;
+  const key = dedupeKey(env.workspaceId, kind, op.title, { weekdays, date: input.date, startAt: schedule.start_at });
 
   const earlier = env.seenKeys.get(key);
   if (earlier !== undefined) {
-    return [{ opIndex, action: 'skip', summary, reason: earlier === 0 ? 'Already in your tasks' : `Same as operation ${earlier}` }];
+    return [{ opIndex, action: 'skip', kind, summary, reason: earlier === 0 ? `Already in your ${kind}s` : `Same as operation ${earlier}` }];
   }
   env.seenKeys.set(key, opIndex);
+
+  const assignment = kind === 'event' ? EVENT_ASSIGNMENT : (op.assignment ?? DEFAULT_ASSIGNMENT);
+  const difficulty = op.difficulty ?? 'medium';
+  const status = op.status ?? 'todo';
 
   return [
     {
       opIndex,
       action: 'add',
+      kind,
       summary,
+      preview: {
+        kind,
+        title: op.title,
+        assignment: kind === 'task' ? assignment : undefined,
+        difficulty: kind === 'task' ? difficulty : undefined,
+        status: kind === 'task' ? status : undefined,
+        description: op.description || undefined,
+        date: weekdays ? null : input.date,
+        start,
+        end,
+        weekdays,
+      },
       fields: {
         title: op.title,
-        assignment: op.assignment ?? DEFAULT_ASSIGNMENT,
+        assignment,
         description: op.description ?? '',
-        difficulty: op.difficulty ?? 'medium',
-        status: op.status ?? 'todo',
+        difficulty,
+        status,
         workspace_id: env.workspaceId,
         ...schedule,
       },
@@ -561,19 +652,22 @@ function planAdd(op: AddOp, opIndex: number, env: PlanEnv): PlanItem[] {
 }
 
 function planUpdate(op: UpdateOp, opIndex: number, env: PlanEnv): PlanItem[] {
+  const kind = kindOfOp(op);
+  const noun = kind === 'event' ? 'event' : 'task';
   const target = describeMatch(op.match);
-  const matches = findMatches(op.match, env.tasks);
+  const matches = findMatches(op.match, env.tasks, kind);
 
   if (matches.length === 0) {
-    return [{ opIndex, action: 'skip', summary: `Update ${target}`, reason: 'No task matches, nothing changed' }];
+    return [{ opIndex, action: 'skip', kind, summary: `Update ${target}`, reason: `No ${noun} matches, nothing changed` }];
   }
   if (matches.length > 1) {
     return [
       {
         opIndex,
         action: 'error',
+        kind,
         summary: `Update ${target}`,
-        reason: `${matches.length} tasks match (${matches.slice(0, 3).map(describeTask).join(', ')}). Use the task "id" so only one is changed.`,
+        reason: `${matches.length} ${noun}s match (${matches.slice(0, 3).map(describeTask).join(', ')}). Use the ${noun} "id" so only one is changed.`,
       },
     ];
   }
@@ -582,36 +676,43 @@ function planUpdate(op: UpdateOp, opIndex: number, env: PlanEnv): PlanItem[] {
   const taskId = String(task.id);
   const claimed = env.claimedIds.get(taskId);
   if (claimed !== undefined) {
-    return [{ opIndex, action: 'skip', summary: `Update ${describeTask(task)}`, reason: `Operation ${claimed} already targets this task` }];
+    return [{ opIndex, action: 'skip', kind, summary: `Update ${describeTask(task)}`, reason: `Operation ${claimed} already targets this ${noun}` }];
   }
 
   const s = op.set;
   const fields: Record<string, unknown> = {};
   const changes: string[] = [];
+  const after = existingPreview(task);
 
   if (s.title !== undefined && s.title !== task.title) {
     fields['title'] = s.title;
+    after.title = s.title;
     changes.push(`title -> ${quote(s.title)}`);
   }
   if (s.assignment !== undefined && s.assignment !== (task.assignment ?? '')) {
     fields['assignment'] = s.assignment;
+    after.assignment = s.assignment;
     changes.push(`assignment -> ${s.assignment}`);
   }
   if (s.description !== undefined && s.description !== (task.description ?? '')) {
     fields['description'] = s.description;
+    after.description = s.description || undefined;
     changes.push('description changed');
   }
   if (s.difficulty !== undefined && s.difficulty !== task.difficulty) {
     fields['difficulty'] = s.difficulty;
+    after.difficulty = s.difficulty;
     changes.push(`difficulty -> ${s.difficulty}`);
   }
   if (s.status !== undefined && s.status !== task.status) {
     fields['status'] = s.status;
+    after.status = s.status;
     changes.push(`status -> ${s.status}`);
   }
   if (s.completed !== undefined && s.completed !== Boolean(task.completed)) {
     fields['completed'] = s.completed;
     fields['completed_at'] = s.completed ? env.now.toISOString() : null;
+    after.completed = s.completed;
     changes.push(s.completed ? 'mark completed' : 'mark not completed');
   }
 
@@ -626,6 +727,13 @@ function planUpdate(op: UpdateOp, opIndex: number, env: PlanEnv): PlanItem[] {
     let start = s.start_time !== undefined ? s.start_time : existingClock(task, 'start_at');
     let end = s.end_time !== undefined ? s.end_time : existingClock(task, 'end_at');
     if (s.start_time === null && s.end_time === undefined) end = null;
+    // Moving the start without giving a new end keeps the same length (09:00-11:00 moved to 14:00 ends 16:00).
+    if (s.start_time && s.end_time === undefined) {
+      const oldStart = existingClock(task, 'start_at');
+      const oldEnd = existingClock(task, 'end_at');
+      const length = oldStart && oldEnd ? hmToMinutes(oldEnd) - hmToMinutes(oldStart) : 0;
+      if (length > 0) end = minutesToHM(Math.min(hmToMinutes(s.start_time) + length, 23 * 60 + 59));
+    }
     if (s.date === null && !weekdays) {
       if (s.start_time === undefined) start = null;
       if (s.end_time === undefined) end = null;
@@ -633,43 +741,49 @@ function planUpdate(op: UpdateOp, opIndex: number, env: PlanEnv): PlanItem[] {
 
     let schedule: ScheduleFields;
     try {
-      schedule = buildSchedule({ date, start, end, weekdays }, env.now);
+      schedule = buildSchedule({ date, start, end, weekdays }, env.now, kind);
     } catch (err) {
-      return [{ opIndex, action: 'error', summary: `Update ${describeTask(task)}`, reason: err instanceof Error ? err.message : 'invalid schedule' }];
+      return [{ opIndex, action: 'error', kind, summary: `Update ${describeTask(task)}`, reason: err instanceof Error ? err.message : 'invalid schedule' }];
     }
 
-    const before = scheduleSignature({ weekdays: existingWeekdays, date: existingWeekdays ? null : localYmd(task.deadline), startAt: task.start_at ?? null, endAt: task.end_at ?? null });
-    const after = scheduleSignature({ weekdays, date: weekdays ? null : date, startAt: schedule.start_at, endAt: schedule.end_at });
-    if (before !== after) {
+    const beforeSig = scheduleSignature({ weekdays: existingWeekdays, date: existingWeekdays ? null : localYmd(task.deadline), startAt: task.start_at ?? null, endAt: task.end_at ?? null });
+    const afterSig = scheduleSignature({ weekdays, date: weekdays ? null : date, startAt: schedule.start_at, endAt: schedule.end_at });
+    if (beforeSig !== afterSig) {
       Object.assign(fields, schedule);
-      changes.push(
-        `when -> ${describeSchedule({ date: weekdays ? null : date, start, end: schedule.end_at ? clockFromTimestamp(schedule.end_at, Boolean(weekdays)) : null, weekdays })}`,
-      );
+      after.date = weekdays ? null : date;
+      after.start = schedule.start_at ? clockFromTimestamp(schedule.start_at, Boolean(weekdays)) : null;
+      after.end = schedule.end_at ? clockFromTimestamp(schedule.end_at, Boolean(weekdays)) : null;
+      after.weekdays = weekdays;
+      changes.push(`when -> ${describeSchedule({ date: after.date, start: after.start, end: after.end, weekdays })}`);
     }
   }
 
   if (changes.length === 0) {
-    return [{ opIndex, action: 'skip', summary: `Update ${describeTask(task)}`, reason: 'Already up to date' }];
+    return [{ opIndex, action: 'skip', kind, summary: `Update ${describeTask(task)}`, reason: 'Already up to date' }];
   }
 
   env.claimedIds.set(taskId, opIndex);
-  return [{ opIndex, action: 'update', summary: `Update ${describeTask(task)}: ${changes.join(', ')}`, taskId, fields }];
+  after.changes = changes;
+  return [{ opIndex, action: 'update', kind, summary: `Update ${describeTask(task)}: ${changes.join(', ')}`, taskId, fields, preview: after }];
 }
 
 function planDelete(op: DeleteOp, opIndex: number, env: PlanEnv): PlanItem[] {
+  const kind = kindOfOp(op);
+  const noun = kind === 'event' ? 'event' : 'task';
   const target = describeMatch(op.match);
-  const matches = findMatches(op.match, env.tasks);
+  const matches = findMatches(op.match, env.tasks, kind);
 
   if (matches.length === 0) {
-    return [{ opIndex, action: 'skip', summary: `Delete ${target}`, reason: 'No task matches, nothing deleted' }];
+    return [{ opIndex, action: 'skip', kind, summary: `Delete ${target}`, reason: `No ${noun} matches, nothing deleted` }];
   }
   if (matches.length > 1 && !op.all_matches) {
     return [
       {
         opIndex,
         action: 'error',
+        kind,
         summary: `Delete ${target}`,
-        reason: `${matches.length} tasks match (${matches.slice(0, 3).map(describeTask).join(', ')}). Use the task "id", or the AI must set "all_matches": true to delete every one.`,
+        reason: `${matches.length} ${noun}s match (${matches.slice(0, 3).map(describeTask).join(', ')}). Use the ${noun} "id", or add LIMIT ALL to delete every one.`,
       },
     ];
   }
@@ -678,10 +792,10 @@ function planDelete(op: DeleteOp, opIndex: number, env: PlanEnv): PlanItem[] {
     const taskId = String(task.id);
     const claimed = env.claimedIds.get(taskId);
     if (claimed !== undefined) {
-      return { opIndex, action: 'skip', summary: `Delete ${describeTask(task)}`, reason: `Operation ${claimed} already targets this task` };
+      return { opIndex, action: 'skip', kind, summary: `Delete ${describeTask(task)}`, reason: `Operation ${claimed} already targets this ${noun}` };
     }
     env.claimedIds.set(taskId, opIndex);
-    return { opIndex, action: 'delete', summary: `Delete ${describeTask(task)}`, taskId };
+    return { opIndex, action: 'delete', kind, summary: `Delete ${noun === 'event' ? 'event ' : ''}${describeTask(task)}`, taskId, preview: existingPreview(task) };
   });
 }
 
@@ -705,7 +819,7 @@ export function buildPlan(changeSet: ParsedChangeSet, ctx: PlanContext): ChangeP
   for (const parsed of changeSet.operations) {
     const op = parsed.operation;
     if (!op) {
-      items.push({ opIndex: parsed.index, action: 'error', summary: `Operation ${parsed.index}`, reason: parsed.error ?? 'invalid operation' });
+      items.push({ opIndex: parsed.index, action: 'error', kind: 'task', summary: `Operation ${parsed.index}`, reason: parsed.error ?? 'invalid operation' });
     } else if (op.op === 'add_task') {
       items.push(...planAdd(op, parsed.index, env));
     } else if (op.op === 'update_task') {
@@ -846,6 +960,13 @@ export function buildAiInstructions(options: AiInstructionOptions = {}): string 
     "UPDATE tasks SET date = '2026-11-14', start_time = '10:00', completed = TRUE WHERE id = '<task id>';",
     "DELETE FROM tasks WHERE id = '<task id>';",
     '',
+    'EVENTS (table: events) are things that happen at a time: exams, meetings, appointments, lectures, birthdays. They appear on the calendar and in reminders but NOT in the task list. Use tasks for work I have to finish.',
+    "INSERT INTO events (title, date, start_time, end_time, description, repeat_weekly_on)",
+    "  VALUES ('Physics exam', '2026-11-20', '09:00', '11:00', 'Hall B', NULL);",
+    "UPDATE events SET start_time = '10:00' WHERE id = '<event id>';",
+    "DELETE FROM events WHERE id = '<event id>';",
+    '- Events only have title, date, start_time, end_time, description and repeat_weekly_on (no assignment, difficulty, status or completed).',
+    '',
     'COLUMNS AND CONSTRAINTS',
     "- title: text, 3-100 characters (required for INSERT).",
     "- date: 'YYYY-MM-DD', a real calendar date, or NULL.",
@@ -861,7 +982,7 @@ export function buildAiInstructions(options: AiInstructionOptions = {}): string 
     'RULES',
     '- INSERT never removes or changes anything. Only write DELETE if I clearly asked to delete or remove something.',
     '- Use only the columns above, do not invent new ones. At most 200 statements.',
-    '- For UPDATE and DELETE, copy the exact id or title from the task list below. If a task is not in the list, do not guess.',
+    '- For UPDATE and DELETE, copy the exact id or title from the lists below and use the matching table (tasks or events). If an item is not in the lists, do not guess.',
   ];
 
   if (options.workspaceNames && options.workspaceNames.length > 0) {
@@ -870,10 +991,16 @@ export function buildAiInstructions(options: AiInstructionOptions = {}): string 
 
   if (options.tasks) {
     const open = options.tasks.filter((t) => !t.completed);
-    lines.push('', `MY CURRENT TASKS (${open.length} open)`);
-    if (open.length === 0) lines.push('(none)');
-    for (const t of open.slice(0, MAX_TASKS_IN_PROMPT)) lines.push(`- id=${t.id} | ${describeTask(t)}`);
-    if (open.length > MAX_TASKS_IN_PROMPT) lines.push(`(+ ${open.length - MAX_TASKS_IN_PROMPT} more not shown)`);
+    const groups: { title: string; rows: ExistingTask[] }[] = [
+      { title: 'MY CURRENT TASKS (table: tasks)', rows: open.filter((t) => !isEventTask(t)) },
+      { title: 'MY CURRENT EVENTS (table: events)', rows: open.filter(isEventTask) },
+    ];
+    for (const group of groups) {
+      lines.push('', `${group.title}, ${group.rows.length} open`);
+      if (group.rows.length === 0) lines.push('(none)');
+      for (const t of group.rows.slice(0, MAX_TASKS_IN_PROMPT)) lines.push(`- id=${t.id} | ${describeTask(t)}`);
+      if (group.rows.length > MAX_TASKS_IN_PROMPT) lines.push(`(+ ${group.rows.length - MAX_TASKS_IN_PROMPT} more not shown)`);
+    }
   }
 
   lines.push('', 'MY REQUEST', '(write what you want here)');

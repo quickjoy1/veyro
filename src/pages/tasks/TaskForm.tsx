@@ -14,6 +14,7 @@ import { StatusSelector } from '@/components/StatusSelector';
 import { useAuth } from '@/hooks/useAuth';
 import { useFormState } from '@/hooks/useFormState';
 import { useTaskSubmit } from '@/hooks/tasks/useTaskSubmit';
+import { isEventTask } from '@/utils/eventTasks';
 import { useTasks } from '@/store/appStore';
 import { useWorkspace } from '@/store/appStore';
 
@@ -375,7 +376,7 @@ const TaskForm = ({
   }
 
   // Computed values
-  const uniqueAssignments = [...new Set(tasks.map((task: any) => task.assignment || 'No Subject').filter(a => a && a !== 'No Subject'))].sort();
+  const uniqueAssignments = [...new Set(tasks.filter((task: any) => !isEventTask(task)).map((task: any) => task.assignment || 'No Subject').filter(a => a && a !== 'No Subject'))].sort();
   const modalTitle = initialTask ? 'Edit Task' : initialAssignment ? `Add Task for ${initialAssignment}` : 'Add Task';
   function formatDateOnlyForDisplay(datetime: string): string {
     if (!datetime) return '';

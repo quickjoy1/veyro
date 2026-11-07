@@ -1,13 +1,13 @@
 import { BookOpen } from "lucide-react";
 import { useEffect, useMemo } from "react";
-import { useTasksOnly } from "@/store/appStore";
+import { useRegularTasks } from "@/store/appStore";
 import { fetchLaps } from "@/store/LapActions";
 import { useTaskStudyTime } from "@/hooks/useTaskStudyTime";
 import { formatStudied } from "@/utils/taskStudyTime";
 
 /** Activity: how long you studied each task (today, last 7 days, all time). */
 const TaskStudyTimeCard = () => {
-  const tasks = useTasksOnly();
+  const tasks = useRegularTasks();
   const { totals, refresh } = useTaskStudyTime();
 
   useEffect(() => {
