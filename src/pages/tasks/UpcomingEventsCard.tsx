@@ -1,5 +1,5 @@
 import { CalendarDays, ChevronDown, Clock, Trash2, Zap } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import DeleteCompletedModal from '@/modals/DeleteTasksPop';
@@ -28,6 +28,51 @@ const todayYmd = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
+
+
+const EventListItem = memo(({ event, onDelete }: { event: EventRow; onDelete: (event: EventRow) => void }) => {
+  const deadline = event.date ? `${event.date}T00:00:00` : null;
+  const remaining = deadline ? getTimeRemainingString(deadline) : '';
+  const time = formatTimeRange(event.start, event.end);
+  return (
+    <li className="group flex items-center gap-2.5 rounded-lg border-2 border-[var(--border-primary)] bg-[var(--bg-primary)] p-3 transition-colors hover:border-[var(--accent-primary)]/40">
+      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]">
+        <CalendarDays size={16} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-2 text-sm text-[var(--text-secondary)]">
+          {event.weekdays ? (
+            <span className="flex min-w-0 items-center gap-1.5">
+              <Zap size={14} className="flex-shrink-0 opacity-70" />
+              <span className="truncate">{formatRecurrence(event.weekdays)}</span>
+            </span>
+          ) : (
+            <span className="flex min-w-0 items-center gap-1.5">
+              <Clock size={14} className="flex-shrink-0" />
+              <span className="truncate">{deadline ? formatDateShort(deadline) : 'No date'}</span>
+              {remaining && <span className="flex-shrink-0 rounded-full bg-[var(--bg-secondary)] px-1.5 py-0.5 text-xs font-medium">{remaining}</span>}
+            </span>
+          )}
+          {time && <span className="flex-shrink-0">{time}</span>}
+        </div>
+        <div className="truncate text-base font-medium text-[var(--text-primary)]" title={event.title}>
+          {event.title}
+        </div>
+        {event.description && <p className="line-clamp-1 text-xs text-[var(--text-secondary)]">{event.description}</p>}
+      </div>
+      <button
+        type="button"
+        onClick={() => onDelete(event)}
+        className="flex-shrink-0 rounded-lg p-1.5 text-[var(--text-secondary)] opacity-60 transition-colors hover:bg-red-500/10 hover:text-red-500 hover:opacity-100 group-hover:opacity-100"
+        title="Delete event"
+        aria-label={`Delete event ${event.title}`}
+      >
+        <Trash2 size={16} />
+      </button>
+    </li>
+  );
+});
+EventListItem.displayName = 'EventListItem';
 
 /**
  * Events (INSERT INTO events ...) are calendar and reminder items. They are kept out of the task
@@ -74,6 +119,8 @@ const UpcomingEventsCard = () => {
       .filter((e) => e.weekdays !== null || e.date === null || e.date >= today)
       .sort((a, b) => a.sortKey.localeCompare(b.sortKey));
   }, [allTasks, currentWorkspace]);
+
+  const requestDelete = useCallback((event: EventRow) => setToDelete(event), []);
 
   if (events.length === 0) return null;
 
@@ -126,51 +173,9 @@ const UpcomingEventsCard = () => {
       {!collapsed && (
         <>
           <ul className="mt-3 space-y-2" role="list">
-            {visible.map((event) => {
-              const deadline = event.date ? `${event.date}T00:00:00` : null;
-              const remaining = deadline ? getTimeRemainingString(deadline) : '';
-              const time = formatTimeRange(event.start, event.end);
-              return (
-                <li
-                  key={event.id}
-                  className="group flex items-center gap-2.5 rounded-lg border-2 border-[var(--border-primary)] bg-[var(--bg-primary)] p-3 transition-colors hover:border-[var(--accent-primary)]/40"
-                >
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]">
-                    <CalendarDays size={16} />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2 text-sm text-[var(--text-secondary)]">
-                      {event.weekdays ? (
-                        <span className="flex min-w-0 items-center gap-1.5">
-                          <Zap size={14} className="flex-shrink-0 opacity-70" />
-                          <span className="truncate">{formatRecurrence(event.weekdays)}</span>
-                        </span>
-                      ) : (
-                        <span className="flex min-w-0 items-center gap-1.5">
-                          <Clock size={14} className="flex-shrink-0" />
-                          <span className="truncate">{deadline ? formatDateShort(deadline) : 'No date'}</span>
-                          {remaining && <span className="flex-shrink-0 rounded-full bg-[var(--bg-secondary)] px-1.5 py-0.5 text-xs font-medium">{remaining}</span>}
-                        </span>
-                      )}
-                      {time && <span className="flex-shrink-0">{time}</span>}
-                    </div>
-                    <div className="truncate text-base font-medium text-[var(--text-primary)]" title={event.title}>
-                      {event.title}
-                    </div>
-                    {event.description && <p className="line-clamp-1 text-xs text-[var(--text-secondary)]">{event.description}</p>}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setToDelete(event)}
-                    className="flex-shrink-0 rounded-lg p-1.5 text-[var(--text-secondary)] opacity-60 transition-colors hover:bg-red-500/10 hover:text-red-500 hover:opacity-100 group-hover:opacity-100"
-                    title="Delete event"
-                    aria-label={`Delete event ${event.title}`}
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </li>
-              );
-            })}
+            {visible.map((event) => (
+              <EventListItem key={event.id} event={event} onDelete={requestDelete} />
+            ))}
           </ul>
           {events.length > VISIBLE_WHEN_FOLDED && (
             <button

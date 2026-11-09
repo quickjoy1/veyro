@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { FC, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { FC, lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { NavigationProvider, PAGE_PATHS, useNavigation } from "@/navbar/NavigationContext";
 import { useAuthActions, useFetchTasks, useTasksOnly, useWorkspace, useWorkspaceActions } from "@/store/appStore";
 import type { Workspace } from "@/types/workspace";
@@ -21,15 +21,15 @@ import { useFriendManagement } from "@/hooks/useFriendManagement";
 import { useWorkspaceLoader } from "@/hooks/useWorkspaceLoader";
 import { useDueReminders } from "@/hooks/useDueReminders";
 
-// Direct imports for stacked pages
-import CalendarPage from "@/pages/calendar/CalendarPage";
-import FocusWidgetPage from "@/pages/FocusWidgetPage";
-import HabitsPage from "@/pages/habits/HabitsPage";
-import Notes from "@/pages/notes/Notes";
-import SessionPage from "@/pages/session/SessionPage";
-import StatsPage from "@/pages/stats/StatsPage";
-import TasksPage from "@/pages/tasks/TasksPage";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
+// Pages are code-split: each loads on first visit (or on hover, see preloadMap)
+const CalendarPage = lazy(() => import("@/pages/calendar/CalendarPage"));
+const FocusWidgetPage = lazy(() => import("@/pages/FocusWidgetPage"));
+const HabitsPage = lazy(() => import("@/pages/habits/HabitsPage"));
+const Notes = lazy(() => import("@/pages/notes/Notes"));
+const SessionPage = lazy(() => import("@/pages/session/SessionPage"));
+const StatsPage = lazy(() => import("@/pages/stats/StatsPage"));
+const TasksPage = lazy(() => import("@/pages/tasks/TasksPage"));
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 import Sidebar from "@/components/Sidebar";
 
 // Preload map: import functions for each page to enable hover-based preloading
