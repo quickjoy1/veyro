@@ -124,8 +124,8 @@ const TasksPage = memo(() => {
   const fabPositionClass: Record<FabPosition, string> = {
     'bottom-right': 'bottom-20 right-6 sm:bottom-6',
     'bottom-left': 'bottom-20 left-6 sm:bottom-6',
-    'top-right': 'top-20 lg:top-6 right-6',
-    'top-left': 'top-20 lg:top-6 left-6',
+    'top-right': 'top-20 lg:top-24 right-6',
+    'top-left': 'top-20 lg:top-24 left-6',
   };
 
   const handleCloseTaskForm = () => {
@@ -243,16 +243,6 @@ const TasksPage = memo(() => {
       
       <UpcomingEventsCard />
       <KanbanBoard columnCount={columnCount} viewMode={viewMode} />
-      {/* Task Page Settings Button */}
-      <button
-        onClick={() => setShowSettings(true)}
-        className="fixed top-20 lg:top-6 right-6 z-40 h-10 px-3 rounded-lg bg-[var(--bg-primary)] border-2 border-[var(--border-primary)] shadow-md flex items-center gap-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-[var(--accent-primary)] transition-colors"
-        aria-label="Task page settings"
-        title="Task page settings"
-      >
-        <SettingsIcon size={18} />
-        <span className="hidden sm:inline">Task Page Settings</span>
-      </button>
       {/* Scroll Instruction Message */}
       {workspaces && workspaces.length > 1 && showScrollTip && (
         <div className="fixed bottom-20 sm:bottom-6 left-6 bg-[var(--bg-primary)] border-2 border-[var(--border-primary)] rounded-lg px-4 py-3 shadow-lg antialiased z-40 flex items-center gap-3 text-sm text-[var(--text-secondary)] max-w-xs">
@@ -295,7 +285,16 @@ const TasksPage = memo(() => {
             </button>
           </>
         )}
-        {/* Main FAB */}
+        {/* Settings + main FAB side by side */}
+        <div className="flex flex-row items-center gap-2">
+        <button
+          onClick={() => setShowSettings(true)}
+          className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-[var(--border-primary)] text-[var(--text-secondary)] bg-[var(--bg-primary)] shadow-lg transition-all duration-300 flex items-center justify-center hover:scale-110 hover:border-[var(--accent-primary)] hover:text-[var(--text-primary)] active:scale-95"
+          aria-label="Task page settings"
+          title="Task page settings"
+        >
+          <SettingsIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+        </button>
         <button
           data-tour="add-task"
           onClick={() => setShowFabMenu(prev => !prev)}
@@ -305,6 +304,7 @@ const TasksPage = memo(() => {
         >
           <Plus className={`w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-300 ${showFabMenu ? 'rotate-45' : ''}`} />
         </button>
+        </div>
       </div>
       {/* Backdrop to close FAB menu */}
       {showFabMenu && (
