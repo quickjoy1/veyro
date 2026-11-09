@@ -26,11 +26,11 @@ const Navbar = () => {
       <button
         onClick={() => navigateTo('session')}
         className="justify-self-start shrink-0 select-none min-h-11 flex items-center gap-2"
-        aria-label="Veyro home"
+        aria-label="Veyro Management home"
       >
         <img src="/assets/logo.svg" alt="" className="h-8 w-8 rounded-[9px]" />
-        <span className="hidden sm:inline font-heading text-lg font-bold text-[var(--text-primary)]">
-          Vey<span className="text-[var(--accent-primary)]">ro</span>
+        <span className="hidden sm:inline whitespace-nowrap font-heading text-lg font-bold text-[var(--text-primary)]">
+          Vey<span className="text-[var(--accent-primary)]">ro</span> Management
         </span>
       </button>
 
