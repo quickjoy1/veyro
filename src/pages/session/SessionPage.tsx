@@ -78,32 +78,32 @@ const SessionPage = memo(() => {
         <meta property="og:url" content="https://veyro.app/session" />
         <link rel="canonical" href="https://veyro.app/session" />
       </Helmet>
-      <div className="w-full session-page px-4 sm:px-6 lg:px-2 py-4" style={{ fontSize: 'clamp(0.875rem, 0.85rem + 0.15vw, 1rem)' }}>
+      <div className="w-full session-page px-4 sm:px-6 lg:px-2 pt-4 pb-24 sm:pb-4" style={{ fontSize: 'clamp(0.875rem, 0.85rem + 0.15vw, 1rem)' }}>
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
           className="w-full max-w-[73rem] 2xl:max-w-[92rem] mx-auto flex flex-col gap-4"
         >
-          {/* Top: Noise Generator + Scratchpad */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-            <motion.div variants={item} className="h-full">
-              <ScratchPad />
-            </motion.div>
-            <motion.div variants={item} className="dashboard-noise-card w-full h-full">
-              <NoiseGenerator />
-            </motion.div>
-          </div>
-
-          {/* Timers full width */}
-          <motion.div variants={item} className="w-full" data-tour="session-timer">
+          {/* Timers full width (first, as in UniTracker) */}
+          <motion.div variants={item} className="order-1 w-full" data-tour="session-timer">
             <UnifiedTimer isSynced={isSynced} isRunning={isRunning} />
           </motion.div>
 
           {/* Notifications: upcoming deadlines + reminder history */}
-          <motion.div variants={item} className="w-full">
+          <motion.div variants={item} className="order-2 w-full">
             <NotificationsPanel />
           </motion.div>
+
+          {/* Noise Generator + Scratchpad */}
+          <div className="order-3 grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+            <motion.div variants={item} className="dashboard-noise-card w-full h-full">
+              <NoiseGenerator />
+            </motion.div>
+            <motion.div variants={item} className="h-full">
+              <ScratchPad />
+            </motion.div>
+          </div>
         </motion.div>
       </div>
     </>

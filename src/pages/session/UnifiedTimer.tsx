@@ -261,7 +261,7 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
       return (
         <button
           onClick={() => dockFloat(id)}
-          className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+          className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
           aria-label="Dock timer back" title="Dock this timer back"
         >
           <Minimize2 size={18} />
@@ -275,7 +275,7 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
         <div className="relative">
           <button
             onClick={() => setStudyMenuOpen(v => !v)}
-            className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+            className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
             aria-label="Session menu" title="Session menu" aria-expanded={studyMenuOpen} aria-haspopup="menu"
           >
             <MoreVertical size={18} />
@@ -318,13 +318,13 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
     if (id === "pomodoro") {
       return (
         <>
-          <button type="button" onClick={() => setSyncPomodoro(!syncPomodoro)} className="p-1.5 rounded-md hover:bg-red-500/10 transition-colors" aria-label="Toggle sync" title={syncPomodoro ? "Sync ON" : "Sync OFF"}>
+          <button type="button" onClick={() => setSyncPomodoro(!syncPomodoro)} className="p-1.5 rounded-full hover:bg-red-500/10 transition-colors" aria-label="Toggle sync" title={syncPomodoro ? "Sync ON" : "Sync OFF"}>
             {syncPomodoro ? <RefreshCw size={18} className="text-red-500" /> : <RefreshCwOff size={18} className="text-[var(--text-secondary)]" />}
           </button>
-          <button onClick={openPomoSettings} className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" aria-label="Configure pomodoro" title="Options">
+          <button onClick={openPomoSettings} className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" aria-label="Configure pomodoro" title="Options">
             <MoreVertical size={18} />
           </button>
-          <button onClick={togglePomoAlarm} className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={pomoAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
+          <button onClick={togglePomoAlarm} className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={pomoAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
             {pomoAlarm ? <Bell size={18} /> : <BellOff size={18} />}
           </button>
         </>
@@ -333,10 +333,10 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
     if (id === "countdown") {
       return (
         <>
-          <button type="button" onClick={() => setSyncCountdown(!syncCountdown)} className="p-1.5 rounded-md hover:bg-green-500/10 transition-colors" aria-label="Toggle sync" title={syncCountdown ? "Sync ON" : "Sync OFF"}>
+          <button type="button" onClick={() => setSyncCountdown(!syncCountdown)} className="p-1.5 rounded-full hover:bg-green-500/10 transition-colors" aria-label="Toggle sync" title={syncCountdown ? "Sync ON" : "Sync OFF"}>
             {syncCountdown ? <RefreshCw size={18} className="text-green-500" /> : <RefreshCwOff size={18} className="text-[var(--text-secondary)]" />}
           </button>
-          <button onClick={toggleCountdownAlarm} className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={countdownAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
+          <button onClick={toggleCountdownAlarm} className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={countdownAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
             {countdownAlarm ? <Bell size={18} /> : <BellOff size={18} />}
           </button>
         </>
@@ -393,7 +393,7 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
                   {!floating[id] && (
                     <button
                       onClick={() => openFloat(id)}
-                      className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+                      className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
                       aria-label="Float this timer" title="Float this timer in its own window"
                     >
                       <PictureInPicture2 size={18} />
@@ -402,7 +402,7 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
                   {!floating[id] && (
                     <button
                       onClick={() => toggleFullscreen(id)}
-                      className="p-1.5 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+                      className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
                       aria-label={fsId === id ? "Exit full screen" : "Full screen clock"} title={fsId === id ? "Exit full screen (Esc)" : "Full screen clock"}
                     >
                       {fsId === id ? <Minimize2 size={18} /> : <Maximize2 size={18} />}

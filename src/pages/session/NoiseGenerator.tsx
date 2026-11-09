@@ -190,7 +190,7 @@ function SoundControl({
 
           <ReactSlider
             className="h-2 w-full bg-[var(--border-primary)] rounded-full cursor-pointer"
-            thumbClassName={`top-1/2 h-[18px] w-[18px] -translate-y-1/2 rounded-full ${theme.thumb} border-2 border-[var(--bg-primary)] shadow-sm cursor-grab active:cursor-grabbing transition-transform hover:scale-110 focus:outline-none focus:ring-2`}
+            thumbClassName={`top-0 -mt-[5px] h-[18px] w-[18px] rounded-full ${theme.thumb} border-2 border-[var(--bg-primary)] shadow-sm cursor-grab active:cursor-grabbing transition-transform hover:scale-110 focus:outline-none focus:ring-2`}
             trackClassName="h-2 rounded-full"
             renderTrack={(
               props: { key?: React.Key } & React.HTMLProps<HTMLDivElement>
