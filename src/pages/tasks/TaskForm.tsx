@@ -2,7 +2,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import '@/pages/calendar/datepicker-overrides.css';
 
 import { Calendar, Check, ChevronDown, ChevronUp, Sparkles, Wand2 } from 'lucide-react';
-import { parseDateForDB, to12Hour, to24Hour } from '@/utils/timeUtils';
+import { parseDateForDB, storedTimeToClock, to12Hour, to24Hour } from '@/utils/timeUtils';
 import { useEffect, useRef, useState } from 'react';
 
 import AutocompleteInput from '@/modals/AutocompleteInput';
@@ -319,7 +319,7 @@ const TaskForm = ({
   }
   function getInitialStartTimeForForm(): string | null {
     if (initialTask?.start_at) {
-      return normalizeTaskTime(initialTask.start_at);
+      return normalizeTaskTime(storedTimeToClock(initialTask.start_at, initialTask.recurrence_type === 'weekly'));
     }
 
     // Check if there's a calendar hour set
@@ -337,7 +337,7 @@ const TaskForm = ({
   }
   function getInitialEndTimeForForm(): string | null {
     if (initialTask?.end_at) {
-      return normalizeTaskTime(initialTask.end_at);
+      return normalizeTaskTime(storedTimeToClock(initialTask.end_at, initialTask.recurrence_type === 'weekly'));
     }
 
     // Check if there's a calendar hour set

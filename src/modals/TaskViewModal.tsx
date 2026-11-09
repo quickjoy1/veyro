@@ -1,3 +1,4 @@
+import { storedTimeToClock } from '@/utils/timeUtils';
 import { Calendar, CheckCircle2, Circle, Clock, Edit, Tag, Trash2 } from "lucide-react";
 import { formatDate, formatLongDateTime, fromNow } from "@/utils/dateUtils";
 
@@ -227,7 +228,7 @@ const TaskViewModal: React.FC<TaskViewModalProps> = ({
                   {task.start_at && task.end_at && <div>
                       <label className="text-sm font-medium text-[var(--text-secondary)] block mb-1">Time</label>
                       <p className="text-[var(--text-primary)]">
-                        {to12Hour(task.start_at)} - {to12Hour(task.end_at)}
+                        {to12Hour(storedTimeToClock(task.start_at, true))} - {to12Hour(storedTimeToClock(task.end_at, true))}
                       </p>
                     </div>}
                 </> : <div>
@@ -237,8 +238,8 @@ const TaskViewModal: React.FC<TaskViewModalProps> = ({
                   </p>
                   {/* Show time if available */}
                   {task.start_at && <p className="text-[var(--text-secondary)] text-sm mt-1">
-                      Time: {to12Hour(task.start_at)}
-                      {task.end_at && ` - ${to12Hour(task.end_at)}`}
+                      Time: {to12Hour(storedTimeToClock(task.start_at, false))}
+                      {task.end_at && ` - ${to12Hour(storedTimeToClock(task.end_at, false))}`}
                     </p>}
                 </div>}
             </div>

@@ -4,7 +4,7 @@ import { formatDateShort, getTimeRemainingString, parseDateFromString } from '@/
 import React from 'react';
 import { Task } from '@/types/taskStorage';
 import TaskStatusPicker from '@/pages/tasks/TaskStatusPicker';
-import { to12Hour } from '@/utils/timeUtils';
+import { storedTimeToClock, to12Hour } from '@/utils/timeUtils';
 
 // Helper para formatear días de recurrencia
 const formatRecurrenceText = (weekdays: number[]) => {
@@ -20,11 +20,14 @@ const formatRecurrenceText = (weekdays: number[]) => {
 };
 
 // Helper para formatear rangos de tiempo de forma compacta: "8–9 AM" en vez de "08:00 AM - 09:00 AM"
-const formatTimeRange = (startStr: string | undefined | null, endStr: string | undefined | null) => {
-    if (!startStr) return '';
-    const start12 = to12Hour(startStr);
-    if (!endStr) return start12;
-    const end12 = to12Hour(endStr);
+const formatTimeRange = (startStr: string | undefined | null, endStr: string | undefined | null, recurring = false) => {
+    // Stored times are UTC instants for one-off tasks: show them in the user's local time
+    const startClock = storedTimeToClock(startStr, recurring);
+    if (!startClock) return '';
+    const start12 = to12Hour(startClock);
+    const endClock = storedTimeToClock(endStr, recurring);
+    if (!endClock) return start12;
+    const end12 = to12Hour(endClock);
     const startPeriod = start12.split(' ')[1] || '';
     const endPeriod = end12.split(' ')[1] || '';
     const startHM = start12.split(' ')[0] || '';
@@ -215,7 +218,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                             {task.start_at && (
                                 <span className="text-[var(--text-secondary)] flex items-center gap-1 flex-shrink-0">
                                     <Clock size={14} className="opacity-60" />
-                                    {formatTimeRange(task.start_at, task.end_at)}
+                                    {formatTimeRange(task.start_at, task.end_at, true)}
                                 </span>
                             )}
                         </div>

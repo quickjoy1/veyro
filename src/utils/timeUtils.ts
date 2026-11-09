@@ -1,5 +1,25 @@
 // Time utility functions shared between components
 
+/**
+ * Clock time (HH:MM) of a stored start_at / end_at, as the user should see it.
+ * One-off tasks store the UTC instant of the user's local time, so it must be converted back to
+ * local time; weekly tasks store the clock digits as-is (UTC is only a container), so they are
+ * read without conversion. Plain "HH:MM" values (legacy rows) are returned unchanged.
+ */
+export function storedTimeToClock(ts: string | null | undefined, recurring: boolean): string | null {
+  if (!ts) return null;
+  const trimmed = ts.trim();
+  if (/^\d{1,2}:\d{2}(:\d{2})?$/.test(trimmed)) return trimmed.slice(0, 5).padStart(5, '0');
+  // '2026-02-09 09:00:00+00' -> '2026-02-09T09:00:00+00:00'
+  let iso = trimmed.replace(' ', 'T');
+  if (/[+-]\d{2}$/.test(iso)) iso += ':00';
+  if (!/(Z|[+-]\d{2}:\d{2})$/.test(iso)) iso += 'Z';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return recurring ? `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` : `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 // Convert 24h format (HH:MM) or timestamptz to 12h AM/PM format
 export function to12Hour(time24: string): string {
   if (!time24) return '';
