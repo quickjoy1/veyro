@@ -79,3 +79,6 @@ If you want this to happen without typing, set up a scheduled task (Windows Task
 ## Credits
 
 Veyro is built on [UniTracker](https://github.com/rickypcyt/unitracker) by [rickypcyt](https://github.com/rickypcyt), used under its open source license. Thanks to the original author for the foundation.
+- **Command palette and shortcuts**: `Ctrl/Cmd+K` (or `/`) searches pages, actions, tasks and events. When not typing: `G` then `S`/`T`/`P`/`A`/`J`/`N` jumps to Study/Tasks/Planning/Analytics/Journal/Notes, and `N` adds a task.
+- **Countdown**: the Study page shows days-left cards for your next events (exams, tests).
+- **Undo**: completing a task shows an Undo button for a few seconds.

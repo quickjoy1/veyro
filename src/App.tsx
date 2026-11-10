@@ -31,6 +31,7 @@ const StatsPage = lazy(() => import("@/pages/stats/StatsPage"));
 const TasksPage = lazy(() => import("@/pages/tasks/TasksPage"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 import Sidebar from "@/components/Sidebar";
+import CommandPalette from "@/components/CommandPalette";
 
 // Preload map: import functions for each page to enable hover-based preloading
 const preloadMap: Record<string, () => Promise<unknown>> = {
@@ -149,6 +150,7 @@ const PageContent: FC = () => {
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] w-full overflow-x-hidden flex flex-row">
       <Sidebar />
+      <CommandPalette />
       <div className="min-w-0 flex-1 relative">
         <Suspense fallback={<PageLoader />}>
           <div key={activePage} className="animate-page-in px-4 pb-4 pt-[4.5rem] lg:pt-20 sm:px-6 lg:px-8 2xl:px-12 overflow-x-hidden">

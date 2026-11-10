@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import NoiseGenerator from "@/pages/session/NoiseGenerator";
 import ScratchPad from "@/pages/session/ScratchPad";
 import UnifiedTimer from "@/pages/session/UnifiedTimer";
+import EventCountdown from '@/pages/session/EventCountdown';
 import NotificationsPanel from "@/pages/session/NotificationsPanel";
 
 const SessionPage = memo(() => {
@@ -88,6 +89,11 @@ const SessionPage = memo(() => {
           {/* Timers full width (first, as in UniTracker) */}
           <motion.div variants={item} className="order-1 w-full" data-tour="session-timer">
             <UnifiedTimer isSynced={isSynced} isRunning={isRunning} />
+          </motion.div>
+
+          {/* Days-left cards for upcoming events (hidden when there are none) */}
+          <motion.div variants={item} className="order-2 w-full empty:hidden">
+            <EventCountdown />
           </motion.div>
 
           {/* Notifications: upcoming deadlines + reminder history */}

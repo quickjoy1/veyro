@@ -6,6 +6,7 @@ import { parseDateForDB } from '@/utils/timeUtils';
 import { supabase } from '@/utils/supabaseClient';
 import { toast } from 'react-toastify';
 import { toggleTaskStatus } from "@/store/TaskActions";
+import { showUndoToast } from '@/utils/undoToast';
 
 // Constant for the "All" workspace
 const ALL_WORKSPACE_ID = 'all';
@@ -84,6 +85,21 @@ export const useTaskManager = (activeWorkspace: Workspace | null) => {
         // Si hay error, revertir el estado local
         toggleTaskStatus(taskId, task.completed);
         throw error;
+      }
+
+      // Finishing a task is one click away from a mistake: offer a quick way back.
+      if (!task.completed) {
+        showUndoToast(`Completed "${task.title}"`, async () => {
+          toggleTaskStatusAction(taskId, false);
+          const { error: undoError } = await supabase
+            .from('tasks')
+            .update({ completed: false, completed_at: null })
+            .eq('id', taskId);
+          if (undoError) {
+            toggleTaskStatus(taskId, true);
+            toast.error('Could not undo. The task is still completed.');
+          }
+        });
       }
     } catch (error) {
       console.error('Error toggling task completion:', error);
