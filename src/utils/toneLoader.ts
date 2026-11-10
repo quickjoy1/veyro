@@ -5,7 +5,6 @@ import type * as ToneNamespace from 'tone';
  * so it is loaded on demand instead of being part of the first download. `T` is a live binding:
  * it is assigned by loadTone(), and every code path that touches it awaits loadTone() first.
  */
-// eslint-disable-next-line import/no-mutable-exports
 export let T: typeof ToneNamespace;
 
 let pending: Promise<typeof ToneNamespace> | null = null;
