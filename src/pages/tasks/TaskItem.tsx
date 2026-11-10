@@ -4,6 +4,7 @@ import { formatDateShort, getTimeRemainingString, parseDateFromString } from '@/
 import React from 'react';
 import { Task } from '@/types/taskStorage';
 import TaskStatusPicker from '@/pages/tasks/TaskStatusPicker';
+import { celebrateAt } from '@/utils/celebrate';
 import { storedTimeToClock, to12Hour } from '@/utils/timeUtils';
 
 // Helper para formatear días de recurrencia
@@ -128,9 +129,15 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         }
     };
 
-    const handleToggleClick = (e: React.MouseEvent) => {
+    const handleToggleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
         e.preventDefault();
+        if (!task.completed) {
+            // Celebrate only when the user completes the task. The burst lives on <body> because the
+            // card moves to "Completed" right away.
+            const rect = e.currentTarget.getBoundingClientRect();
+            celebrateAt(rect.left + rect.width / 2, rect.top + rect.height / 2);
+        }
         onToggleCompletion(task.id);
     };
 
@@ -173,7 +180,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         <div
             className={`group relative flex p-3 rounded-lg transition-all duration-200 cursor-pointer gap-2.5 items-center
                 bg-[var(--bg-primary)] border-2 border-[var(--border-primary)]
-                hover:border-[var(--accent-primary)]/40 hover:shadow-md hover:shadow-black/30
+                hover:border-[var(--accent-primary)]/40 hover:shadow-md hover:shadow-black/30 hover:-translate-y-0.5
                 ${task.completed ? 'opacity-50' : ''}
             `}
             onDoubleClick={handleDoubleClick}
@@ -187,11 +194,11 @@ export const TaskItem: React.FC<TaskItemProps> = ({
                     onClick={handleToggleClick}
                     onMouseDown={(e) => e.stopPropagation()}
                     onTouchStart={(e) => e.stopPropagation()}
-                    className="bg-transparent border-none cursor-pointer flex items-center justify-center focus:outline-none rounded-full transition-transform duration-200 hover:scale-110 h-8 w-8"
+                    className="bg-transparent border-none cursor-pointer flex items-center justify-center focus:outline-none rounded-full transition-transform duration-200 ease-spring hover:scale-125 h-8 w-8"
                     aria-label={task.completed ? "Mark as incomplete" : "Mark as complete"}
                 >
                     {task.completed ? (
-                        <CheckCircle2 className="text-[var(--accent-primary)]" size={22} strokeWidth={2.2} />
+                        <CheckCircle2 className="text-[var(--accent-primary)] animate-check-pop" size={22} strokeWidth={2.2} />
                     ) : (
                         <Circle className={getDifficultyColor(task.difficulty || 'medium')} size={22} strokeWidth={2.2} />
                     )}

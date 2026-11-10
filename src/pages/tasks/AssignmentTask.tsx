@@ -21,7 +21,7 @@ export const AssignmentTask: React.FC<AssignmentTaskProps> = ({
   onTaskContextMenu,
 }) => {
   return (
-    <div className="mb-2">
+    <div className="mb-2 stagger-item">
       <TaskItem
         key={task.id}
         task={task}

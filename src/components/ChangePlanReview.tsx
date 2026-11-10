@@ -132,7 +132,7 @@ const ChangePlanReview = ({ text, onApplied }: ChangePlanReviewProps) => {
         </div>
       ))}
 
-      <ul className="max-h-[22rem] space-y-2 overflow-y-auto pr-1" role="list">
+      <ul className="stagger-children max-h-[22rem] space-y-2 overflow-y-auto pr-1" role="list">
         {plan.items.map((item, i) => (
           <PlanPreviewCard key={`${item.opIndex}-${i}`} item={item} />
         ))}

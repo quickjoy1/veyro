@@ -104,6 +104,40 @@ module.exports = {
         'scaleIn': {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' }
+        },
+        // Snappy, springy motion set
+        'pop-in': {
+          '0%': { opacity: '0', transform: 'translateY(14px) scale(0.94)' },
+          '60%': { opacity: '1', transform: 'translateY(-3px) scale(1.015)' },
+          '100%': { opacity: '1', transform: 'translateY(0) scale(1)' }
+        },
+        // opacity + top only: a transform here would trap position:fixed children (FAB, floating windows)
+        'page-in': {
+          '0%': { opacity: '0', position: 'relative', top: '16px' },
+          '100%': { opacity: '1', position: 'relative', top: '0' }
+        },
+        'modal-pop': {
+          '0%': { opacity: '0', transform: 'scale(0.88) translateY(12px)' },
+          '65%': { opacity: '1', transform: 'scale(1.025) translateY(-2px)' },
+          '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+        },
+        'check-pop': {
+          '0%': { transform: 'scale(0.3) rotate(-30deg)', opacity: '0' },
+          '55%': { transform: 'scale(1.4) rotate(8deg)', opacity: '1' },
+          '100%': { transform: 'scale(1) rotate(0)', opacity: '1' }
+        },
+        'wiggle': {
+          '0%, 100%': { transform: 'rotate(0)' },
+          '25%': { transform: 'rotate(-8deg)' },
+          '75%': { transform: 'rotate(8deg)' }
+        },
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 color-mix(in srgb, var(--accent-primary) 45%, transparent)' },
+          '50%': { boxShadow: '0 0 0 10px color-mix(in srgb, var(--accent-primary) 0%, transparent)' }
+        },
+        'shimmer': {
+          '0%': { backgroundPosition: '-200% 0' },
+          '100%': { backgroundPosition: '200% 0' }
         }
       },
       animation: {
@@ -111,7 +145,17 @@ module.exports = {
         'slide-right': 'slide-right 0.3s ease-out',
         'fadeIn': 'fadeIn 0.3s ease-out',
         'slideUp': 'slideUp 0.4s ease-out',
-        'scaleIn': 'scaleIn 0.3s ease-out'
+        'scaleIn': 'scaleIn 0.3s ease-out',
+        'pop-in': 'pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards',
+        'page-in': 'page-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) backwards',
+        'modal-pop': 'modal-pop 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) backwards',
+        'check-pop': 'check-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) backwards',
+        'wiggle': 'wiggle 0.5s ease-in-out',
+        'glow-pulse': 'glow-pulse 1.8s ease-out infinite',
+        'shimmer': 'shimmer 2.2s linear infinite'
+      },
+      transitionTimingFunction: {
+        spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
       }
     },
   },

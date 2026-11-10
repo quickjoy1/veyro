@@ -172,7 +172,7 @@ const UpcomingEventsCard = () => {
 
       {!collapsed && (
         <>
-          <ul className="mt-3 space-y-2" role="list">
+          <ul className="stagger-children mt-3 space-y-2" role="list">
             {visible.map((event) => (
               <EventListItem key={event.id} event={event} onDelete={requestDelete} />
             ))}

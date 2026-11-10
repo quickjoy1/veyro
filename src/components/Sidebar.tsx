@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { BarChart3, BookOpen, Calendar, CheckCircle2, Clock, Notebook, Settings } from 'lucide-react';
 import { useNavigation } from '@/navbar/NavigationContext';
 
@@ -40,17 +41,24 @@ const Navbar = () => {
             <button
               key={page}
               onClick={() => navigateTo(page)}
-              className={`min-w-9 min-h-11 sm:min-w-11 shrink-0 flex items-center justify-center gap-2 rounded-lg px-1.5 sm:px-2 lg:px-4 text-sm font-bold transition-colors ${
+              className={`relative min-w-9 min-h-11 sm:min-w-11 shrink-0 flex items-center justify-center gap-2 rounded-lg px-1.5 sm:px-2 lg:px-4 text-sm font-bold transition-colors ${
                 activePage === page
-                  ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
+                  ? 'text-[var(--accent-primary)]'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title={label}
               aria-label={label}
               aria-current={activePage === page ? 'page' : undefined}
             >
-              <Icon size={20} className="shrink-0" />
-              <span className="hidden min-[880px]:inline leading-none">{label}</span>
+              {activePage === page && (
+                <motion.span
+                  layoutId="nav-pill"
+                  className="absolute inset-0 rounded-lg bg-[var(--accent-primary)]/10"
+                  transition={{ type: 'spring', stiffness: 500, damping: 32 }}
+                />
+              )}
+              <Icon size={20} className={`relative shrink-0 transition-transform duration-300 ease-spring ${activePage === page ? 'scale-110' : 'group-hover:scale-110'}`} />
+              <span className="relative hidden min-[880px]:inline leading-none">{label}</span>
             </button>
           ))}
         </div>

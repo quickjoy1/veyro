@@ -163,7 +163,7 @@ const BaseModal = ({
   }[padding as string] ?? padding;
 
   const overlayClasses = `
-    BaseModal fixed inset-0 w-screen h-screen 
+    BaseModal fixed inset-0 w-screen h-screen animate-fadeIn 
     ${overlayClassName ?? DEFAULT_OVERLAY_CLASS} 
     flex items-center justify-center ${zIndex} 
     ${backdropBlur ? 'backdrop-blur-md' : ''} w-full px-3 sm:px-4 overflow-hidden
@@ -175,7 +175,7 @@ const BaseModal = ({
     ${paddingClass} w-full ${maxWidth} mx-auto ${className} 
     shadow-xl ${maxHeight} h-auto
     pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] 
-    flex flex-col
+    flex flex-col animate-modal-pop
     ${fullWidthOnMd ? 'md:max-w-[85%]' : ''}
   `.trim();
 

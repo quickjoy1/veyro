@@ -151,7 +151,7 @@ const PageContent: FC = () => {
       <Sidebar />
       <div className="min-w-0 flex-1 relative">
         <Suspense fallback={<PageLoader />}>
-          <div className="px-4 pb-4 pt-[4.5rem] lg:pt-20 sm:px-6 lg:px-8 2xl:px-12 overflow-x-hidden">
+          <div key={activePage} className="animate-page-in px-4 pb-4 pt-[4.5rem] lg:pt-20 sm:px-6 lg:px-8 2xl:px-12 overflow-x-hidden">
             {activePage === 'session' && <SessionPage />}
 
             {activePage === 'tasks' && (
