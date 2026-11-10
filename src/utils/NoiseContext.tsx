@@ -1,4 +1,5 @@
-import * as Tone from "tone";
+import type * as Tone from "tone";
+import { T, loadTone } from "@/utils/toneLoader";
 import { LofiEngine } from "@/utils/LofiEngine";
 
 import {
@@ -81,21 +82,22 @@ class AudioEngine {
     if (this.initialized) return true;
 
     try {
+      await loadTone();
       // Large output buffer — ambient noise doesn't need ~10ms latency, and
       // bigger render chunks survive CPU spikes that would otherwise underrun.
       // Must happen before any Tone.context access creates the default context.
-      Tone.setContext(new Tone.Context({ latencyHint: "playback" }));
+      T.setContext(new T.Context({ latencyHint: "playback" }));
 
-      if (!Tone.context || Tone.context.state !== "running") {
+      if (!T.context || T.context.state !== "running") {
         let resolved = false;
 
         const attemptStart = async () => {
           try {
-            await Tone.start();
-            if (Tone.context.state !== "running") {
-              await Tone.context.resume();
+            await T.start();
+            if (T.context.state !== "running") {
+              await T.context.resume();
             }
-            resolved = Tone.context.state === "running";
+            resolved = T.context.state === "running";
           } catch (error) {
             console.warn("Tone start/resume blocked:", error);
           }
@@ -103,7 +105,7 @@ class AudioEngine {
 
         await attemptStart();
 
-        if (!resolved && (!Tone.context || Tone.context.state !== "running")) {
+        if (!resolved && (!T.context || T.context.state !== "running")) {
           await new Promise<void>((resolve) => {
             const resumeAudio = async () => {
               await attemptStart();
@@ -118,20 +120,20 @@ class AudioEngine {
         }
       }
 
-      if (Tone.context.state !== "running") {
+      if (T.context.state !== "running") {
         return false;
       }
 
       if (!this.masterGain) {
         // Single shared output chain: masterGain → limiter → destination.
         // The limiter prevents digital clipping when several sounds sum.
-        this.masterLimiter = new Tone.Limiter(-1).toDestination();
-        this.masterGain = new Tone.Gain(1).connect(this.masterLimiter);
+        this.masterLimiter = new T.Limiter(-1).toDestination();
+        this.masterGain = new T.Gain(1).connect(this.masterLimiter);
 
         // One shared reverb bus: generating the impulse response is expensive,
         // so it happens once here instead of inside every sound start.
-        this.reverbSend = new Tone.Gain(1);
-        this.sharedReverb = new Tone.Reverb({ decay: 3, wet: 1 });
+        this.reverbSend = new T.Gain(1);
+        this.sharedReverb = new T.Reverb({ decay: 3, wet: 1 });
         this.reverbSend.connect(this.sharedReverb);
         this.sharedReverb.connect(this.masterLimiter);
       }
@@ -155,7 +157,7 @@ class AudioEngine {
   }
 
   isReady(): boolean {
-    return this.initialized && Tone.context?.state === "running";
+    return this.initialized && T.context?.state === "running";
   }
 
   dispose(): void {
@@ -215,39 +217,39 @@ class BrownNoiseNode extends BaseSoundNode {
   constructor(volume: number) {
     super(volume);
 
-    const deepBrown = new Tone.Noise("brown").start();
-    const deepFilter = new Tone.Filter(60, "lowpass", -24);
+    const deepBrown = new T.Noise("brown").start();
+    const deepFilter = new T.Filter(60, "lowpass", -24);
     deepFilter.Q.value = 0.2;
-    this.deepGain = new Tone.Gain(0.3);
+    this.deepGain = new T.Gain(0.3);
 
-    const mainBrown = new Tone.Noise("brown").start();
-    const mainFilter = new Tone.Filter(180, "lowpass", -12);
+    const mainBrown = new T.Noise("brown").start();
+    const mainFilter = new T.Filter(180, "lowpass", -12);
     mainFilter.Q.value = 0.3;
-    this.mainGain = new Tone.Gain(0.5);
+    this.mainGain = new T.Gain(0.5);
 
-    const midBrown = new Tone.Noise("brown").start();
-    const midFilter = new Tone.Filter(300, "bandpass", -12);
+    const midBrown = new T.Noise("brown").start();
+    const midFilter = new T.Filter(300, "bandpass", -12);
     midFilter.Q.value = 0.5;
-    this.midGain = new Tone.Gain(0.15);
+    this.midGain = new T.Gain(0.15);
 
     // High frequency texture layer removed to eliminate hiss
-    // const highTexture = new Tone.Noise("pink").start();
-    // const highFilter = new Tone.Filter(1000, "highpass", -24);
+    // const highTexture = new T.Noise("pink").start();
+    // const highFilter = new T.Filter(1000, "highpass", -24);
     // highFilter.Q.value = 0.3;
-    // this.highGain = new Tone.Gain(0.02);
+    // this.highGain = new T.Gain(0.02);
 
-    const slowLFO = new Tone.LFO(0.015, 0.9, 1.1).start();
-    const mediumLFO = new Tone.LFO(0.03, 0.95, 1.05).start();
-    // const highLFO = new Tone.LFO(0.08, 0.01, 0.03).start();
+    const slowLFO = new T.LFO(0.015, 0.9, 1.1).start();
+    const mediumLFO = new T.LFO(0.03, 0.95, 1.05).start();
+    // const highLFO = new T.LFO(0.08, 0.01, 0.03).start();
 
     slowLFO.connect(this.deepGain.gain);
     mediumLFO.connect(this.mainGain.gain);
     // highLFO.connect(this.highGain.gain);
 
-    const smoothingFilter = new Tone.Filter(500, "lowpass", -12);
+    const smoothingFilter = new T.Filter(500, "lowpass", -12);
     smoothingFilter.Q.value = 0.2;
 
-    const compressor = new Tone.Compressor({
+    const compressor = new T.Compressor({
       threshold: -18,
       ratio: 2,
       attack: 0.01,
@@ -255,7 +257,7 @@ class BrownNoiseNode extends BaseSoundNode {
       knee: 6,
     });
 
-    this.outputGain = new Tone.Gain(volume * 0.4)
+    this.outputGain = new T.Gain(volume * 0.4)
       .connect(smoothingFilter)
       .connect(compressor)
       .connect(AudioEngine.getInstance().getMasterOut());
@@ -299,13 +301,13 @@ class RainSoundNode extends BaseSoundNode {
     const engine = AudioEngine.getInstance();
     const masterOut = engine.getMasterOut();
     // ~0.3 wet — send gain preserves the original wet/dry ratio (w / (1 - w))
-    const wetGain = new Tone.Gain(0.43).connect(engine.getReverbSend());
+    const wetGain = new T.Gain(0.43).connect(engine.getReverbSend());
 
     // Background rain bed — steady filtered pink noise
-    const backgroundRain = new Tone.Noise("pink").start();
-    const backgroundFilter = new Tone.Filter(800, "lowpass");
+    const backgroundRain = new T.Noise("pink").start();
+    const backgroundFilter = new T.Filter(800, "lowpass");
     backgroundFilter.Q.value = 0.4;
-    this.backgroundGain = new Tone.Gain(volume * 0.5);
+    this.backgroundGain = new T.Gain(volume * 0.5);
 
     backgroundRain.connect(backgroundFilter);
     backgroundFilter.connect(this.backgroundGain);
@@ -313,8 +315,8 @@ class RainSoundNode extends BaseSoundNode {
     this.backgroundGain.connect(wetGain);
 
     // Subtle high-frequency pink layer for texture
-    const topPinkNoise = new Tone.Noise("pink").start();
-    this.topPinkGain = new Tone.Gain(volume * 0.075);
+    const topPinkNoise = new T.Noise("pink").start();
+    this.topPinkGain = new T.Gain(volume * 0.075);
     topPinkNoise.connect(this.topPinkGain);
     this.topPinkGain.connect(masterOut);
     this.topPinkGain.connect(wetGain);
@@ -348,21 +350,21 @@ class OceanWavesNode extends BaseSoundNode {
     super(volume);
 
     const engine = AudioEngine.getInstance();
-    this.masterGain = new Tone.Gain(0).connect(engine.getMasterOut());
-    this.outputGain = new Tone.Gain(0).connect(this.masterGain);
+    this.masterGain = new T.Gain(0).connect(engine.getMasterOut());
+    this.outputGain = new T.Gain(0).connect(this.masterGain);
 
     // Shared reverb send (~0.4 wet) tapped after masterGain so it follows
     // volume, with a short delay to keep ocean's pre-delay character.
-    const wetGain = new Tone.Gain(0.67);
-    const wetDelay = new Tone.Delay(0.14);
+    const wetGain = new T.Gain(0.67);
+    const wetDelay = new T.Delay(0.14);
     this.masterGain.connect(wetGain);
     wetGain.connect(wetDelay);
     wetDelay.connect(engine.getReverbSend());
 
     // Create wave modulation LFOs
-    const primaryWaveLFO = new Tone.LFO(0.06, 0.5, 0.9).start();
-    const secondaryWaveLFO = new Tone.LFO(0.12, 0.3, 0.7).start();
-    const randomModulation = new Tone.LFO(0.04, 0.02, 0.08).start();
+    const primaryWaveLFO = new T.LFO(0.06, 0.5, 0.9).start();
+    const secondaryWaveLFO = new T.LFO(0.12, 0.3, 0.7).start();
+    const randomModulation = new T.LFO(0.04, 0.02, 0.08).start();
     
     randomModulation.connect(primaryWaveLFO.frequency);
     randomModulation.connect(secondaryWaveLFO.frequency);
@@ -389,11 +391,11 @@ class OceanWavesNode extends BaseSoundNode {
   }
 
   private createDeepOcean(outputGain: Tone.Gain): void {
-    const noise = new Tone.Noise("brown").start();
+    const noise = new T.Noise("brown").start();
     noise.volume.value = -Infinity;
-    const filter = new Tone.Filter(80, "lowpass");
+    const filter = new T.Filter(80, "lowpass");
     filter.Q.value = 0.3;
-    const gain = new Tone.Gain(0);
+    const gain = new T.Gain(0);
 
     noise.chain(filter, gain, outputGain);
 
@@ -403,11 +405,11 @@ class OceanWavesNode extends BaseSoundNode {
   }
 
   private createMainWaves(outputGain: Tone.Gain): void {
-    const noise = new Tone.Noise("brown").start();
+    const noise = new T.Noise("brown").start();
     noise.volume.value = -Infinity;
-    const filter = new Tone.Filter(150, "lowpass");
+    const filter = new T.Filter(150, "lowpass");
     filter.Q.value = 0.6;
-    const gain = new Tone.Gain(0);
+    const gain = new T.Gain(0);
 
     noise.chain(filter, gain, outputGain);
 
@@ -417,12 +419,12 @@ class OceanWavesNode extends BaseSoundNode {
   }
 
   private createSurface(outputGain: Tone.Gain): void {
-    const noise = new Tone.Noise("pink").start();
+    const noise = new T.Noise("pink").start();
     noise.volume.value = -Infinity;
-    const highpass = new Tone.Filter(80, "highpass");
-    const lowpass = new Tone.Filter(800, "lowpass");
+    const highpass = new T.Filter(80, "highpass");
+    const lowpass = new T.Filter(800, "lowpass");
     lowpass.Q.value = 0.8;
-    const gain = new Tone.Gain(0);
+    const gain = new T.Gain(0);
 
     noise.chain(highpass, lowpass, gain, outputGain);
 
@@ -432,14 +434,14 @@ class OceanWavesNode extends BaseSoundNode {
   }
 
   private createWaveRetreat(outputGain: Tone.Gain): void {
-    const noise = new Tone.Noise("pink").start();
+    const noise = new T.Noise("pink").start();
     noise.volume.value = -Infinity;
-    const filter = new Tone.Filter(400, "bandpass");
+    const filter = new T.Filter(400, "bandpass");
     filter.Q.value = 2.0;
-    const gain = new Tone.Gain(0);
+    const gain = new T.Gain(0);
 
-    const washCycleLFO = new Tone.LFO(0.06, 0, 1).start();
-    const washFrequencyLFO = new Tone.LFO(0.06, 200, 600).start();
+    const washCycleLFO = new T.LFO(0.06, 0, 1).start();
+    const washFrequencyLFO = new T.LFO(0.06, 200, 600).start();
     
     washCycleLFO.connect(gain.gain);
     washFrequencyLFO.connect(filter.frequency);
@@ -452,13 +454,13 @@ class OceanWavesNode extends BaseSoundNode {
   }
 
   private createBreakingWaves(outputGain: Tone.Gain): void {
-    const noise = new Tone.Noise("pink").start();
+    const noise = new T.Noise("pink").start();
     noise.volume.value = -Infinity;
-    const filter = new Tone.Filter(600, "bandpass");
+    const filter = new T.Filter(600, "bandpass");
     filter.Q.value = 1.5;
-    const gain = new Tone.Gain(0);
+    const gain = new T.Gain(0);
 
-    const lfo = new Tone.LFO(0.12, 0.05, 0.2).start();
+    const lfo = new T.LFO(0.12, 0.05, 0.2).start();
     lfo.connect(gain.gain);
 
     noise.chain(filter, gain, outputGain);
@@ -469,13 +471,13 @@ class OceanWavesNode extends BaseSoundNode {
   }
 
   private createFoam(outputGain: Tone.Gain): void {
-    const noise = new Tone.Noise("pink").start();
+    const noise = new T.Noise("pink").start();
     noise.volume.value = -Infinity;
-    const filter = new Tone.Filter(1500, "highpass");
+    const filter = new T.Filter(1500, "highpass");
     filter.Q.value = 0.5;
-    const gain = new Tone.Gain(0);
+    const gain = new T.Gain(0);
 
-    const lfo = new Tone.LFO(0.18, 0.02, 0.08).start();
+    const lfo = new T.LFO(0.18, 0.02, 0.08).start();
     lfo.connect(gain.gain);
 
     noise.chain(filter, gain, outputGain);
@@ -486,11 +488,11 @@ class OceanWavesNode extends BaseSoundNode {
   }
 
   private createSplashes(outputGain: Tone.Gain): void {
-    const noise = new Tone.Noise("pink").start();
+    const noise = new T.Noise("pink").start();
     noise.volume.value = -Infinity;
-    const filter = new Tone.Filter(2000, "bandpass");
+    const filter = new T.Filter(2000, "bandpass");
     filter.Q.value = 1.0;
-    const gain = new Tone.Gain(0);
+    const gain = new T.Gain(0);
 
     noise.chain(filter, gain, outputGain);
 
@@ -532,19 +534,19 @@ class OceanWavesNode extends BaseSoundNode {
 
     if (isMuted) {
       this.masterGain.gain.cancelScheduledValues(0);
-      this.masterGain.gain.setValueAtTime(0, Tone.context.currentTime);
+      this.masterGain.gain.setValueAtTime(0, T.context.currentTime);
       
       this.outputGain.gain.cancelScheduledValues(0);
-      this.outputGain.gain.setValueAtTime(0, Tone.context.currentTime);
+      this.outputGain.gain.setValueAtTime(0, T.context.currentTime);
 
       this.componentGains.forEach((gain) => {
         gain.gain.cancelScheduledValues(0);
-        gain.gain.setValueAtTime(0, Tone.context.currentTime);
+        gain.gain.setValueAtTime(0, T.context.currentTime);
       });
 
       this.noiseSources.forEach((noise) => {
         noise.volume.cancelScheduledValues(0);
-        noise.volume.setValueAtTime(-Infinity, Tone.context.currentTime);
+        noise.volume.setValueAtTime(-Infinity, T.context.currentTime);
       });
     } else {
       this.setGainWithRamp(this.masterGain, baseVolume);

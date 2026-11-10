@@ -136,14 +136,9 @@ export default defineConfig(({ command, mode }) => {
     ],
     optimizeDeps: {
       include: [
-        '@chakra-ui/react',
-        '@emotion/react',
-        '@emotion/styled',
         'react',
         'react-dom',
         'react-dom/client',
-        'react-redux',
-        '@reduxjs/toolkit',
         'framer-motion',
         'react-toastify',
         'lucide-react',
@@ -155,9 +150,6 @@ export default defineConfig(({ command, mode }) => {
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
         '@dayflow/core'
-      ],
-      exclude: [
-        'chart.js'
       ],
       ...(isDev && !isFastDev && {
         esbuildOptions: {

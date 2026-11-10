@@ -1,4 +1,5 @@
-import * as Tone from "tone";
+import type * as Tone from "tone";
+import { T, loadTone } from "@/utils/toneLoader";
 
 export type LofiSourceType = "curated" | "local" | "radio" | "youtube";
 
@@ -405,12 +406,13 @@ export class LofiEngine {
     }
 
     try {
-      if (Tone.context.state !== "running") {
-        await Tone.start();
+      await loadTone();
+      if (T.context.state !== "running") {
+        await T.start();
       }
 
       if (!this.proceduralSynth) {
-        this.proceduralSynth = new Tone.PolySynth(Tone.Synth, {
+        this.proceduralSynth = new T.PolySynth(T.Synth, {
           oscillator: { type: "triangle8" },
           envelope: {
             attack: 0.15,
@@ -420,30 +422,30 @@ export class LofiEngine {
           },
         });
 
-        this.proceduralFilter = new Tone.Filter(750, "lowpass", -12);
+        this.proceduralFilter = new T.Filter(750, "lowpass", -12);
         this.proceduralFilter.Q.value = 0.5;
 
-        this.proceduralVibrato = new Tone.Vibrato(4, 0.12);
+        this.proceduralVibrato = new T.Vibrato(4, 0.12);
 
-        this.proceduralGain = new Tone.Gain(this.volume * 0.45);
+        this.proceduralGain = new T.Gain(this.volume * 0.45);
 
         this.proceduralSynth.chain(
           this.proceduralVibrato,
           this.proceduralFilter,
           this.proceduralGain,
-          Tone.getDestination()
+          T.getDestination()
         );
 
         // Ambient vinyl crackle texture
-        this.proceduralVinyl = new Tone.Noise("pink").start();
-        this.proceduralVinylFilter = new Tone.Filter(1800, "bandpass");
+        this.proceduralVinyl = new T.Noise("pink").start();
+        this.proceduralVinylFilter = new T.Filter(1800, "bandpass");
         this.proceduralVinylFilter.Q.value = 2.5;
-        this.proceduralVinylGain = new Tone.Gain(this.volume * 0.035);
+        this.proceduralVinylGain = new T.Gain(this.volume * 0.035);
 
         this.proceduralVinyl.chain(
           this.proceduralVinylFilter,
           this.proceduralVinylGain,
-          Tone.getDestination()
+          T.getDestination()
         );
       } else {
         this.proceduralGain?.gain.rampTo(this.volume * 0.45, 0.1);

@@ -5,7 +5,6 @@ import "@fontsource/inter/latin-700.css";
 import "@/index.css";
 
 import * as Sentry from "@sentry/react";
-import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 
 import { Analytics } from "@vercel/analytics/react";
 import App from "@/App";
@@ -84,14 +83,12 @@ const root = ReactDOM.createRoot(document.getElementById("root")!);
 
 root.render(
   <Sentry.ErrorBoundary fallback={<ErrorFallback />} showDialog>
-    <ChakraProvider value={defaultSystem}>
-      <HelmetProvider>
-        <BrowserRouter>
-          <App />
-          <Analytics />
-          <SpeedInsights />
-        </BrowserRouter>
-      </HelmetProvider>
-    </ChakraProvider>
+    <HelmetProvider>
+      <BrowserRouter>
+        <App />
+        <Analytics />
+        <SpeedInsights />
+      </BrowserRouter>
+    </HelmetProvider>
   </Sentry.ErrorBoundary>
 );

@@ -6,7 +6,6 @@ import type { Workspace } from "@/types/workspace";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 
 import FloatingFooter from "@/components/FloatingFooter";
-import LandingPage from "@/pages/landing/LandingPage";
 import PageLoader from "@/components/PageLoader";
 import { NoiseProvider } from "@/utils/NoiseContext";
 import { ToastContainer } from "react-toastify";
@@ -22,6 +21,7 @@ import { useWorkspaceLoader } from "@/hooks/useWorkspaceLoader";
 import { useDueReminders } from "@/hooks/useDueReminders";
 
 // Pages are code-split: each loads on first visit (or on hover, see preloadMap)
+const LandingPage = lazy(() => import("@/pages/landing/LandingPage"));
 const CalendarPage = lazy(() => import("@/pages/calendar/CalendarPage"));
 const FocusWidgetPage = lazy(() => import("@/pages/FocusWidgetPage"));
 const HabitsPage = lazy(() => import("@/pages/habits/HabitsPage"));
@@ -264,7 +264,7 @@ const RootRoute: FC = () => {
   const { isLoggedIn, isAuthLoading } = useAuth();
 
   if (isAuthLoading) return <PageLoader fullScreen />;
-  return isLoggedIn ? <Navigate to={PAGE_PATHS.session} replace /> : <LandingPage />;
+  return isLoggedIn ? <Navigate to={PAGE_PATHS.session} replace /> : <Suspense fallback={<PageLoader fullScreen />}><LandingPage /></Suspense>;
 };
 
 // -------------------------
@@ -355,7 +355,7 @@ const App: FC = () => {
           <UserModalGate />
           <Routes>
             <Route path="/" element={<RootRoute />} />
-            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/landing" element={<Suspense fallback={<PageLoader fullScreen />}><LandingPage /></Suspense>} />
             <Route path="/app" element={<Navigate to={PAGE_PATHS.session} replace />} />
             <Route path={PAGE_PATHS.session} element={<AppRoute />} />
             <Route path={PAGE_PATHS.tasks} element={<AppRoute />} />
