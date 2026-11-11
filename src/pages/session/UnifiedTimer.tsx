@@ -13,11 +13,13 @@ import { useWakeLock } from "@/hooks/useWakeLock";
 
 type TimerId = "study" | "pomodoro" | "countdown";
 
-const TIMER_CONFIG: Record<TimerId, { label: string; icon: typeof Clock; panelClass: string; labelClass: string }> = {
-  study: { label: "Study", icon: Clock, panelClass: "timer-panel-study", labelClass: "" },
-  pomodoro: { label: "Pomodoro", icon: TimerIcon, panelClass: "timer-panel-pomo", labelClass: "timer-panel-label-pomo" },
-  countdown: { label: "Countdown", icon: Watch, panelClass: "timer-panel-countdown", labelClass: "timer-panel-label-countdown" },
+const TIMER_CONFIG: Record<TimerId, { label: string; icon: typeof Clock; panelClass: string; iconClass: string }> = {
+  study: { label: "Study", icon: Clock, panelClass: "timer-panel-study", iconClass: "text-[var(--accent-primary)]" },
+  pomodoro: { label: "Pomodoro", icon: TimerIcon, panelClass: "timer-panel-pomo", iconClass: "text-[var(--notion-red)]" },
+  countdown: { label: "Countdown", icon: Watch, panelClass: "timer-panel-countdown", iconClass: "text-[var(--notion-green)]" },
 };
+
+const TAB_KEY = "unifiedTimerTab";
 
 const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?: boolean }) => {
   const [showPomodoro, setShowPomodoro] = useState(true);
@@ -27,6 +29,13 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
   const [dragOverId, setDragOverId] = useState<TimerId | null>(null);
   const dragIdRef = useRef<TimerId | null>(null);
   const [studyMenuOpen, setStudyMenuOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<TimerId>(() => {
+    try {
+      const saved = localStorage.getItem(TAB_KEY);
+      if (saved === "study" || saved === "pomodoro" || saved === "countdown") return saved;
+    } catch {}
+    return "study";
+  });
 
   // ── Full-screen clock (big colourful digits on black) ─────────────────────
   const [fsId, setFsId] = useState<TimerId | null>(null);
@@ -261,10 +270,10 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
       return (
         <button
           onClick={() => dockFloat(id)}
-          className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+          className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
           aria-label="Dock timer back" title="Dock this timer back"
         >
-          <Minimize2 size={18} />
+          <Minimize2 size={16} />
         </button>
       );
     }
@@ -275,10 +284,10 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
         <div className="relative">
           <button
             onClick={() => setStudyMenuOpen(v => !v)}
-            className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+            className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
             aria-label="Session menu" title="Session menu" aria-expanded={studyMenuOpen} aria-haspopup="menu"
           >
-            <MoreVertical size={18} />
+            <MoreVertical size={16} />
           </button>
           {studyMenuOpen && (
             <>
@@ -318,14 +327,14 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
     if (id === "pomodoro") {
       return (
         <>
-          <button type="button" onClick={() => setSyncPomodoro(!syncPomodoro)} className="p-1.5 rounded-full hover:bg-red-500/10 transition-colors" aria-label="Toggle sync" title={syncPomodoro ? "Sync ON" : "Sync OFF"}>
-            {syncPomodoro ? <RefreshCw size={18} className="text-red-500" /> : <RefreshCwOff size={18} className="text-[var(--text-secondary)]" />}
+          <button type="button" onClick={() => setSyncPomodoro(!syncPomodoro)} className="p-1 rounded-full hover:bg-red-500/10 transition-colors" aria-label="Toggle sync" title={syncPomodoro ? "Sync ON" : "Sync OFF"}>
+            {syncPomodoro ? <RefreshCw size={16} className="text-red-500" /> : <RefreshCwOff size={16} className="text-[var(--text-secondary)]" />}
           </button>
-          <button onClick={openPomoSettings} className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" aria-label="Configure pomodoro" title="Options">
-            <MoreVertical size={18} />
+          <button onClick={openPomoSettings} className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" aria-label="Configure pomodoro" title="Options">
+            <MoreVertical size={16} />
           </button>
-          <button onClick={togglePomoAlarm} className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={pomoAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
-            {pomoAlarm ? <Bell size={18} /> : <BellOff size={18} />}
+          <button onClick={togglePomoAlarm} className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={pomoAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
+            {pomoAlarm ? <Bell size={16} /> : <BellOff size={16} />}
           </button>
         </>
       );
@@ -333,11 +342,11 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
     if (id === "countdown") {
       return (
         <>
-          <button type="button" onClick={() => setSyncCountdown(!syncCountdown)} className="p-1.5 rounded-full hover:bg-green-500/10 transition-colors" aria-label="Toggle sync" title={syncCountdown ? "Sync ON" : "Sync OFF"}>
-            {syncCountdown ? <RefreshCw size={18} className="text-green-500" /> : <RefreshCwOff size={18} className="text-[var(--text-secondary)]" />}
+          <button type="button" onClick={() => setSyncCountdown(!syncCountdown)} className="p-1 rounded-full hover:bg-green-500/10 transition-colors" aria-label="Toggle sync" title={syncCountdown ? "Sync ON" : "Sync OFF"}>
+            {syncCountdown ? <RefreshCw size={16} className="text-green-500" /> : <RefreshCwOff size={16} className="text-[var(--text-secondary)]" />}
           </button>
-          <button onClick={toggleCountdownAlarm} className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={countdownAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
-            {countdownAlarm ? <Bell size={18} /> : <BellOff size={18} />}
+          <button onClick={toggleCountdownAlarm} className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={countdownAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
+            {countdownAlarm ? <Bell size={16} /> : <BellOff size={16} />}
           </button>
         </>
       );
@@ -355,14 +364,46 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
     show: { opacity: 1, y: 0, transition: { duration: 0.3 } },
   };
 
+  const shownTab: TimerId = visibleTimers.includes(activeTab) ? activeTab : (visibleTimers[0] ?? "study");
+  const pickTab = (id: TimerId) => {
+    setActiveTab(id);
+    try { localStorage.setItem(TAB_KEY, id); } catch {}
+  };
+  const gridCols = visibleTimers.length >= 3 ? "lg:grid-cols-3" : visibleTimers.length === 2 ? "lg:grid-cols-2" : "lg:grid-cols-1";
+
   return (
     <div className="flex flex-col gap-3">
+      {/* Phones and tablets: one timer at a time. Hidden ones stay mounted, so they keep running. */}
+      {visibleTimers.length > 1 && (
+        <div role="tablist" aria-label="Timers" className="lg:hidden grid gap-1 p-1 rounded-xl bg-[var(--bg-secondary)]" style={{ gridTemplateColumns: `repeat(${visibleTimers.length}, minmax(0, 1fr))` }}>
+          {visibleTimers.map(id => {
+            const TabIcon = TIMER_CONFIG[id].icon;
+            const on = shownTab === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={on}
+                onClick={() => pickTab(id)}
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-all ${
+                  on ? "bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                }`}
+              >
+                <TabIcon size={15} className={on ? TIMER_CONFIG[id].iconClass : ""} />
+                {TIMER_CONFIG[id].label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Timer Panels */}
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid gap-2 w-full grid-cols-1 lg:grid-cols-[repeat(2,minmax(0,1fr))] xl:grid-cols-[repeat(3,minmax(0,1fr))] lg:[&>*:nth-child(3)]:col-span-2 lg:[&>*:nth-child(3)]:justify-self-center lg:[&>*:nth-child(3)]:max-w-[24rem] xl:[&>*:nth-child(3)]:col-span-1 xl:[&>*:nth-child(3)]:max-w-none"
+        className={`grid gap-4 w-full grid-cols-1 ${gridCols}`}
       >
         {visibleTimers.map(id => {
           const config = TIMER_CONFIG[id];
@@ -377,7 +418,9 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
               onDragOver={(e) => handleDragOver(e, id)}
               onDrop={(e) => handleDrop(e, id)}
               onDragEnd={handleDragEnd}
-              className={`timer-panel w-full h-72 ${config.panelClass} ${
+              className={`timer-panel group/panel w-full h-72 ${config.panelClass} ${
+                shownTab !== id ? "max-lg:!hidden" : ""
+              } ${
                 fsId === id ? `timer-panel-fs timer-panel-fs-${id}` : ""
               } ${
                 draggedId === id ? "timer-panel-dragging" : ""
@@ -385,27 +428,27 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
                 dragOverId === id ? "timer-panel-drag-over" : ""
               }`}
             >
-              <div className={`timer-panel-label ${config.labelClass}`}>
-                <GripVertical size={16} className="opacity-40 cursor-grab" />
-                <Icon size={18} />
+              <div className="timer-panel-label">
+                <GripVertical size={14} className="hidden lg:block opacity-0 group-hover/panel:opacity-40 transition-opacity cursor-grab -ml-1" />
+                <Icon size={15} className={config.iconClass} />
                 <span>{config.label}</span>
-                <div className="flex items-center gap-0.5 ml-auto">
+                <div className="timer-panel-actions flex items-center gap-0.5 ml-auto">
                   {!floating[id] && (
                     <button
                       onClick={() => openFloat(id)}
-                      className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+                      className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
                       aria-label="Float this timer" title="Float this timer in its own window"
                     >
-                      <PictureInPicture2 size={18} />
+                      <PictureInPicture2 size={16} />
                     </button>
                   )}
                   {!floating[id] && (
                     <button
                       onClick={() => toggleFullscreen(id)}
-                      className="p-1.5 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
+                      className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors"
                       aria-label={fsId === id ? "Exit full screen" : "Full screen clock"} title={fsId === id ? "Exit full screen (Esc)" : "Full screen clock"}
                     >
-                      {fsId === id ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+                      {fsId === id ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
                     </button>
                   )}
                   {renderActions(id)}
@@ -414,7 +457,7 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
               <div ref={getHostRef(id)} className={floating[id] ? "hidden" : "flex-1 min-h-0 flex flex-col"} />
               {floating[id] ? (
                 <div className="flex-1 min-h-0 flex flex-col items-center justify-center gap-2 text-xs text-[var(--text-secondary)]">
-                  <PictureInPicture2 size={18} />
+                  <PictureInPicture2 size={16} />
                   <span>Floating</span>
                   <button
                     onClick={() => dockFloat(id)}

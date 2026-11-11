@@ -47,42 +47,52 @@ const NotificationsPanel = () => {
   const enable = async () => setPerm(await requestDesktopPermission());
   const sendTest = () => showDesktopNotification("Veyro", { body: "Notifications are working." });
 
+  const MAX_UPCOMING = 5;
+  const shown = upcoming.slice(0, MAX_UPCOMING);
+  const hidden = upcoming.length - shown.length;
+  const overdueCount = upcoming.filter((u) => u.dueMs < now).length;
+
   const tabBtn = (id: Tab, label: string, badge?: number) => (
     <button
       type="button"
+      role="tab"
+      aria-selected={tab === id}
       onClick={() => setTab(id)}
-      className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${
+      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${
         tab === id
-          ? "border-[var(--accent-primary)] text-[var(--accent-primary)] bg-[var(--accent-primary)]/10"
-          : "border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          ? "bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm"
+          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       }`}
     >
       {label}
-      {badge ? <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-xs bg-red-500 text-white">{badge}</span> : null}
+      {badge ? <span className="min-w-[1.125rem] px-1 rounded-full text-[11px] leading-[1.125rem] text-center font-semibold bg-red-500 text-white">{badge}</span> : null}
     </button>
   );
 
+  const ghostBtn = "flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[var(--text-secondary)]";
+
+  // The surrounding card is drawn by the page; this block is just the content.
   return (
-    <div className="w-full rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-4 flex flex-col gap-3" data-tour="session-notifications">
-      <div className="flex flex-wrap items-center gap-2">
-        <BellRing size={18} className="text-[var(--accent-primary)]" />
-        <h2 className="font-semibold text-[var(--text-primary)] text-base sm:text-lg">Notifications</h2>
-        <div className="flex gap-2 ml-2">
-          {tabBtn("upcoming", "Upcoming", upcoming.filter((u) => u.dueMs < now).length || undefined)}
+    <section className="p-4 sm:p-5 flex flex-col gap-3" data-tour="session-notifications" aria-label="Notifications">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <BellRing size={16} className="text-[var(--accent-primary)]" />
+        <h2 className="font-semibold text-[var(--text-primary)] text-base">Notifications</h2>
+        <div role="tablist" aria-label="Notification views" className="flex gap-0.5 p-0.5 rounded-lg bg-[var(--bg-secondary)]">
+          {tabBtn("upcoming", "Upcoming", overdueCount || undefined)}
           {tabBtn("history", "History", unread || undefined)}
         </div>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center">
           {perm === "granted" ? (
-            <button type="button" onClick={sendTest} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)]">
-              <Bell size={14} /> Send test
+            <button type="button" onClick={sendTest} className={ghostBtn} title="Send a test notification">
+              <Bell size={14} /> Test
             </button>
           ) : perm === "unsupported" ? (
-            <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1"><BellOff size={14} /> Desktop alerts not supported</span>
+            <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1" title="This browser does not support desktop alerts"><BellOff size={14} /> Not supported</span>
           ) : perm === "denied" ? (
-            <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1"><BellOff size={14} /> Desktop alerts blocked in browser settings</span>
+            <span className="text-xs text-[var(--text-secondary)] flex items-center gap-1" title="Desktop alerts are blocked in your browser's site settings"><BellOff size={14} /> Alerts blocked</span>
           ) : (
-            <button type="button" onClick={enable} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-[var(--accent-primary)] text-white hover:opacity-90">
-              <Bell size={14} /> Enable desktop alerts
+            <button type="button" onClick={enable} className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-[var(--accent-primary)] text-white hover:opacity-90 transition-opacity">
+              <Bell size={14} /> Enable alerts
             </button>
           )}
         </div>
@@ -90,42 +100,52 @@ const NotificationsPanel = () => {
 
       {tab === "upcoming" ? (
         upcoming.length === 0 ? (
-          <p className="text-sm text-[var(--text-secondary)] py-2">Nothing due in the next 7 days. Add a deadline to a task and it shows up here.</p>
+          <p className="text-sm text-[var(--text-secondary)] py-1">Nothing due in the next 7 days. Add a deadline to a task and it shows up here.</p>
         ) : (
-          <div className="flex flex-col gap-1.5 max-h-72 overflow-y-auto pr-1">
-            {upcoming.map((u) => (
-              <button
-                key={u.id}
-                type="button"
-                onClick={() => navigateTo("tasks")}
-                className="flex items-center gap-2.5 text-left bg-[var(--bg-secondary)] border-2 border-[var(--border-primary)] rounded-lg px-3 py-2 hover:border-[var(--accent-primary)] transition-colors"
-              >
-                <span className="text-sm text-[var(--text-primary)] truncate flex-1">{u.title}</span>
-                <span className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap ${u.tier ? TIER_STYLE[u.tier] : NEUTRAL}`}>{formatDue(u.dueMs, now)}</span>
-              </button>
+          <ul className="flex flex-col -mx-2" role="list">
+            {shown.map((u) => (
+              <li key={u.id}>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("tasks")}
+                  className="w-full flex items-center gap-3 text-left rounded-lg px-2 py-2 hover:bg-[var(--bg-secondary)] transition-colors"
+                >
+                  <span className="text-sm text-[var(--text-primary)] truncate flex-1">{u.title}</span>
+                  <span className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap ${u.tier ? TIER_STYLE[u.tier] : NEUTRAL}`}>{formatDue(u.dueMs, now)}</span>
+                </button>
+              </li>
             ))}
-          </div>
+            {hidden > 0 && (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => navigateTo("tasks")}
+                  className="w-full text-left rounded-lg px-2 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
+                >
+                  +{hidden} more in Tasks
+                </button>
+              </li>
+            )}
+          </ul>
         )
       ) : (
         <>
-          <div className="flex gap-2">
-            <button type="button" onClick={markAllRead} disabled={!unread} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] disabled:opacity-40">
+          <div className="flex gap-1">
+            <button type="button" onClick={markAllRead} disabled={!unread} className={ghostBtn}>
               <Check size={13} /> Mark all read
             </button>
-            <button type="button" onClick={clearRead} disabled={items.every((i) => !i.read)} className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-red-500 disabled:opacity-40">
+            <button type="button" onClick={clearRead} disabled={items.every((i) => !i.read)} className={`${ghostBtn} hover:!text-red-500`}>
               <Trash2 size={13} /> Clear read
             </button>
           </div>
           {items.length === 0 ? (
-            <p className="text-sm text-[var(--text-secondary)] py-2">No notifications yet. Reminders appear here 3 days, 1 day, 3 hours and 1 hour before a deadline, when it is due, and while it is overdue.</p>
+            <p className="text-sm text-[var(--text-secondary)] py-1">No notifications yet. Reminders appear here 3 days, 1 day, 3 hours and 1 hour before a deadline, when it is due, and while it is overdue.</p>
           ) : (
-            <div className="flex flex-col gap-1.5 max-h-72 overflow-y-auto pr-1">
+            <ul className="flex flex-col -mx-2 max-h-64 overflow-y-auto" role="list">
               {items.map((n) => (
-                <div
+                <li
                   key={n.id}
-                  className={`flex items-center gap-2.5 border-2 rounded-lg px-3 py-2 transition-colors ${
-                    n.read ? "border-[var(--border-primary)] bg-[var(--bg-secondary)] opacity-70" : "border-[var(--accent-primary)]/50 bg-[var(--bg-secondary)]"
-                  }`}
+                  className={`flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-[var(--bg-secondary)] transition-colors ${n.read ? "opacity-60" : ""}`}
                 >
                   <span className={`w-2 h-2 rounded-full flex-shrink-0 ${n.read ? "bg-transparent" : "bg-[var(--accent-primary)]"}`} />
                   <button type="button" onClick={() => { markRead(n.id); navigateTo("tasks"); }} className="flex-1 text-left min-w-0">
@@ -136,13 +156,13 @@ const NotificationsPanel = () => {
                     <button type="button" aria-label="Mark as read" onClick={() => markRead(n.id)} className="p-1 text-[var(--text-secondary)] hover:text-[var(--accent-primary)]"><Check size={15} /></button>
                   )}
                   <button type="button" aria-label="Delete" onClick={() => remove(n.id)} className="p-1 text-[var(--text-secondary)] hover:text-red-500"><X size={15} /></button>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </>
       )}
-    </div>
+    </section>
   );
 };
 

@@ -1556,35 +1556,41 @@ h1 {
   background-color: var(--bg-primary);
 }
 
-/* Timer Panels - individual styling per timer */
+/* Timer Panels - one calm card per timer, identified by a thin accent tab on top */
 .timer-panel {
-  border-radius: 0.75rem;
-  padding: 1rem 0.5rem;
+  --panel-accent: var(--accent-primary);
+  position: relative;
+  border-radius: 1rem;
+  padding: 0.75rem 0.5rem 1rem;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border-primary);
   background-color: var(--bg-primary);
-  transition: all 0.3s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.timer-panel::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  width: 2.25rem;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 0 0 3px 3px;
+  background: var(--panel-accent);
+  opacity: 0.85;
 }
 
 .timer-panel:hover {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.18);
 }
 
-/* Study Timer panel - blue accent */
-.timer-panel-study {
-  border: 1px solid var(--border-primary);
-}
+.timer-panel-study { --panel-accent: var(--accent-primary); }
+.timer-panel-pomo { --panel-accent: var(--notion-red); }
+.timer-panel-countdown { --panel-accent: var(--notion-green); }
 
-/* Pomodoro panel - red/tomato accent */
-.timer-panel-pomo {
-  border: 1px solid var(--border-primary);
-}
-
-/* Countdown panel - green accent */
-.timer-panel-countdown {
-  border: 1px solid var(--border-primary);
-}
+.timer-panel-fs::before { display: none; }
 
 /* Drag and drop states */
 .timer-panel-dragging {
@@ -1598,32 +1604,25 @@ h1 {
   border-width: 2px;
 }
 
-/* Panel labels */
+/* Panel header: small label on the left, quiet tools on the right (full strength on hover) */
 .timer-panel-label {
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  padding: 0.25rem 0.5rem;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+  padding: 0.125rem 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--accent-primary);
-  background-color: color-mix(in srgb, var(--accent-primary) 8%, transparent);
-  border-radius: 0.375rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
   width: 100%;
 }
 
-.timer-panel-label-pomo {
-  color: var(--notion-red);
-  background-color: color-mix(in srgb, var(--notion-red) 8%, transparent);
-}
-
-.timer-panel-label-countdown {
-  color: var(--notion-green);
-  background-color: color-mix(in srgb, var(--notion-green) 8%, transparent);
-}
+.timer-panel-actions { opacity: 0.55; transition: opacity 0.2s ease; }
+.timer-panel:hover .timer-panel-actions,
+.timer-panel:focus-within .timer-panel-actions { opacity: 1; }
+@media (hover: none) { .timer-panel-actions { opacity: 1; } }
 
 /* Status badges inside panel labels */
 .timer-status-badge {
@@ -1745,15 +1744,15 @@ h1 {
 }
 
 .dashboard-noise-card {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
   border: 1px solid var(--border-primary);
-  border-radius: 0.75rem;
-  padding: 1rem;
+  border-radius: 1rem;
+  padding: 1rem 1.125rem;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dark .dashboard-noise-card {
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
   border-color: var(--border-primary);
 }
 

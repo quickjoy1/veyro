@@ -97,39 +97,35 @@ const ScratchPad = memo(() => {
   };
 
   return (
-    <div className="w-full h-full min-h-[220px] rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-4 flex flex-col">
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center pb-3">
-        <div className="flex items-center gap-2 justify-self-start">
-          <div className="p-2 rounded-lg bg-[var(--accent-primary)]/10">
-            <StickyNote size={18} className="text-[var(--accent-primary)]" />
-          </div>
-          <h3 className="text-base sm:text-lg font-semibold text-[var(--text-primary)] leading-tight">
-            Scratchpad
-          </h3>
-        </div>
-        <button
-          onClick={insertCheckbox}
-          className="justify-self-center flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/50 hover:bg-[var(--accent-primary)]/10 transition-colors"
-          title="Insert checkbox"
-          aria-label="Insert checkbox"
-        >
-          <CheckSquare size={15} />
-          Insert checkbox
-        </button>
-        <div className="flex items-center gap-2 justify-self-end">
-          {lineCount > 0 && (
-            <span className="text-xs text-[var(--text-secondary)] tabular-nums">
-              {lineCount} line{lineCount !== 1 ? "s" : ""}
-            </span>
-          )}
+    <div className="w-full h-full min-h-[200px] rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-4 sm:p-5 flex flex-col">
+      <div className="flex items-center gap-2 pb-3">
+        <StickyNote size={16} className="text-[var(--accent-primary)]" />
+        <h3 className="text-base font-semibold text-[var(--text-primary)] leading-tight">
+          Scratchpad
+        </h3>
+        {lineCount > 0 && (
+          <span className="text-xs text-[var(--text-secondary)] tabular-nums">
+            {lineCount} line{lineCount !== 1 ? "s" : ""}
+          </span>
+        )}
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            onClick={insertCheckbox}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 transition-colors"
+            title="Insert checkbox"
+            aria-label="Insert checkbox"
+          >
+            <CheckSquare size={15} />
+            <span className="hidden sm:inline">Checkbox</span>
+          </button>
           {text && (
             <button
               onClick={() => handleChange("")}
-              className="p-2 rounded-full text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
+              className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-red-500 hover:bg-red-500/10 transition-colors"
               title="Clear note"
               aria-label="Clear note"
             >
-              <Eraser size={18} />
+              <Eraser size={16} />
             </button>
           )}
         </div>

@@ -58,7 +58,7 @@ const Navbar = () => {
                 />
               )}
               <Icon size={20} className={`relative shrink-0 transition-transform duration-300 ease-spring ${activePage === page ? 'scale-110' : 'group-hover:scale-110'}`} />
-              <span className="relative hidden min-[880px]:inline leading-none">{label}</span>
+              <span className="relative hidden min-[1240px]:inline leading-none">{label}</span>
             </button>
           ))}
         </div>

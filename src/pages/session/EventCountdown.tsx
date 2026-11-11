@@ -1,6 +1,7 @@
-import { CalendarClock } from 'lucide-react';
+import { CalendarClock, Plus } from 'lucide-react';
 import { memo, useEffect, useMemo, useState } from 'react';
 
+import { useNavigation } from '@/navbar/NavigationContext';
 import { useAppStore, useWorkspace } from '@/store/appStore';
 import { clockFromTimestamp, localYmd } from '@/utils/changeImport';
 import { isEventTask } from '@/utils/eventTasks';
@@ -40,6 +41,7 @@ const label = (days: number) => (days === 0 ? 'Today' : `${days}`);
 const EventCountdown = () => {
   const allTasks = useAppStore((state) => state.tasks.tasks);
   const { currentWorkspace } = useWorkspace();
+  const { navigateTo } = useNavigation();
 
   // Re-evaluate "today" at midnight so the numbers do not go stale on a tab left open overnight.
   const [day, setDay] = useState(() => startOfDay(new Date()));
@@ -65,24 +67,42 @@ const EventCountdown = () => {
       .slice(0, MAX_SHOWN);
   }, [allTasks, currentWorkspace, day]);
 
-  if (upcoming.length === 0) return null;
+  if (upcoming.length === 0) {
+    return (
+      <section aria-label="Upcoming events countdown" data-testid="event-countdown" className="p-4 sm:p-5">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <CalendarClock size={16} className="text-[var(--accent-primary)]" />
+          <h3 className="text-base font-semibold text-[var(--text-primary)]">Countdown</h3>
+          <button
+            type="button"
+            onClick={() => navigateTo('calendar')}
+            className="ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--accent-primary)] transition-colors"
+          >
+            <Plus size={14} /> Add event
+          </button>
+        </div>
+        <p className="mt-1 text-sm text-[var(--text-secondary)]">No upcoming events. Add an exam or test and its days-left count shows up here.</p>
+      </section>
+    );
+  }
 
+  // The surrounding card is drawn by the page; this block is just the content.
   return (
-    <section aria-label="Upcoming events countdown" data-testid="event-countdown" className="rounded-xl border-2 border-[var(--border-primary)] bg-[var(--bg-secondary)] p-3 sm:p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <CalendarClock size={18} className="text-[var(--accent-primary)]" />
+    <section aria-label="Upcoming events countdown" data-testid="event-countdown" className="p-4 sm:p-5">
+      <div className="mb-1 flex items-center gap-2">
+        <CalendarClock size={16} className="text-[var(--accent-primary)]" />
         <h3 className="text-base font-semibold text-[var(--text-primary)]">Countdown</h3>
         <span className="text-xs text-[var(--text-secondary)]">your next events</span>
       </div>
-      <ul className="stagger-children grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4" role="list">
+      <ul className="stagger-children divide-y divide-[var(--border-primary)]" role="list">
         {upcoming.map((event) => {
           const t = tone(event.days);
           const isWord = event.days === 0;
           return (
-            <li key={event.id} className={`flex items-center gap-3 rounded-lg border-2 bg-[var(--bg-primary)] p-3 ${t.ring}`}>
-              <div className="flex w-12 shrink-0 flex-col items-center leading-none">
-                <span className={`font-heading font-bold ${t.num} ${isWord ? 'text-base' : 'text-3xl'}`}>{label(event.days)}</span>
-                {!isWord && <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">{event.days === 1 ? 'day left' : 'days left'}</span>}
+            <li key={event.id} className="flex items-center gap-4 py-2.5 first:pt-2 last:pb-0">
+              <div className="flex w-14 shrink-0 flex-col items-center leading-none">
+                <span className={`font-heading font-bold ${t.num} ${isWord ? 'text-base' : 'text-2xl'}`}>{label(event.days)}</span>
+                {!isWord && <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">{event.days === 1 ? 'day' : 'days'}</span>}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold text-[var(--text-primary)]" title={event.title}>

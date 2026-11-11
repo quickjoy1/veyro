@@ -79,36 +79,36 @@ const SessionPage = memo(() => {
         <meta property="og:url" content="https://veyro.app/session" />
         <link rel="canonical" href="https://veyro.app/session" />
       </Helmet>
-      <div className="w-full session-page px-4 sm:px-6 lg:px-2 pt-4 pb-24 sm:pb-4" style={{ fontSize: 'clamp(0.875rem, 0.85rem + 0.15vw, 1rem)' }}>
+      <div className="w-full session-page px-4 sm:px-6 lg:px-2 pt-5 sm:pt-6 pb-24 sm:pb-8" style={{ fontSize: 'clamp(0.875rem, 0.85rem + 0.15vw, 1rem)' }}>
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="w-full max-w-[73rem] 2xl:max-w-[92rem] mx-auto flex flex-col gap-4"
+          className="w-full max-w-[73rem] 2xl:max-w-[92rem] mx-auto flex flex-col gap-5"
         >
-          {/* Timers full width (first, as in UniTracker) */}
-          <motion.div variants={item} className="order-1 w-full" data-tour="session-timer">
+          {/* 1. Timers: the focus of the page */}
+          <motion.div variants={item} className="w-full" data-tour="session-timer">
             <UnifiedTimer isSynced={isSynced} isRunning={isRunning} />
           </motion.div>
 
-          {/* Days-left cards for upcoming events (hidden when there are none) */}
-          <motion.div variants={item} className="order-2 w-full empty:hidden">
-            <EventCountdown />
-          </motion.div>
-
-          {/* Notifications: upcoming deadlines + reminder history */}
-          <motion.div variants={item} className="order-2 w-full">
-            <NotificationsPanel />
-          </motion.div>
-
-          {/* Noise Generator + Scratchpad */}
-          <div className="order-3 grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
-            <motion.div variants={item} className="dashboard-noise-card w-full h-full">
-              <NoiseGenerator />
+          {/* 2. What is coming up (left) next to sounds and notes (right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+            {/* One card, two sections: event countdown (hidden when empty) and deadline notifications */}
+            <motion.div variants={item} className="lg:col-span-7 min-w-0 flex flex-col">
+              <div className="rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-primary)] divide-y divide-[var(--border-primary)]">
+                <EventCountdown />
+                <NotificationsPanel />
+              </div>
             </motion.div>
-            <motion.div variants={item} className="h-full">
-              <ScratchPad />
-            </motion.div>
+            <div className="lg:col-span-5 min-w-0 flex flex-col gap-5">
+              <motion.div variants={item} className="dashboard-noise-card w-full">
+                <NoiseGenerator />
+              </motion.div>
+              {/* Notes fill whatever height the left card needs, so both columns end together */}
+              <motion.div variants={item} className="w-full flex-1 flex flex-col [&>*]:flex-1">
+                <ScratchPad />
+              </motion.div>
+            </div>
           </div>
         </motion.div>
       </div>

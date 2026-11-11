@@ -82,3 +82,4 @@ Veyro is built on [UniTracker](https://github.com/rickypcyt/unitracker) by [rick
 - **Command palette and shortcuts**: `Ctrl/Cmd+K` (or `/`) searches pages, actions, tasks and events. When not typing: `G` then `S`/`T`/`P`/`A`/`J`/`N` jumps to Study/Tasks/Planning/Analytics/Journal/Notes, and `N` adds a task.
 - **Countdown**: the Study page shows days-left cards for your next events (exams, tests).
 - **Undo**: completing a task shows an Undo button for a few seconds.
+- **Study page layout**: timers on top (one at a time behind tabs on phones, so running timers keep going), then one card for your event countdown and deadline notifications beside the noise generator and scratchpad.

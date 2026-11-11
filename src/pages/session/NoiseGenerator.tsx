@@ -122,7 +122,7 @@ function SoundControl({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -1 }}
-      className={`relative rounded-xl border bg-[var(--bg-primary)] p-2.5 sm:p-3 transition-all duration-200 hover:shadow-md ${
+      className={`relative rounded-xl border bg-[var(--bg-secondary)]/60 p-2.5 sm:p-3 transition-all duration-200 hover:shadow-md ${
         isPlaying
           ? `${theme.activeBorder} shadow-sm ring-1 ${theme.activeRing}`
           : "border-[var(--border-primary)]"
@@ -612,9 +612,7 @@ export default function NoiseGenerator() {
         className="flex items-center justify-between pb-2"
       >
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-[var(--accent-primary)]/10">
-            <Headphones size={17} className="text-[var(--accent-primary)]" />
-          </div>
+          <Headphones size={16} className="text-[var(--accent-primary)]" />
           <h3 className="text-base font-semibold text-[var(--text-primary)] leading-tight">
             Noise Generator
           </h3>
