@@ -5,6 +5,7 @@ import { useNavigation } from '@/navbar/NavigationContext';
 import { useAppStore, useWorkspace } from '@/store/appStore';
 import { clockFromTimestamp, localYmd } from '@/utils/changeImport';
 import { isEventTask } from '@/utils/eventTasks';
+import { paceHint, readinessFor, type Readiness } from '@/utils/examReadiness';
 import { formatTimeRange } from '@/utils/formatTimeRange';
 
 const MAX_SHOWN = 4;
@@ -18,6 +19,7 @@ interface Upcoming {
   date: string;
   days: number;
   time: string;
+  readiness: Readiness | null;
 }
 
 /** Whole calendar days from today to a local YYYY-MM-DD date. */
@@ -52,15 +54,26 @@ const EventCountdown = () => {
 
   const upcoming = useMemo<Upcoming[]>(() => {
     const now = new Date(day);
+    const inWorkspace = (t: { workspace_id?: string | null }) =>
+      !currentWorkspace || currentWorkspace.id === 'all' || t.workspace_id === currentWorkspace.id;
+    // Subject tasks (not events) are what an exam's readiness is measured on.
+    const subjectTasks = allTasks.filter((t) => !isEventTask(t) && inWorkspace(t));
     return allTasks
       .filter((t) => isEventTask(t) && !t.completed && t.recurrence_type !== 'weekly')
-      .filter((t) => !currentWorkspace || currentWorkspace.id === 'all' || t.workspace_id === currentWorkspace.id)
+      .filter(inWorkspace)
       .map((t) => {
         const date = localYmd(t.deadline);
         if (!date) return null;
         const start = clockFromTimestamp(t.start_at, false);
         const end = clockFromTimestamp(t.end_at, false);
-        return { id: String(t.id), title: t.title, date, days: daysUntil(date, now), time: formatTimeRange(start, end) };
+        return {
+          id: String(t.id),
+          title: t.title,
+          date,
+          days: daysUntil(date, now),
+          time: formatTimeRange(start, end),
+          readiness: readinessFor(t.title, subjectTasks),
+        };
       })
       .filter((e): e is Upcoming => e !== null && e.days >= 0)
       .sort((a, b) => a.days - b.days || a.time.localeCompare(b.time))
@@ -117,6 +130,26 @@ const EventCountdown = () => {
                   })}
                   {event.time ? ` · ${event.time}` : ''}
                 </div>
+                {event.readiness && (
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5" data-testid="exam-readiness">
+                    <div
+                      className="h-1 w-20 shrink-0 overflow-hidden rounded-full bg-[var(--bg-secondary)]"
+                      role="progressbar"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={event.readiness.percent}
+                      aria-label={`${event.readiness.subject} tasks done`}
+                    >
+                      <div
+                        className={`h-full rounded-full transition-[width] duration-500 ${event.readiness.remaining === 0 ? 'bg-[var(--notion-green)]' : 'bg-[var(--accent-primary)]'}`}
+                        style={{ width: `${event.readiness.percent}%` }}
+                      />
+                    </div>
+                    <span className="text-[11px] text-[var(--text-secondary)]">
+                      {event.readiness.done}/{event.readiness.total} {event.readiness.subject} tasks · {paceHint(event.readiness.remaining, event.days)}
+                    </span>
+                  </div>
+                )}
               </div>
             </li>
           );

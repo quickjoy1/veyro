@@ -1,4 +1,4 @@
-import { useDeleteTaskSuccess, useFetchTasks, useTasks, useToggleTaskStatus, useUpdateTaskSuccess } from '@/store/appStore';
+import { useAddTaskSuccess, useDeleteTaskSuccess, useFetchTasks, useTasks, useToggleTaskStatus, useUpdateTaskSuccess } from '@/store/appStore';
 import { useEffect, useRef, useState } from 'react';
 
 import type { User } from '@supabase/supabase-js';
@@ -6,6 +6,7 @@ import { parseDateForDB } from '@/utils/timeUtils';
 import { supabase } from '@/utils/supabaseClient';
 import { toast } from 'react-toastify';
 import { toggleTaskStatus } from "@/store/TaskActions";
+import { offerRestore } from '@/utils/restoreDeleted';
 import { showUndoToast } from '@/utils/undoToast';
 
 // Constant for the "All" workspace
@@ -19,6 +20,7 @@ interface Workspace {
 export const useTaskManager = (activeWorkspace: Workspace | null) => {
   const updateTaskSuccess = useUpdateTaskSuccess();
   const deleteTaskSuccess = useDeleteTaskSuccess();
+  const addTaskSuccess = useAddTaskSuccess();
   const toggleTaskStatusAction = useToggleTaskStatus();
   const fetchTasksAction = useFetchTasks();
   const { tasks } = useTasks();
@@ -109,6 +111,9 @@ export const useTaskManager = (activeWorkspace: Workspace | null) => {
   const handleDeleteTask = async (taskId: string) => {
     if (!userId) return;
 
+    // Keep the whole row so an Undo can put it back exactly as it was.
+    const deleted = tasks.find((t: any) => t.id === taskId);
+
     try {
       // Actualizar el estado local inmediatamente
       deleteTaskSuccess(taskId);
@@ -128,6 +133,17 @@ export const useTaskManager = (activeWorkspace: Workspace | null) => {
           toast.error('Error deleting task: ' + error.message);
         }
         throw error;
+      }
+
+      if (deleted) {
+        offerRestore(deleted, async (rows) => {
+          const { error: restoreError } = await supabase.from('tasks').insert(rows);
+          if (restoreError) {
+            toast.error('Could not restore the deleted task' + (rows.length > 1 ? 's' : '') + '.');
+            return;
+          }
+          rows.forEach((row) => addTaskSuccess(row));
+        });
       }
     } catch (error: any) {
       if (error.message && error.message.includes('violates foreign key constraint')) {

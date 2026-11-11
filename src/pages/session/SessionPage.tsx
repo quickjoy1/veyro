@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import NoiseGenerator from "@/pages/session/NoiseGenerator";
 import ScratchPad from "@/pages/session/ScratchPad";
 import UnifiedTimer from "@/pages/session/UnifiedTimer";
+import DailyGoal from '@/pages/session/DailyGoal';
 import EventCountdown from '@/pages/session/EventCountdown';
 import NotificationsPanel from "@/pages/session/NotificationsPanel";
 
@@ -91,7 +92,12 @@ const SessionPage = memo(() => {
             <UnifiedTimer isSynced={isSynced} isRunning={isRunning} />
           </motion.div>
 
-          {/* 2. What is coming up (left) next to sounds and notes (right) */}
+          {/* 2. Today's focus against the daily goal, plus the streak */}
+          <motion.div variants={item} className="w-full">
+            <DailyGoal />
+          </motion.div>
+
+          {/* 3. What is coming up (left) next to sounds and notes (right) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
             {/* One card, two sections: event countdown (hidden when empty) and deadline notifications */}
             <motion.div variants={item} className="lg:col-span-7 min-w-0 flex flex-col">

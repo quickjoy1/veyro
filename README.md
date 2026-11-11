@@ -81,5 +81,7 @@ If you want this to happen without typing, set up a scheduled task (Windows Task
 Veyro is built on [UniTracker](https://github.com/rickypcyt/unitracker) by [rickypcyt](https://github.com/rickypcyt), used under its open source license. Thanks to the original author for the foundation.
 - **Command palette and shortcuts**: `Ctrl/Cmd+K` (or `/`) searches pages, actions, tasks and events. When not typing: `G` then `S`/`T`/`P`/`A`/`J`/`N` jumps to Study/Tasks/Planning/Analytics/Journal/Notes, and `N` adds a task.
 - **Countdown**: the Study page shows days-left cards for your next events (exams, tests).
-- **Undo**: completing a task shows an Undo button for a few seconds.
+- **Undo**: completing or deleting a task shows an Undo button for a few seconds (bulk deletes get one Undo for the whole group).
 - **Study page layout**: timers on top (one at a time behind tabs on phones, so running timers keep going), then one card for your event countdown and deadline notifications beside the noise generator and scratchpad.
+- **Daily focus goal**: a slim row under the timers shows today's logged study time against a goal you can raise or lower in 15 minute steps, plus your streak (days in a row with at least 10 minutes).
+- **Exam readiness**: an event such as "CBSE Class 12 Board: Physics" is matched to your Physics tasks, and its Countdown row shows how many are done and the pace you need to finish before the exam.
