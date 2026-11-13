@@ -26,10 +26,10 @@ const TaskStudyTimeCard = () => {
   const sum = (key: "todaySeconds" | "weekSeconds" | "totalSeconds") => rows.reduce((a, r) => a + r[key], 0);
 
   return (
-    <div className="w-full rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-4" data-testid="task-study-time">
+    <div className="w-full rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-4 sm:p-5" data-testid="task-study-time">
       <div className="flex flex-wrap items-center gap-2 mb-3">
-        <BookOpen size={18} className="text-[var(--accent-primary)]" />
-        <h2 className="font-semibold text-[var(--text-primary)] text-base sm:text-lg">Study time by task</h2>
+        <BookOpen size={16} className="text-[var(--accent-primary)]" />
+        <h2 className="font-semibold text-[var(--text-primary)] text-base">Study time by task</h2>
         <div className="ml-auto flex gap-4 text-sm text-[var(--text-secondary)]">
           <span>Today <b className="text-[var(--text-primary)]">{formatStudied(sum("todaySeconds"))}</b></span>
           <span>7 days <b className="text-[var(--text-primary)]">{formatStudied(sum("weekSeconds"))}</b></span>

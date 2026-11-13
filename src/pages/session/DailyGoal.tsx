@@ -6,31 +6,22 @@ import { fetchLaps } from '@/store/LapActions';
 import {
   clampGoalMinutes,
   currentStreak,
-  DEFAULT_GOAL_MINUTES,
   dayKey,
   formatFocus,
   GOAL_STEP_MINUTES,
+  GOAL_STORAGE_KEY,
   MIN_STREAK_SECONDS,
+  readStoredGoalMinutes,
   secondsByDay,
 } from '@/utils/dailyGoal';
 
-const GOAL_KEY = 'dailyFocusGoalMinutes';
 const RADIUS = 18;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
-
-const readGoal = (): number => {
-  try {
-    const saved = localStorage.getItem(GOAL_KEY);
-    return saved ? clampGoalMinutes(Number(saved)) : DEFAULT_GOAL_MINUTES;
-  } catch {
-    return DEFAULT_GOAL_MINUTES;
-  }
-};
 
 /** One slim row under the timers: today's logged focus time against a goal, plus the study streak. */
 const DailyGoal = () => {
   const { laps } = useLaps();
-  const [goalMinutes, setGoalMinutes] = useState(readGoal);
+  const [goalMinutes, setGoalMinutes] = useState(readStoredGoalMinutes);
   const [now, setNow] = useState(() => new Date());
 
   // Sessions are only loaded once Analytics has been opened, so make sure they are here.
@@ -57,7 +48,7 @@ const DailyGoal = () => {
     const next = clampGoalMinutes(goalMinutes + delta);
     setGoalMinutes(next);
     try {
-      localStorage.setItem(GOAL_KEY, String(next));
+      localStorage.setItem(GOAL_STORAGE_KEY, String(next));
     } catch {
       /* storage blocked: the goal just resets on reload */
     }

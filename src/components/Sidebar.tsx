@@ -53,7 +53,7 @@ const Navbar = () => {
               {activePage === page && (
                 <motion.span
                   layoutId="nav-pill"
-                  className="absolute inset-0 rounded-lg bg-[var(--accent-primary)]/10"
+                  className="absolute inset-0 rounded-lg bg-accent-soft"
                   transition={{ type: 'spring', stiffness: 500, damping: 32 }}
                 />
               )}

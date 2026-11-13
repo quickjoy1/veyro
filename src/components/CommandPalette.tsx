@@ -212,7 +212,7 @@ const CommandPalette = () => {
                   onMouseMove={() => setActive(i)}
                   onClick={() => choose(command)}
                   className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-sm transition-colors ${
-                    i === active ? 'bg-[var(--accent-primary)]/12 text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
+                    i === active ? 'bg-accent-soft text-[var(--text-primary)]' : 'text-[var(--text-primary)]'
                   }`}
                 >
                   <span className={i === active ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'}>{command.icon}</span>

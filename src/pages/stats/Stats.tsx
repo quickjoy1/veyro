@@ -1,7 +1,8 @@
-import { BookOpen, CheckCircle2, Flame, Timer } from 'lucide-react';
+import { CheckCircle2, Flame, Table2 } from 'lucide-react';
 import { ReactElement, useEffect, useState } from 'react';
 import { useLaps, useRegularTasks } from '@/store/appStore';
 
+import { formatFocus } from '@/utils/dailyGoal';
 import { supabase } from '@/utils/supabaseClient';
 import { useAuth } from '@/hooks/useAuth';
 import useDemoMode from '@/utils/useDemoMode';
@@ -36,12 +37,6 @@ function durationToMinutes(duration: string | undefined): number {
   }
   const single = parseInt(parts[0] || '0', 10);
   return isNaN(single) ? 0 : single;
-}
-
-function formatMinutesToHHMM(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${h}:${m.toString().padStart(2, '0')}`;
 }
 
 function useLapStats(laps: Lap[]) {
@@ -226,70 +221,74 @@ const Statistics = (): ReactElement => {
   const statsData = isDemo ? demoStats : statData;
 
   return (
-    <div className="stats-banner bg-[var(--bg-primary)] border-2 border-[var(--border-primary)] py-4 px-5 rounded-2xl shadow-sm">
-      <div className="mb-4">
-        <h2 className="text-base font-bold text-[var(--text-primary)] sm:text-lg">Study Statistics</h2>
-        <p className="text-xs text-[var(--text-secondary)]">Overview</p>
+    <section
+      className="stats-banner rounded-2xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-4 sm:p-5"
+      data-testid="all-numbers"
+      aria-label="All study numbers"
+    >
+      <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <Table2 size={16} className="text-[var(--accent-primary)]" />
+        <h2 className="text-base font-semibold text-[var(--text-primary)]">All numbers</h2>
+        <span className="text-xs text-[var(--text-secondary)]">time and sessions by period</span>
       </div>
 
-      {/* Study time */}
-      <div className="mb-2 flex items-center gap-2 text-[var(--text-secondary)]">
-        <Timer size={16} className="text-[var(--accent-primary)]" />
-        <span className="text-xs font-semibold uppercase tracking-wide">Study Time</span>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-5">
-        {timePeriods.map(({ key, label }) => (
-          <div
-            key={key}
-            className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-primary)]"
-          >
-            <span className="text-xs font-medium text-[var(--text-secondary)]">{label}</span>
-            <span className="text-sm font-bold text-[var(--text-primary)] tabular-nums whitespace-nowrap">
-              {formatMinutesToHHMM(statsData[key])}h
-            </span>
-          </div>
-        ))}
+      <dl className="divide-y divide-[var(--border-primary)] border-y border-[var(--border-primary)] sm:hidden">
+        {timePeriods.map(({ key, label }, i) => {
+          const sessionKey = sessionPeriods[i]?.key;
+          return (
+            <div key={key} className="flex items-baseline justify-between gap-3 py-2.5">
+              <dt className="text-xs font-medium text-[var(--text-secondary)]">{label}</dt>
+              <dd className="text-sm text-[var(--text-secondary)] tabular-nums">
+                <b className="font-semibold text-[var(--text-primary)]">{formatFocus(statsData[key] * 60)}</b>
+                {sessionKey ? ` · ${statsData[sessionKey]} ${statsData[sessionKey] === 1 ? 'session' : 'sessions'}` : ''}
+              </dd>
+            </div>
+          );
+        })}
+      </dl>
+
+      <div className="hidden overflow-x-auto sm:block">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-xs text-[var(--text-secondary)]">
+              <th className="w-24 pb-2 font-medium" scope="col"><span className="sr-only">Measure</span></th>
+              {timePeriods.map(({ key, label }) => (
+                <th key={key} className="pb-2 text-right font-medium" scope="col">{label}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-[var(--border-primary)] border-t border-[var(--border-primary)]">
+            <tr>
+              <th className="py-2.5 text-left text-xs font-medium text-[var(--text-secondary)]" scope="row">Study time</th>
+              {timePeriods.map(({ key }) => (
+                <td key={key} className="py-2.5 text-right font-semibold tabular-nums text-[var(--text-primary)]">
+                  {formatFocus(statsData[key] * 60)}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <th className="py-2.5 text-left text-xs font-medium text-[var(--text-secondary)]" scope="row">Sessions</th>
+              {sessionPeriods.map(({ key }) => (
+                <td key={key} className="py-2.5 text-right font-semibold tabular-nums text-[var(--text-primary)]">{statsData[key]}</td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      {/* Sessions */}
-      <div className="mb-2 flex items-center gap-2 text-[var(--text-secondary)]">
-        <BookOpen size={16} className="text-[var(--accent-primary)]" />
-        <span className="text-xs font-semibold uppercase tracking-wide">Sessions</span>
+      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-[var(--text-secondary)]">
+        <span className="inline-flex items-center gap-1.5">
+          <CheckCircle2 size={14} className="text-red-500" />
+          Pomodoros <b className="text-[var(--text-primary)] tabular-nums">{statsData.pomodoros ?? 0}</b>
+        </span>
+        <span className="inline-flex items-center gap-1.5" title="Most days in a row on which you completed at least one task">
+          <Flame size={14} className="text-orange-500" />
+          Task streak <b className="text-[var(--text-primary)] tabular-nums">{statsData.longestStreak} {statsData.longestStreak === 1 ? 'day' : 'days'}</b>
+        </span>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mb-5">
-        {sessionPeriods.map(({ key, label }) => (
-          <div
-            key={key}
-            className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-primary)]"
-          >
-            <span className="text-xs font-medium text-[var(--text-secondary)]">{label}</span>
-            <span className="text-sm font-bold text-[var(--text-primary)] tabular-nums">
-              {statsData[key]}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      {/* Pomodoros + Streak */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-primary)]">
-          <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-            <CheckCircle2 size={15} className="text-red-500" />
-            <span className="text-xs font-medium">Pomodoros</span>
-          </div>
-          <span className="text-sm font-bold text-[var(--text-primary)] tabular-nums">{statsData.pomodoros ?? 0}</span>
-        </div>
-
-        <div className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-primary)]">
-          <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-            <Flame size={15} className="text-orange-500" />
-            <span className="text-xs font-medium">Max Streak</span>
-          </div>
-          <span className="text-sm font-bold text-[var(--text-primary)] tabular-nums">{statsData.longestStreak}</span>
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };
+
 
 export default Statistics; 

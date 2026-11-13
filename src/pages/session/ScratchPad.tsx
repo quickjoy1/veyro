@@ -111,7 +111,7 @@ const ScratchPad = memo(() => {
         <div className="ml-auto flex items-center gap-1">
           <button
             onClick={insertCheckbox}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 transition-colors"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-accent-soft transition-colors"
             title="Insert checkbox"
             aria-label="Insert checkbox"
           >

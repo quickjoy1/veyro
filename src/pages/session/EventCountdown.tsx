@@ -28,10 +28,11 @@ const daysUntil = (ymd: string, now: Date): number => {
   return Math.round((new Date(y ?? 0, (m ?? 1) - 1, d ?? 1).getTime() - startOfDay(now)) / DAY_MS);
 };
 
+/** Urgency colour for the days-left number. */
 const tone = (days: number) => {
-  if (days <= 0) return { ring: 'border-red-500/60', num: 'text-red-500', chip: 'bg-red-500/15 text-red-500' };
-  if (days <= 7) return { ring: 'border-amber-500/60', num: 'text-amber-500', chip: 'bg-amber-500/15 text-amber-500' };
-  return { ring: 'border-[var(--border-primary)]', num: 'text-[var(--accent-primary)]', chip: 'bg-[var(--accent-primary)]/15 text-[var(--accent-primary)]' };
+  if (days <= 0) return { num: 'text-red-500' };
+  if (days <= 7) return { num: 'text-amber-500' };
+  return { num: 'text-[var(--accent-primary)]' };
 };
 
 const label = (days: number) => (days === 0 ? 'Today' : `${days}`);

@@ -85,3 +85,4 @@ Veyro is built on [UniTracker](https://github.com/rickypcyt/unitracker) by [rick
 - **Study page layout**: timers on top (one at a time behind tabs on phones, so running timers keep going), then one card for your event countdown and deadline notifications beside the noise generator and scratchpad.
 - **Daily focus goal**: a slim row under the timers shows today's logged study time against a goal you can raise or lower in 15 minute steps, plus your streak (days in a row with at least 10 minutes).
 - **Exam readiness**: an event such as "CBSE Class 12 Board: Physics" is matched to your Physics tasks, and its Countdown row shows how many are done and the pace you need to finish before the exam.
+- **Analytics**: headline cards (today vs your goal, this week vs last week, study streak, this month), a year-long activity heatmap, your best focus hours, time by subject (7 days / 30 days / all time), per-task time, charts, and an "All numbers" table.

@@ -73,3 +73,15 @@ export const formatFocus = (seconds: number): string => {
   if (h === 0) return `${m}m`;
   return m === 0 ? `${h}h` : `${h}h ${m}m`;
 };
+
+export const GOAL_STORAGE_KEY = 'dailyFocusGoalMinutes';
+
+/** The goal the person set on the Study page (minutes), or the default. */
+export const readStoredGoalMinutes = (): number => {
+  try {
+    const saved = localStorage.getItem(GOAL_STORAGE_KEY);
+    return saved ? clampGoalMinutes(Number(saved)) : DEFAULT_GOAL_MINUTES;
+  } catch {
+    return DEFAULT_GOAL_MINUTES;
+  }
+};

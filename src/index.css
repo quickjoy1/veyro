@@ -2269,3 +2269,16 @@ button {
   }
   button:not(:disabled):active, [role="button"]:active { scale: 1; }
 }
+
+/*
+ * Soft accent tints. Tailwind cannot apply an opacity (bg-[var(--accent-primary)]/10) to a CSS variable
+ * colour, so those classes produce nothing. These do the same job with color-mix.
+ */
+.bg-accent-soft,
+.hover\:bg-accent-soft:hover {
+  background-color: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+}
+
+.bg-accent-faint {
+  background-color: color-mix(in srgb, var(--accent-primary) 30%, transparent);
+}

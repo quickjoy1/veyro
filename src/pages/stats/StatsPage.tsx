@@ -2,7 +2,11 @@ import { memo, useEffect } from 'react';
 import { useFetchTasks, useWorkspace } from '@/store/appStore';
 
 import { Helmet } from "react-helmet-async";
+import AnalyticsOverview from '@/pages/stats/AnalyticsOverview';
+import FocusHours from '@/pages/stats/FocusHours';
 import Statistics from '@/pages/stats/Stats';
+import StudyHeatmap from '@/pages/stats/StudyHeatmap';
+import SubjectBreakdown from '@/pages/stats/SubjectBreakdown';
 import StatsChartsPanel from '@/pages/stats/StatsChartsPanel';
 import TaskStudyTimeCard from '@/pages/stats/TaskStudyTimeCard';
 import { fetchLaps } from '@/store/LapActions';
@@ -63,18 +67,26 @@ const StatsPage = memo(() => {
         <meta property="og:url" content="https://veyro.app/analytics" />
         <link rel="canonical" href="https://veyro.app/analytics" />
       </Helmet>
-      <div className="w-full px-0 overflow-hidden mt-2">
-      <div className="space-y-3 mb-4 mx-2 sm:mx-2 md:mx-2 lg:mx-6">
-        {/* Stats Banner at the top */}
-        
-        {/* Charts and other content below */}
-        <div className="space-y-3">
-        <Statistics />
+      <div className="w-full px-4 pb-24 pt-5 sm:px-6 sm:pb-8 sm:pt-6 lg:px-2">
+        <div className="stagger-children mx-auto flex w-full max-w-[73rem] flex-col gap-5 2xl:max-w-[92rem]">
+          {/* Headline numbers */}
+          <AnalyticsOverview />
+
+          {/* Six months at a glance */}
+          <StudyHeatmap />
+
+          {/* When and what you study */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <FocusHours />
+            <SubjectBreakdown />
+          </div>
+
+          {/* Detail: per task, per period charts, and the full numbers */}
           <TaskStudyTimeCard />
           <StatsChartsPanel />
+          <Statistics />
         </div>
       </div>
-    </div>
     </>
   );
 });
