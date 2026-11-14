@@ -153,8 +153,11 @@ const ManageCompletedTasksModal: React.FC<ManageCompletedTasksModalProps> = ({
                               value={editingTitle}
                               onChange={e => setEditingTitle(e.target.value)}
                               onKeyDown={e => {
-                                if (e.key === 'Enter') commitEditing();
-                                else if (e.key === 'Escape') setEditingTaskId(null);
+                                if (e.key === 'Enter') {
+                                  if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                                  e.preventDefault();
+                                  commitEditing();
+                                } else if (e.key === 'Escape') setEditingTaskId(null);
                               }}
                               onBlur={commitEditing}
                               autoFocus

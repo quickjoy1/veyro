@@ -40,7 +40,29 @@
 
     <!-- Theme and Design -->
     <meta name="theme-color" content="#191919" />
-    <meta name="color-scheme" content="dark light" />
+    <meta name="color-scheme" content="light dark" />
+    <script>
+      try {
+        const pref = localStorage.getItem("themePreference");
+        const theme = localStorage.getItem("theme");
+        const effectivePref = pref || theme;
+        const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        const isBlack = effectivePref === "black";
+        const isDark =
+          isBlack ||
+          effectivePref === "dark" ||
+          (!effectivePref && systemDark) ||
+          (effectivePref === "auto" && systemDark);
+        const colorScheme =
+          !effectivePref || effectivePref === "auto" ? "light dark" : isDark ? "dark" : "light";
+        const colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+        if (colorSchemeMeta) colorSchemeMeta.content = colorScheme;
+
+        document.documentElement.classList.toggle("dark", isDark);
+        document.documentElement.classList.toggle("oled", isBlack);
+        document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+      } catch (e) {}
+    </script>
 
     <!-- Mobile Optimization -->
     <meta name="HandheldFriendly" content="true" />
@@ -286,25 +308,6 @@
     <!-- Security Headers -->
     <!-- Eliminada la metaetiqueta Content-Security-Policy para evitar bloqueos de CSP -->
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <script>
-      try {
-        const pref = localStorage.getItem("themePreference");
-        const theme = localStorage.getItem("theme");
-        const effectivePref = pref || theme;
-        const systemDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        const isBlack = effectivePref === "black";
-        const isDark =
-          isBlack ||
-          effectivePref === "dark" ||
-          (!effectivePref && systemDark) ||
-          (effectivePref === "auto" && systemDark);
-
-        // Colours come from the CSS variables, so only the classes are set here.
-        document.documentElement.classList.toggle("dark", isDark);
-        document.documentElement.classList.toggle("oled", isBlack);
-        document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
-      } catch (e) {}
-    </script>
     <!-- Preload critical resources -->
 
     <!-- Performance optimizations -->

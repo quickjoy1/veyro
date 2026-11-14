@@ -1264,6 +1264,7 @@ const StudyTimer = ({
             onChange={(e) => setLapNote(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
+                if (e.nativeEvent.isComposing || e.keyCode === 229) return;
                 e.preventDefault();
                 handleSaveLap();
               }

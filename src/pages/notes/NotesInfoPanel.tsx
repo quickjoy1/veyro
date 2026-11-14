@@ -91,6 +91,7 @@ const NotesInfoPanel: React.FC<NotesInfoPanelProps> = ({ note, onUpdateNote }) =
                 onChange={(e) => setTitle(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
+                    if (e.nativeEvent.isComposing || e.keyCode === 229) return;
                     e.preventDefault();
                     handleTitleSave();
                   } else if (e.key === 'Escape') {
@@ -145,6 +146,7 @@ const NotesInfoPanel: React.FC<NotesInfoPanelProps> = ({ note, onUpdateNote }) =
                 onChange={(e) => setAssignment(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
+                    if (e.nativeEvent.isComposing || e.keyCode === 229) return;
                     e.preventDefault();
                     handleAssignmentSave();
                   } else if (e.key === 'Escape') {

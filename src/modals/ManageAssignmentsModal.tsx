@@ -191,6 +191,8 @@ const ManageAssignmentsModal: React.FC<ManageAssignmentsModalProps> = ({
                               onChange={(e) => setEditingAssignment({...editingAssignment, name: e.target.value})}
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') {
+                                  if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+                                  e.preventDefault();
                                   handleUpdateAssignment(editingAssignment.originalName, editingAssignment.name);
                                 } else if (e.key === 'Escape') {
                                   cancelEditing();

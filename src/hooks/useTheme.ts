@@ -20,6 +20,14 @@ type ThemePreference = 'light' | 'dark' | 'black' | 'auto';
 // 'black' is the dark theme with true #000 surfaces (OLED).
 const toTheme = (pref: Exclude<ThemePreference, 'auto'>): Theme => (pref === 'black' ? 'dark' : pref);
 
+const syncColorSchemeMeta = (preference: ThemePreference) => {
+  const meta = document.querySelector('meta[name="color-scheme"]');
+  if (!(meta instanceof HTMLMetaElement)) return;
+  // "light dark" follows the system. Black is a dark surface variant, so native UI stays dark.
+  meta.content =
+    preference === 'light' ? 'light' : preference === 'dark' || preference === 'black' ? 'dark' : 'light dark';
+};
+
 const useTheme = () => {
   const { isLoggedIn } = useAuth();
 
@@ -130,8 +138,10 @@ const useTheme = () => {
 
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
-    root.classList.toggle('oled', theme === 'dark' && localStorage.getItem('themePreference') === 'black');
-    (root.style as any).colorScheme = theme;
+    const preference = getThemePreference();
+    root.classList.toggle('oled', theme === 'dark' && preference === 'black');
+    root.style.removeProperty('color-scheme');
+    syncColorSchemeMeta(preference);
 
     // Aplicar colores CSS a DayFlow
     const computedStyle = getComputedStyle(root);
@@ -359,6 +369,16 @@ const useTheme = () => {
 
     mediaQuery.addEventListener('change', handleSystemThemeChange);
 
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== 'themePreference' && event.key !== 'theme') return;
+      const preference = getThemePreference();
+      setThemePreference(preference);
+      const nextTheme = preference === 'auto' ? getSystemTheme() : toTheme(preference);
+      setCurrentTheme(nextTheme);
+      applyTheme(nextTheme);
+    };
+    window.addEventListener('storage', handleStorage);
+
     // También escuchar cambios en Capacitor si está disponible
     let capacitorListener: (() => void) | undefined;
     if (window.Capacitor && window.Capacitor.isNativePlatform()) {
@@ -380,6 +400,7 @@ const useTheme = () => {
 
     return () => {
       mediaQuery.removeEventListener('change', handleSystemThemeChange);
+      window.removeEventListener('storage', handleStorage);
       if (capacitorListener) capacitorListener();
     };
   }, [themePreference, currentTheme, applyTheme]);

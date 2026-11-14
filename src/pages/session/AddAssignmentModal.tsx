@@ -38,6 +38,7 @@ const AddAssignmentModal = ({
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing || e.keyCode === 229) return;
       e.preventDefault();
       handleSubmit();
     }

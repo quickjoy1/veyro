@@ -288,6 +288,8 @@
 
 @layer base {
   :root {
+    /* Follow the system scheme unless the color-scheme meta pins light or dark. */
+    color-scheme: light dark;
     /* Light mode variables — Notion-inspired: white page, warm greys, blue accent */
     --background: 0 0% 100%;
     --foreground: 45 8% 20%; /* #37352F */
@@ -471,14 +473,17 @@
     transition: none;
   }
 
-  html.dark {
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
+  :root:has(> head > meta[name="color-scheme"][content="dark"]) {
     color-scheme: dark;
   }
 
-  html:not(.dark) {
+  :root:has(> head > meta[name="color-scheme"][content="light"]) {
     color-scheme: light;
+  }
+
+  html.dark {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 
   /* Prevent white flash on page load for dark theme */

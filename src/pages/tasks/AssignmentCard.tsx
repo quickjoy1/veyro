@@ -81,6 +81,8 @@ export const AssignmentCard = ({
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+      e.preventDefault();
       handleSave();
     } else if (e.key === 'Escape') {
       setEditedName(assignment);

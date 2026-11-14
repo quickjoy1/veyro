@@ -743,6 +743,7 @@ const TaskForm = ({
 
       <form onSubmit={handleSubmit} className="space-y-4" onKeyDown={e => {
       if (e.key === 'Enter' && !e.shiftKey) {
+        if (e.nativeEvent.isComposing || e.keyCode === 229) return;
         const activeElement = document.activeElement;
 
         // Check if focused on text inputs (title, assignment, time inputs)
