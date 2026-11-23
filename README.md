@@ -23,6 +23,13 @@ Veyro is made to **run locally with no account, no keys and no hosting**.
 - **Import changes from AI (Settings > Data).** Copy the AI instructions, tell any AI what to add, change or delete, and paste its SQL-style answer (`INSERT INTO tasks (...) VALUES (...)`, `UPDATE tasks SET ... WHERE id = '...'`, `DELETE FROM tasks WHERE ...`). Veyro checks every statement against its rules (title length, real dates, 24-hour times, weekly repeats, allowed columns) and shows a plan before anything runs. Adds never delete or overwrite, importing the same text twice creates no duplicates, and tasks are only deleted by an explicit `DELETE` that you confirm (UPDATE/DELETE need a `WHERE` on id or title and refuse to touch several tasks by accident). JSON is accepted as a fallback. You can also paste the same text into the AI task box behind the "+" button on the Tasks page. The plan is shown as task-style cards. `INSERT INTO events (title, date, start_time, end_time, description, repeat_weekly_on) ...` adds calendar events that also trigger reminders but stay out of the task board; they are listed in their own Events card on the Tasks page.
 - **Backup restore works.** Restore now saves workspaces, tasks and sessions, then reloads the page. Before, it only showed a success message.
 - **Modern-web fixes (Chrome's modern-web-guidance).** Browser-native UI (scrollbars, date pickers, form controls) now follows the theme you pick: the `color-scheme` meta tag is set before first paint and kept in sync when you change theme (Light, Dark, Black or Auto) or change it in another tab. Pressing Enter to confirm text from an IME (Japanese, Chinese, Korean and similar keyboards) no longer submits task, assignment, note and session-note fields early. The guidance skill is kept in `.agents/skills/modern-web-guidance` for AI coding tools; `skills-lock.json` records its version.
+- **Command palette and shortcuts**: `Ctrl/Cmd+K` (or `/`) searches pages, actions, tasks and events. When not typing: `G` then `S`/`T`/`P`/`A`/`J`/`N` jumps to Study/Tasks/Planning/Analytics/Journal/Notes, and `N` adds a task.
+- **Countdown**: the Study page shows days-left cards for your next events (exams, tests).
+- **Undo**: completing or deleting a task shows an Undo button for a few seconds (bulk deletes get one Undo for the whole group).
+- **Study page layout**: timers on top (one at a time behind tabs on phones, so running timers keep going), then one card for your event countdown and deadline notifications beside the noise generator and scratchpad.
+- **Daily focus goal**: a slim row under the timers shows today's logged study time against a goal you can raise or lower in 15 minute steps, plus your streak (days in a row with at least 10 minutes).
+- **Exam readiness**: an event such as "CBSE Class 12 Board: Physics" is matched to your Physics tasks, and its Countdown row shows how many are done and the pace you need to finish before the exam.
+- **Analytics**: headline cards (today vs your goal, this week vs last week, study streak, this month), a year-long activity heatmap, your best focus hours, time by subject (7 days / 30 days / all time), per-task time, charts, and an "All numbers" table.
 
 ## Run it locally
 
@@ -80,10 +87,5 @@ If you want this to happen without typing, set up a scheduled task (Windows Task
 ## Credits
 
 Veyro is built on [UniTracker](https://github.com/rickypcyt/unitracker) by [rickypcyt](https://github.com/rickypcyt), used under its open source license. Thanks to the original author for the foundation.
-- **Command palette and shortcuts**: `Ctrl/Cmd+K` (or `/`) searches pages, actions, tasks and events. When not typing: `G` then `S`/`T`/`P`/`A`/`J`/`N` jumps to Study/Tasks/Planning/Analytics/Journal/Notes, and `N` adds a task.
-- **Countdown**: the Study page shows days-left cards for your next events (exams, tests).
-- **Undo**: completing or deleting a task shows an Undo button for a few seconds (bulk deletes get one Undo for the whole group).
-- **Study page layout**: timers on top (one at a time behind tabs on phones, so running timers keep going), then one card for your event countdown and deadline notifications beside the noise generator and scratchpad.
-- **Daily focus goal**: a slim row under the timers shows today's logged study time against a goal you can raise or lower in 15 minute steps, plus your streak (days in a row with at least 10 minutes).
-- **Exam readiness**: an event such as "CBSE Class 12 Board: Physics" is matched to your Physics tasks, and its Countdown row shows how many are done and the pace you need to finish before the exam.
-- **Analytics**: headline cards (today vs your goal, this week vs last week, study streak, this month), a year-long activity heatmap, your best focus hours, time by subject (7 days / 30 days / all time), per-task time, charts, and an "All numbers" table.
+
+The `.agents/skills/` folder holds two agent skills used for UI work: [modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance) (Chrome team, Apache-2.0) and [unslop](https://github.com/heydamir/unslop) by Damir Sokolovsky ([@heydamir](https://x.com/heydamir)), licensed CC BY 4.0, which finds the usual AI-looking tells in a screen and fixes them pass by pass.
