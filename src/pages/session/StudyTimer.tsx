@@ -1160,31 +1160,31 @@ const StudyTimer = ({
                   stroke="var(--accent-primary)" strokeWidth="5" strokeLinecap="round"
                   strokeDasharray={isPaused ? circumference * 0.25 : circumference}
                   strokeDashoffset={isPaused ? circumference * 0.5 : circumference * (1 - hourProgress)}
-                  className={`transition-all duration-300 ${isPaused ? 'animate-spin origin-center' : ''}`}
-                  style={{ transformOrigin: '60px 60px', animationDuration: isPaused ? '2s' : undefined }}
+                  className="transition-[stroke-dasharray,stroke-dashoffset] duration-300"
+                  style={{ transformOrigin: '60px 60px' }}
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <div className="flex items-center gap-0.5">
                   {h > 0 ? (
                     <>
-                      <span className={`text-lg font-mono font-bold tabular-nums leading-none ${
+                      <span className={`text-lg font-mono font-medium tabular-nums leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'
                       }`} data-seg="hours">
                         {h.toString().padStart(2, '0')}
                       </span>
-                      <span className={`text-base font-mono font-bold leading-none ${
+                      <span className={`text-base font-mono font-medium leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
                       }`}>:</span>
-                      <span className={`text-lg font-mono font-bold tabular-nums leading-none ${
+                      <span className={`text-lg font-mono font-medium tabular-nums leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'
                       }`} data-seg="minutes">
                         {m.toString().padStart(2, '0')}
                       </span>
-                      <span className={`text-base font-mono font-bold leading-none ${
+                      <span className={`text-base font-mono font-medium leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
                       }`}>:</span>
-                      <span className={`text-lg font-mono font-bold tabular-nums leading-none ${
+                      <span className={`text-lg font-mono font-medium tabular-nums leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'
                       }`} data-seg="seconds">
                         {s.toString().padStart(2, '0')}
@@ -1192,15 +1192,15 @@ const StudyTimer = ({
                     </>
                   ) : (
                     <>
-                      <span className={`text-2xl font-mono font-bold tabular-nums leading-none ${
+                      <span className={`text-2xl font-mono font-medium tabular-nums leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'
                       }`} data-seg="minutes">
                         {m.toString().padStart(2, '0')}
                       </span>
-                      <span className={`text-xl font-mono font-bold leading-none ${
+                      <span className={`text-xl font-mono font-medium leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-secondary)]'
                       }`}>:</span>
-                      <span className={`text-2xl font-mono font-bold tabular-nums leading-none ${
+                      <span className={`text-2xl font-mono font-medium tabular-nums leading-none ${
                         isStudyRunningRedux ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'
                       }`} data-seg="seconds">
                         {s.toString().padStart(2, '0')}
@@ -1275,7 +1275,7 @@ const StudyTimer = ({
           />
           <button
             onClick={handleSaveLap}
-            className="p-1.5 rounded-md text-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 transition-colors"
+            className="p-1.5 rounded-md text-[var(--accent-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
             aria-label="Save lap"
           >
             <Check size={16} />

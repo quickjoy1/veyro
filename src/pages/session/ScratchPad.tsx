@@ -131,7 +131,7 @@ const ScratchPad = memo(() => {
         </div>
       </div>
 
-      <div className="flex-1 w-full min-h-[140px] rounded-xl bg-[var(--bg-secondary)]/50 p-3 pr-1.5 overflow-y-auto custom-scrollbar">
+      <div className="flex-1 w-full min-h-[140px] rounded-xl bg-[var(--bg-secondary)] p-3 pr-1.5 overflow-y-auto custom-scrollbar">
         {lines.length === 0 ? (
           <input
             ref={(el) => { inputRefs.current[0] = el; }}
@@ -151,7 +151,7 @@ const ScratchPad = memo(() => {
                   <button
                     type="button"
                     onClick={() => toggleCheckbox(i, parsed)}
-                    className="flex-shrink-0 cursor-pointer flex items-center justify-center rounded-full transition-transform duration-200 hover:scale-110 focus:outline-none"
+                    className="flex-shrink-0 cursor-pointer flex items-center justify-center rounded-full transition-opacity duration-150 hover:opacity-75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]"
                     aria-label={parsed.checked ? "Mark as not done" : "Mark as done"}
                   >
                     {parsed.checked ? (

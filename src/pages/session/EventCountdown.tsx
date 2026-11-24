@@ -30,9 +30,9 @@ const daysUntil = (ymd: string, now: Date): number => {
 
 /** Urgency colour for the days-left number. */
 const tone = (days: number) => {
-  if (days <= 0) return { num: 'text-red-500' };
-  if (days <= 7) return { num: 'text-amber-500' };
-  return { num: 'text-[var(--accent-primary)]' };
+  if (days <= 0) return { num: 'text-red-600 dark:text-red-400' };
+  if (days <= 7) return { num: 'text-amber-600 dark:text-amber-400' };
+  return { num: 'text-[var(--text-primary)]' };
 };
 
 const label = (days: number) => (days === 0 ? 'Today' : `${days}`);
@@ -85,7 +85,7 @@ const EventCountdown = () => {
     return (
       <section aria-label="Upcoming events countdown" data-testid="event-countdown" className="p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <CalendarClock size={16} className="text-[var(--accent-primary)]" />
+          <CalendarClock size={16} className="text-[var(--text-secondary)]" />
           <h3 className="text-base font-semibold text-[var(--text-primary)]">Countdown</h3>
           <button
             type="button"
@@ -104,7 +104,7 @@ const EventCountdown = () => {
   return (
     <section aria-label="Upcoming events countdown" data-testid="event-countdown" className="p-4 sm:p-5">
       <div className="mb-1 flex items-center gap-2">
-        <CalendarClock size={16} className="text-[var(--accent-primary)]" />
+        <CalendarClock size={16} className="text-[var(--text-secondary)]" />
         <h3 className="text-base font-semibold text-[var(--text-primary)]">Countdown</h3>
         <span className="text-xs text-[var(--text-secondary)]">your next events</span>
       </div>
@@ -115,8 +115,8 @@ const EventCountdown = () => {
           return (
             <li key={event.id} className="flex items-center gap-4 py-2.5 first:pt-2 last:pb-0">
               <div className="flex w-14 shrink-0 flex-col items-center leading-none">
-                <span className={`font-heading font-bold ${t.num} ${isWord ? 'text-base' : 'text-2xl'}`}>{label(event.days)}</span>
-                {!isWord && <span className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[var(--text-secondary)]">{event.days === 1 ? 'day' : 'days'}</span>}
+                <span className={`font-heading font-semibold tabular-nums ${t.num} ${isWord ? 'text-base' : 'text-2xl'}`}>{label(event.days)}</span>
+                {!isWord && <span className="mt-1 text-[11px] text-[var(--text-secondary)]">{event.days === 1 ? 'day' : 'days'}</span>}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold text-[var(--text-primary)]" title={event.title}>

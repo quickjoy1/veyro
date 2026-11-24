@@ -43,55 +43,25 @@ interface SoundControlProps {
   onOpenOptions?: () => void;
 }
 
+// One neutral treatment for every sound. A playing sound is shown by an inverted play button,
+// not by a different colour per sound.
+const NEUTRAL_SOUND = {
+  iconBg: "bg-[var(--bg-secondary)]",
+  iconText: "text-[var(--text-secondary)]",
+  gradient: "bg-[var(--text-secondary)]",
+  activeBorder: "border-[var(--border-primary)]",
+  activeRing: "ring-[var(--border-primary)]",
+  badge: "",
+  badgeText: "text-[var(--text-secondary)]",
+  thumb: "bg-[var(--text-primary)] focus:ring-[var(--text-secondary)]",
+  buttonHover: "hover:text-[var(--text-primary)]",
+};
+
 const SOUND_THEMES = {
-  brown: {
-    iconBg: "bg-amber-500/10",
-    iconText: "text-amber-600 dark:text-amber-400",
-    gradient: "bg-gradient-to-r from-amber-400 to-amber-600",
-    activeBorder: "border-amber-500/40",
-    activeRing: "ring-amber-500/30",
-    badge: "bg-amber-500/10",
-    badgeText: "text-amber-600 dark:text-amber-400",
-    thumb: "bg-amber-500 focus:ring-amber-500/40",
-    buttonHover:
-      "hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400",
-  },
-  rain: {
-    iconBg: "bg-blue-500/10",
-    iconText: "text-blue-600 dark:text-blue-400",
-    gradient: "bg-gradient-to-r from-blue-400 to-blue-600",
-    activeBorder: "border-blue-500/40",
-    activeRing: "ring-blue-500/30",
-    badge: "bg-blue-500/10",
-    badgeText: "text-blue-600 dark:text-blue-400",
-    thumb: "bg-blue-500 focus:ring-blue-500/40",
-    buttonHover:
-      "hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400",
-  },
-  ocean: {
-    iconBg: "bg-cyan-500/10",
-    iconText: "text-cyan-600 dark:text-cyan-400",
-    gradient: "bg-gradient-to-r from-cyan-400 to-cyan-600",
-    activeBorder: "border-cyan-500/40",
-    activeRing: "ring-cyan-500/30",
-    badge: "bg-cyan-500/10",
-    badgeText: "text-cyan-600 dark:text-cyan-400",
-    thumb: "bg-cyan-500 focus:ring-cyan-500/40",
-    buttonHover:
-      "hover:bg-cyan-500/10 hover:text-cyan-600 dark:hover:text-cyan-400",
-  },
-  lofi: {
-    iconBg: "bg-purple-500/10",
-    iconText: "text-purple-600 dark:text-purple-400",
-    gradient: "bg-gradient-to-r from-purple-400 to-indigo-600",
-    activeBorder: "border-purple-500/40",
-    activeRing: "ring-purple-500/30",
-    badge: "bg-purple-500/10",
-    badgeText: "text-purple-600 dark:text-purple-400",
-    thumb: "bg-purple-500 focus:ring-purple-500/40",
-    buttonHover:
-      "hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400",
-  },
+  brown: NEUTRAL_SOUND,
+  rain: NEUTRAL_SOUND,
+  ocean: NEUTRAL_SOUND,
+  lofi: NEUTRAL_SOUND,
 };
 
 type SoundTheme = (typeof SOUND_THEMES)[keyof typeof SOUND_THEMES];
@@ -110,7 +80,6 @@ function SoundControl({
   start,
   stop,
   max,
-  index,
   sublabel,
   onOpenOptions,
 }: SoundControlProps) {
@@ -118,42 +87,17 @@ function SoundControl({
   const percentage = Math.round((volume / max) * 100);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -1 }}
-      className={`relative rounded-xl border bg-[var(--bg-secondary)]/60 p-2.5 sm:p-3 transition-all duration-200 hover:shadow-md ${
-        isPlaying
-          ? `${theme.activeBorder} shadow-sm ring-1 ${theme.activeRing}`
-          : "border-[var(--border-primary)]"
+    <div
+      className={`relative rounded-xl border border-[var(--border-primary)] p-3 transition-colors duration-150 ${
+        isPlaying ? "bg-[var(--bg-secondary)]" : "bg-[var(--bg-primary)]"
       }`}
     >
       <div className="flex items-center gap-3 sm:gap-3.5">
-        <motion.div
-          animate={isPlaying ? { scale: [1, 1.05, 1] } : { scale: 1 }}
-          transition={{
-            repeat: Infinity,
-            duration: 3,
-            ease: "easeInOut",
-            delay: index * 0.15,
-          }}
-          className={`relative flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-xl ${theme.iconBg}`}
+        <div
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${theme.iconBg}`}
         >
-          <Icon size={19} className={theme.iconText} />
-          {isPlaying && (
-            <motion.span
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: [0.35, 0], scale: [1, 1.4] }}
-              transition={{
-                repeat: Infinity,
-                duration: 3,
-                ease: "easeInOut",
-                delay: index * 0.15,
-              }}
-              className={`absolute inset-0 rounded-xl ${theme.activeRing}`}
-            />
-          )}
-        </motion.div>
+          <Icon size={18} strokeWidth={1.5} className={theme.iconText} />
+        </div>
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-1.5 mb-1.5">
@@ -167,7 +111,7 @@ function SoundControl({
                   onClick={onOpenOptions}
                   aria-label="Lo-Fi options"
                   title="Configure Lo-Fi audio sources"
-                  className="p-1 rounded-md text-[var(--text-secondary)] hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-500/10 transition-colors shrink-0"
+                  className="p-1 rounded-md text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors shrink-0"
                 >
                   <SlidersHorizontal size={13} />
                 </button>
@@ -181,7 +125,7 @@ function SoundControl({
                 </span>
               )}
               <span
-                className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${theme.badge} ${theme.badgeText}`}
+                className={`text-[11px] tabular-nums ${theme.badgeText}`}
               >
                 {percentage}%
               </span>
@@ -190,7 +134,7 @@ function SoundControl({
 
           <ReactSlider
             className="h-2 w-full bg-[var(--border-primary)] rounded-full cursor-pointer"
-            thumbClassName={`top-0 -mt-[5px] h-[18px] w-[18px] rounded-full ${theme.thumb} border-2 border-[var(--bg-primary)] shadow-sm cursor-grab active:cursor-grabbing transition-transform hover:scale-110 focus:outline-none focus:ring-2`}
+            thumbClassName={`top-0 -mt-[5px] h-[18px] w-[18px] rounded-full ${theme.thumb} border-2 border-[var(--bg-primary)] shadow-sm cursor-grab active:cursor-grabbing focus:outline-none focus-visible:ring-2`}
             trackClassName="h-2 rounded-full"
             renderTrack={(
               props: { key?: React.Key } & React.HTMLProps<HTMLDivElement>
@@ -220,20 +164,20 @@ function SoundControl({
           type="button"
           onClick={isPlaying ? stop : start}
           aria-label={isPlaying ? `Stop ${label}` : `Play ${label}`}
-          className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl transition-all duration-200 hover:scale-105 ${
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] ${
             isPlaying
-              ? `${theme.iconBg} ${theme.iconText}`
+              ? "bg-[var(--text-primary)] text-[var(--bg-primary)]"
               : `bg-[var(--bg-secondary)] text-[var(--text-secondary)] ${theme.buttonHover}`
           }`}
         >
           {isPlaying ? (
-            <Pause size={18} />
+            <Pause size={18} strokeWidth={1.5} />
           ) : (
-            <Play size={18} className="ml-0.5" />
+            <Play size={18} strokeWidth={1.5} className="ml-0.5" />
           )}
         </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -400,8 +344,8 @@ function NoiseSettingsModal({
           return (
             <div
               key={sound.key}
-              className={`rounded-xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-3.5 transition-all ${
-                sound.isPlaying ? `ring-1 ${theme.activeRing}` : ""
+              className={`rounded-xl border border-[var(--border-primary)] bg-[var(--bg-primary)] p-3 transition-colors ${
+                sound.isPlaying ? "bg-[var(--bg-secondary)]" : ""
               }`}
             >
               <div className="flex items-center justify-between gap-3 mb-3">
@@ -443,7 +387,7 @@ function NoiseSettingsModal({
               </div>
 
               {sound.key === "lofi" ? (
-                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)]/60 border border-[var(--border-primary)] text-xs">
+                <div className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-primary)] text-xs">
                   <div className="min-w-0">
                     <span className="font-medium text-[var(--text-primary)]">
                       {lofiState.type === "curated" && "Curated Lo-Fi Beats"}
@@ -465,7 +409,7 @@ function NoiseSettingsModal({
                       onClose();
                       onOpenLofiModal();
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-medium hover:bg-purple-700 transition shrink-0 ml-2 shadow-sm text-xs"
+                    className="px-3 py-1.5 rounded-lg bg-[var(--accent-primary)] text-white font-medium hover:opacity-90 transition-opacity shrink-0 ml-2 text-xs"
                   >
                     Lo-Fi Sources
                   </button>
@@ -477,9 +421,9 @@ function NoiseSettingsModal({
                       <button
                         key={preset.label}
                         type="button"
-                        className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+                        className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
                           selectedPresets[idx] === pIdx
-                            ? `${theme.iconBg} ${theme.iconText} ring-1 ${theme.activeRing}`
+                            ? "bg-[var(--text-primary)] text-[var(--bg-primary)]"
                             : "bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--border-primary)]"
                         }`}
                         onClick={() => {
@@ -612,7 +556,7 @@ export default function NoiseGenerator() {
         className="flex items-center justify-between pb-2"
       >
         <div className="flex items-center gap-2">
-          <Headphones size={16} className="text-[var(--accent-primary)]" />
+          <Headphones size={16} className="text-[var(--text-secondary)]" />
           <h3 className="text-base font-semibold text-[var(--text-primary)] leading-tight">
             Noise Generator
           </h3>
@@ -621,10 +565,10 @@ export default function NoiseGenerator() {
         <div className="flex items-center gap-2">
           <button
             onClick={handlePlayPauseAll}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
               anySoundPlaying
-                ? "border-2 border-[var(--accent-primary)] text-[var(--accent-primary)] bg-transparent hover:bg-[var(--accent-primary)]/10 shadow-sm"
-                : "bg-[var(--bg-secondary)] border-2 border-[var(--border-primary)] text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:border-[var(--accent-primary)]/50"
+                ? "border-[var(--text-primary)] bg-[var(--text-primary)] text-[var(--bg-primary)]"
+                : "border-[var(--border-primary)] bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
             }`}
             aria-label={anySoundPlaying ? "Pause all sounds" : "Play all sounds"}
           >

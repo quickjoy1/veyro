@@ -106,7 +106,7 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
   return (
     <>
       <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[9999] max-w-[calc(100%-1rem)]">
-        <div className="flex items-center gap-1.5 p-1.5 rounded-full border border-[var(--border-primary)] bg-[var(--bg-secondary)]/80 backdrop-blur-xl shadow-[0_16px_40px_-14px_rgba(0,0,0,0.55)] text-[var(--text-secondary)]">
+        <div className="flex items-center gap-1.5 p-1.5 rounded-full border border-[var(--border-primary)] bg-[var(--bg-secondary)] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.3)] text-[var(--text-secondary)]">
           {/* Workspace selector with task badge */}
           <button
             onClick={() => setShowWorkspaceMenu(prev => !prev)}
@@ -161,7 +161,7 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
                 aria-label="Active study session"
                 title="Go to study session"
               >
-                <span className={`w-2 h-2 rounded-full ${studyState.isRunning ? 'bg-[var(--accent-sun)] animate-pulse' : 'bg-[var(--text-secondary)]'}`} />
+                <span className={studyState.isRunning ? 'live-dot' : 'inline-block h-1.5 w-1.5 rounded-full border-[1.5px] border-[var(--text-secondary)]'} />
                 <span className="text-xs font-mono tabular-nums text-[var(--text-primary)]">
                   {formatTime(studyTime)}
                 </span>
@@ -225,7 +225,7 @@ const FloatingFooter: React.FC<FloatingFooterProps> = ({
                     }}
                     className={`w-full flex items-center gap-2.5 px-3 py-2 text-left transition-colors ${
                       isActive
-                        ? 'bg-[var(--accent-primary)]/10 text-[var(--accent-primary)]'
+                        ? 'bg-[var(--bg-primary)] text-[var(--text-primary)]'
                         : 'text-[var(--text-primary)] hover:bg-[var(--bg-secondary)]'
                     }`}
                   >

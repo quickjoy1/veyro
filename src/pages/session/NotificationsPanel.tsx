@@ -7,14 +7,15 @@ import { formatDue, getUpcoming, type Tier } from "@/utils/reminderEngine";
 import { getDesktopPermission, requestDesktopPermission, showDesktopNotification, type DesktopPermission } from "@/utils/desktopNotifications";
 
 const TIER_STYLE: Record<Tier, string> = {
-  overdue: "text-red-500 bg-red-500/10 border-red-500/30",
-  due: "text-red-500 bg-red-500/10 border-red-500/30",
-  "1h": "text-orange-500 bg-orange-500/10 border-orange-500/30",
-  "3h": "text-orange-500 bg-orange-500/10 border-orange-500/30",
-  "1d": "text-yellow-500 bg-yellow-500/10 border-yellow-500/30",
-  "3d": "text-blue-500 bg-blue-500/10 border-blue-500/30",
+  // Only what is already late or due now is coloured. Everything else stays quiet.
+  overdue: "text-red-600 dark:text-red-400",
+  due: "text-red-600 dark:text-red-400",
+  "1h": "text-[var(--text-primary)]",
+  "3h": "text-[var(--text-secondary)]",
+  "1d": "text-[var(--text-secondary)]",
+  "3d": "text-[var(--text-secondary)]",
 };
-const NEUTRAL = "text-[var(--text-secondary)] bg-[var(--bg-secondary)] border-[var(--border-primary)]";
+const NEUTRAL = "text-[var(--text-secondary)]";
 
 const timeAgo = (ms: number, now: number) => {
   const m = Math.max(0, Math.round((now - ms) / 60_000));
@@ -58,24 +59,24 @@ const NotificationsPanel = () => {
       role="tab"
       aria-selected={tab === id}
       onClick={() => setTab(id)}
-      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-all ${
+      className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
         tab === id
-          ? "bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm"
+          ? "bg-[var(--bg-primary)] text-[var(--text-primary)] ring-1 ring-[var(--border-primary)]"
           : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       }`}
     >
       {label}
-      {badge ? <span className="min-w-[1.125rem] px-1 rounded-full text-[11px] leading-[1.125rem] text-center font-semibold bg-red-500 text-white">{badge}</span> : null}
+      {badge ? <span className="text-[11px] tabular-nums text-[var(--text-secondary)]">{badge}</span> : null}
     </button>
   );
 
-  const ghostBtn = "flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[var(--text-secondary)]";
+  const ghostBtn = "flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-[var(--text-secondary)]";
 
   // The surrounding card is drawn by the page; this block is just the content.
   return (
     <section className="p-4 sm:p-5 flex flex-col gap-3" data-tour="session-notifications" aria-label="Notifications">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <BellRing size={16} className="text-[var(--accent-primary)]" />
+        <BellRing size={16} className="text-[var(--text-secondary)]" />
         <h2 className="font-semibold text-[var(--text-primary)] text-base">Notifications</h2>
         <div role="tablist" aria-label="Notification views" className="flex gap-0.5 p-0.5 rounded-lg bg-[var(--bg-secondary)]">
           {tabBtn("upcoming", "Upcoming", overdueCount || undefined)}
@@ -111,7 +112,7 @@ const NotificationsPanel = () => {
                   className="w-full flex items-center gap-3 text-left rounded-lg px-2 py-2 hover:bg-[var(--bg-secondary)] transition-colors"
                 >
                   <span className="text-sm text-[var(--text-primary)] truncate flex-1">{u.title}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full border whitespace-nowrap ${u.tier ? TIER_STYLE[u.tier] : NEUTRAL}`}>{formatDue(u.dueMs, now)}</span>
+                  <span className={`text-xs tabular-nums whitespace-nowrap ${u.tier ? TIER_STYLE[u.tier] : NEUTRAL}`}>{formatDue(u.dueMs, now)}</span>
                 </button>
               </li>
             ))}
@@ -120,7 +121,7 @@ const NotificationsPanel = () => {
                 <button
                   type="button"
                   onClick={() => navigateTo("tasks")}
-                  className="w-full text-left rounded-lg px-2 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--accent-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
+                  className="w-full text-left rounded-lg px-2 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-colors"
                 >
                   +{hidden} more in Tasks
                 </button>
@@ -153,7 +154,7 @@ const NotificationsPanel = () => {
                     <span className="block text-xs text-[var(--text-secondary)]">{timeAgo(n.createdAt, now)}</span>
                   </button>
                   {!n.read && (
-                    <button type="button" aria-label="Mark as read" onClick={() => markRead(n.id)} className="p-1 text-[var(--text-secondary)] hover:text-[var(--accent-primary)]"><Check size={15} /></button>
+                    <button type="button" aria-label="Mark as read" onClick={() => markRead(n.id)} className="p-1 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"><Check size={15} /></button>
                   )}
                   <button type="button" aria-label="Delete" onClick={() => remove(n.id)} className="p-1 text-[var(--text-secondary)] hover:text-red-500"><X size={15} /></button>
                 </li>

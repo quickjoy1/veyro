@@ -14,9 +14,9 @@ import { useWakeLock } from "@/hooks/useWakeLock";
 type TimerId = "study" | "pomodoro" | "countdown";
 
 const TIMER_CONFIG: Record<TimerId, { label: string; icon: typeof Clock; panelClass: string; iconClass: string }> = {
-  study: { label: "Study", icon: Clock, panelClass: "timer-panel-study", iconClass: "text-[var(--accent-primary)]" },
-  pomodoro: { label: "Pomodoro", icon: TimerIcon, panelClass: "timer-panel-pomo", iconClass: "text-[var(--notion-red)]" },
-  countdown: { label: "Countdown", icon: Watch, panelClass: "timer-panel-countdown", iconClass: "text-[var(--notion-green)]" },
+  study: { label: "Study", icon: Clock, panelClass: "timer-panel-study", iconClass: "text-[var(--text-primary)]" },
+  pomodoro: { label: "Pomodoro", icon: TimerIcon, panelClass: "timer-panel-pomo", iconClass: "text-[var(--text-primary)]" },
+  countdown: { label: "Countdown", icon: Watch, panelClass: "timer-panel-countdown", iconClass: "text-[var(--text-primary)]" },
 };
 
 const TAB_KEY = "unifiedTimerTab";
@@ -327,8 +327,8 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
     if (id === "pomodoro") {
       return (
         <>
-          <button type="button" onClick={() => setSyncPomodoro(!syncPomodoro)} className="p-1 rounded-full hover:bg-red-500/10 transition-colors" aria-label="Toggle sync" title={syncPomodoro ? "Sync ON" : "Sync OFF"}>
-            {syncPomodoro ? <RefreshCw size={16} className="text-red-500" /> : <RefreshCwOff size={16} className="text-[var(--text-secondary)]" />}
+          <button type="button" onClick={() => setSyncPomodoro(!syncPomodoro)} className="p-1 rounded-full hover:bg-[var(--bg-primary)] transition-colors" aria-label="Toggle sync" title={syncPomodoro ? "Sync ON" : "Sync OFF"}>
+            {syncPomodoro ? <RefreshCw size={16} className="text-[var(--text-primary)]" /> : <RefreshCwOff size={16} className="text-[var(--text-secondary)]" />}
           </button>
           <button onClick={openPomoSettings} className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" aria-label="Configure pomodoro" title="Options">
             <MoreVertical size={16} />
@@ -342,8 +342,8 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
     if (id === "countdown") {
       return (
         <>
-          <button type="button" onClick={() => setSyncCountdown(!syncCountdown)} className="p-1 rounded-full hover:bg-green-500/10 transition-colors" aria-label="Toggle sync" title={syncCountdown ? "Sync ON" : "Sync OFF"}>
-            {syncCountdown ? <RefreshCw size={16} className="text-green-500" /> : <RefreshCwOff size={16} className="text-[var(--text-secondary)]" />}
+          <button type="button" onClick={() => setSyncCountdown(!syncCountdown)} className="p-1 rounded-full hover:bg-[var(--bg-primary)] transition-colors" aria-label="Toggle sync" title={syncCountdown ? "Sync ON" : "Sync OFF"}>
+            {syncCountdown ? <RefreshCw size={16} className="text-[var(--text-primary)]" /> : <RefreshCwOff size={16} className="text-[var(--text-secondary)]" />}
           </button>
           <button onClick={toggleCountdownAlarm} className="p-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-primary)] transition-colors" title={countdownAlarm ? "Disable alarm" : "Enable alarm"} aria-label="Toggle alarm">
             {countdownAlarm ? <Bell size={16} /> : <BellOff size={16} />}
@@ -386,8 +386,8 @@ const UnifiedTimer = ({ isSynced, isRunning }: { isSynced?: boolean; isRunning?:
                 role="tab"
                 aria-selected={on}
                 onClick={() => pickTab(id)}
-                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-all ${
-                  on ? "bg-[var(--bg-primary)] text-[var(--text-primary)] shadow-sm" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+                className={`flex items-center justify-center gap-1.5 rounded-lg py-2 text-sm font-medium transition-colors ${
+                  on ? "bg-[var(--bg-primary)] text-[var(--text-primary)] ring-1 ring-[var(--border-primary)]" : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <TabIcon size={15} className={on ? TIMER_CONFIG[id].iconClass : ""} />

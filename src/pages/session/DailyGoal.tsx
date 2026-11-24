@@ -78,7 +78,7 @@ const DailyGoal = () => {
               className={`transition-[stroke-dashoffset] duration-700 ease-out ${done ? 'stroke-[var(--notion-green)]' : 'stroke-[var(--accent-primary)]'}`}
             />
           </svg>
-          <div className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-[var(--text-primary)]">
+          <div className="absolute inset-0 flex items-center justify-center text-[11px] font-medium tabular-nums text-[var(--text-primary)]">
             {done ? <Check size={16} className="text-[var(--notion-green)]" /> : `${percent}%`}
           </div>
         </div>
@@ -95,7 +95,7 @@ const DailyGoal = () => {
 
       <div className="flex items-center gap-3">
         <div
-          className={`flex items-center gap-1.5 text-sm font-medium ${streak > 0 ? 'text-orange-500' : 'text-[var(--text-secondary)]'}`}
+          className={`flex items-center gap-1.5 text-sm font-medium ${'text-[var(--text-secondary)]'}`}
           title={`Days in a row with at least ${MIN_STREAK_SECONDS / 60} minutes of focus`}
         >
           <Flame size={16} className={streak > 0 ? 'fill-orange-500/20' : ''} />

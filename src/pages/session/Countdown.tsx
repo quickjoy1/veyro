@@ -73,6 +73,11 @@ const Countdown: React.FC<CountdownProps> = ({
   const [focusedField, setFocusedField] = useState<Field | null>(null);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [isCountdownRunning, setIsCountdownRunning] = useState(false);
+  // Tell the top bar and the tab title that a timer is running (the live dot).
+  useEffect(() => {
+    useAppStore.getState().setTimerState('countdown', isCountdownRunning ? 'running' : 'stopped');
+    return () => useAppStore.getState().setTimerState('countdown', 'stopped');
+  }, [isCountdownRunning]);
   const [endTimestamp, setEndTimestamp] = useState<number | null>(null); // Igual que Pomodoro: fin esperado
   // Eliminamos fieldPrevValue y fieldOverwrite
   const [alarmEnabled, setAlarmEnabled] = useState(() => {
@@ -229,7 +234,7 @@ const Countdown: React.FC<CountdownProps> = ({
       } catch {}
     }
 
-    showDesktopNotification('Countdown finished!', {
+    showDesktopNotification('Countdown finished', {
       body: 'Your session is complete.',
       tag: 'countdown-notification',
     });
@@ -794,7 +799,7 @@ const Countdown: React.FC<CountdownProps> = ({
   };
   return <div className="flex flex-col h-full w-full">
       {hideHeader ? null : <div className="section-title justify-center relative w-full px-4 py-3">
-        <button type="button" onClick={() => setSyncCountdownWithTimer(!syncCountdownWithTimer)} className="absolute left-0 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[var(--accent-primary)]/10 focus:bg-[var(--accent-primary)]/20" aria-label={syncCountdownWithTimer ? 'Disable Countdown sync' : 'Enable Countdown sync'} title={syncCountdownWithTimer ? 'Sync ON (click to turn OFF)' : 'Sync OFF (click to turn ON)'}>
+        <button type="button" onClick={() => setSyncCountdownWithTimer(!syncCountdownWithTimer)} className="absolute left-0 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[var(--bg-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]" aria-label={syncCountdownWithTimer ? 'Disable Countdown sync' : 'Enable Countdown sync'} title={syncCountdownWithTimer ? 'Sync ON (click to turn OFF)' : 'Sync OFF (click to turn ON)'}>
           {syncCountdownWithTimer ? <RefreshCw size={20} className="icon" style={{
           color: 'var(--accent-primary)'
         }} /> : <RefreshCwOff size={20} className="icon" style={{
@@ -820,7 +825,8 @@ const Countdown: React.FC<CountdownProps> = ({
             const s = secondsLeft % 60;
             const radius = 52;
             const circumference = 2 * Math.PI * radius;
-            const ringColor = '#22c55e';
+            const ringColor = 'var(--accent-primary)';
+            const digitColor = 'var(--text-primary)';
             return (
               <div className="relative w-32 h-32">
                 {!(isSynced || syncCountdownWithTimer) && (
@@ -835,33 +841,33 @@ const Countdown: React.FC<CountdownProps> = ({
                     stroke={ringColor} strokeWidth="5" strokeLinecap="round"
                     strokeDasharray={isPaused ? circumference * 0.25 : circumference}
                     strokeDashoffset={isPaused ? circumference * 0.5 : circumference * (1 - progress)}
-                    className={`transition-all duration-300 ${isPaused ? 'animate-spin origin-center' : ''}`}
-                    style={{ transformOrigin: '60px 60px', animationDuration: isPaused ? '2s' : undefined }}
+                    className="transition-[stroke-dasharray,stroke-dashoffset] duration-300"
+                    style={{ transformOrigin: '60px 60px' }}
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <div className="flex items-center gap-0.5">
                     {h > 0 ? (
                       <>
-                        <span className="text-lg font-mono font-bold tabular-nums leading-none" data-seg="hours" style={{ color: ringColor }}>
+                        <span className="text-lg font-mono font-medium tabular-nums leading-none" data-seg="hours" style={{ color: digitColor }}>
                           {h.toString().padStart(2, '0')}
                         </span>
-                        <span className="text-base font-mono font-bold leading-none" style={{ color: ringColor }}>:</span>
-                        <span className="text-lg font-mono font-bold tabular-nums leading-none" data-seg="minutes" style={{ color: ringColor }}>
+                        <span className="text-base font-mono font-medium leading-none" style={{ color: digitColor }}>:</span>
+                        <span className="text-lg font-mono font-medium tabular-nums leading-none" data-seg="minutes" style={{ color: digitColor }}>
                           {m.toString().padStart(2, '0')}
                         </span>
-                        <span className="text-base font-mono font-bold leading-none" style={{ color: ringColor }}>:</span>
-                        <span className="text-lg font-mono font-bold tabular-nums leading-none" data-seg="seconds" style={{ color: ringColor }}>
+                        <span className="text-base font-mono font-medium leading-none" style={{ color: digitColor }}>:</span>
+                        <span className="text-lg font-mono font-medium tabular-nums leading-none" data-seg="seconds" style={{ color: digitColor }}>
                           {s.toString().padStart(2, '0')}
                         </span>
                       </>
                     ) : (
                       <>
-                        <span className="text-2xl font-mono font-bold tabular-nums leading-none" data-seg="minutes" style={{ color: ringColor }}>
+                        <span className="text-2xl font-mono font-medium tabular-nums leading-none" data-seg="minutes" style={{ color: digitColor }}>
                           {m.toString().padStart(2, '0')}
                         </span>
-                        <span className="text-xl font-mono font-bold leading-none" style={{ color: ringColor }}>:</span>
-                        <span className="text-2xl font-mono font-bold tabular-nums leading-none" data-seg="seconds" style={{ color: ringColor }}>
+                        <span className="text-xl font-mono font-medium leading-none" style={{ color: digitColor }}>:</span>
+                        <span className="text-2xl font-mono font-medium tabular-nums leading-none" data-seg="seconds" style={{ color: digitColor }}>
                           {s.toString().padStart(2, '0')}
                         </span>
                       </>
@@ -917,8 +923,8 @@ const Countdown: React.FC<CountdownProps> = ({
                       onBlur={e => handleBlur(field, e)}
                       onChange={e => handleInputChange(field, e.target.value)}
                       onKeyDown={e => handleInputKeyDown(e, field)}
-                      className={`w-8 text-center text-2xl font-mono font-bold tabular-nums bg-transparent border-none outline-none ring-0 focus:ring-0 focus:outline-none focus:border-transparent transition-all duration-150 leading-none ${
-                        isFocused ? 'text-green-500' : isCountdownRunning ? 'text-green-500' : 'text-[var(--text-primary)]'
+                      className={`w-8 text-center text-2xl font-mono font-medium tabular-nums bg-transparent border-none outline-none ring-0 focus:ring-0 focus:outline-none focus:border-transparent transition-colors duration-150 leading-none ${
+                        isFocused ? 'text-[var(--accent-primary)]' : 'text-[var(--text-primary)]'
                       }`}
                       tabIndex={idx + 1}
                       style={{ letterSpacing: '0.05em' }}
@@ -927,7 +933,7 @@ const Countdown: React.FC<CountdownProps> = ({
                     />
                     <span className="timer-seg-label">{field}</span>
                     </div>
-                    {field !== 'minutes' && <span className="text-xl font-mono font-bold leading-none text-[var(--text-secondary)]">:</span>}
+                    {field !== 'minutes' && <span className="text-xl font-mono font-medium leading-none text-[var(--text-secondary)]">:</span>}
                   </React.Fragment>;
               })}
               </div>

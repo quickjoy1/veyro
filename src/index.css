@@ -1068,14 +1068,20 @@ h1 {
   background-color: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border-primary);
-  transition: all 0.2s ease;
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
   cursor: pointer;
 }
 
 .timer-ctrl-btn:hover:not(:disabled) {
-  color: var(--accent-primary);
-  border-color: var(--accent-primary);
-  background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  color: var(--text-primary);
+  border-color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+}
+
+.timer-ctrl-btn:focus-visible,
+.timer-adjust-btn:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
 }
 
 .timer-ctrl-btn:disabled {
@@ -1098,39 +1104,16 @@ h1 {
   color: var(--accent-primary);
   border-color: var(--accent-primary);
   background-color: color-mix(in srgb, var(--accent-primary) 12%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent-primary) 15%, transparent);
 }
 
-/* Pomodoro-specific primary button - red */
-.timer-ctrl-btn-pomo {
-  width: 3rem;
-  height: 3rem;
-  color: var(--notion-red);
-  border: 1px solid var(--notion-red);
-  border-radius: 9999px;
-}
-
-.timer-ctrl-btn-pomo:hover:not(:disabled) {
-  color: var(--notion-red);
-  border-color: var(--notion-red);
-  background-color: color-mix(in srgb, var(--notion-red) 12%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--notion-red) 15%, transparent);
-}
-
-/* Countdown-specific primary button - green */
+/* Pomodoro and Countdown: the accent belongs to the main Study timer, these stay neutral */
+.timer-ctrl-btn-pomo,
 .timer-ctrl-btn-countdown {
   width: 3rem;
   height: 3rem;
-  color: var(--notion-green);
-  border: 1px solid var(--notion-green);
+  color: var(--text-primary);
+  border: 1px solid var(--text-secondary);
   border-radius: 9999px;
-}
-
-.timer-ctrl-btn-countdown:hover:not(:disabled) {
-  color: var(--notion-green);
-  border-color: var(--notion-green);
-  background-color: color-mix(in srgb, var(--notion-green) 12%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--notion-green) 15%, transparent);
 }
 
 /* Modern time adjustment buttons — identical style to .timer-ctrl-btn */
@@ -1143,21 +1126,20 @@ h1 {
   padding: 0;
   border-radius: 0.5rem;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
   line-height: 1;
   white-space: nowrap;
   background-color: transparent;
   color: var(--text-secondary);
-  border: 1px solid var(--border-primary);
-  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  transition: color 0.15s ease, background-color 0.15s ease;
   cursor: pointer;
 }
 
 .timer-adjust-btn:hover:not(:disabled) {
-  color: var(--accent-primary);
-  border-color: var(--accent-primary);
-  background-color: color-mix(in srgb, var(--accent-primary) 10%, transparent);
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
 }
 
 .timer-adjust-btn:disabled {
@@ -1561,7 +1543,7 @@ h1 {
   background-color: var(--bg-primary);
 }
 
-/* Timer Panels - one calm card per timer, identified by a thin accent tab on top */
+/* Timer Panels - one calm card per timer, identified by its label */
 .timer-panel {
   --panel-accent: var(--accent-primary);
   position: relative;
@@ -1571,24 +1553,11 @@ h1 {
   flex-direction: column;
   border: 1px solid var(--border-primary);
   background-color: var(--bg-primary);
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.timer-panel::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: 50%;
-  width: 2.25rem;
-  height: 3px;
-  transform: translateX(-50%);
-  border-radius: 0 0 3px 3px;
-  background: var(--panel-accent);
-  opacity: 0.85;
+  transition: border-color 0.15s ease;
 }
 
 .timer-panel:hover {
-  box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.18);
+  border-color: color-mix(in srgb, var(--text-primary) 22%, var(--border-primary));
 }
 
 .timer-panel-study { --panel-accent: var(--accent-primary); }
@@ -1616,10 +1585,8 @@ h1 {
   gap: 0.375rem;
   padding: 0.125rem 0.5rem;
   margin-bottom: 0.25rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--text-secondary);
   width: 100%;
 }
@@ -1631,59 +1598,44 @@ h1 {
 
 /* Status badges inside panel labels */
 .timer-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
   font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.0625rem 0.375rem;
-  border-radius: 0.25rem;
+  font-weight: 500;
   margin-left: 0.25rem;
-}
-
-.timer-status-idle {
   color: var(--text-secondary);
-  background-color: var(--bg-primary);
 }
 
-.timer-status-active {
-  color: var(--accent-primary);
-  background-color: color-mix(in srgb, var(--accent-primary) 12%, transparent);
+/* Signature: a small dot that lights up next to a timer that is running.
+   It is static on purpose, so a running timer stays calm. */
+.live-dot,
+.timer-status-active::before,
+.timer-status-pomo-work::before {
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background-color: var(--accent-primary);
 }
 
-.timer-status-paused {
-  color: var(--text-secondary);
-  background-color: var(--bg-primary);
-}
-
+.timer-status-active,
 .timer-status-pomo-work {
-  color: var(--notion-red);
-  background-color: color-mix(in srgb, var(--notion-red) 12%, transparent);
+  color: var(--text-primary);
 }
 
-.timer-status-pomo-break {
-  color: var(--notion-red);
-  background-color: color-mix(in srgb, var(--notion-red) 12%, transparent);
-}
-
-.timer-status-pomo-long {
-  color: var(--notion-blue);
-  background-color: color-mix(in srgb, var(--notion-blue) 12%, transparent);
-}
-
-/* Pomodoro break ring — red, pulsating */
-@keyframes pomo-ring-pulse {
-  0%, 100% {
-    stroke-opacity: 1;
-    filter: drop-shadow(0 0 0 color-mix(in srgb, var(--notion-red) 0%, transparent));
-  }
-  50% {
-    stroke-opacity: 0.4;
-    filter: drop-shadow(0 0 7px color-mix(in srgb, var(--notion-red) 65%, transparent));
-  }
-}
-
-.pomo-ring-pulse {
-  animation: pomo-ring-pulse 1.4s ease-in-out infinite;
+/* Breaks and long breaks: a hollow dot, so a pause in the cycle reads differently from work. */
+.timer-status-pomo-break::before,
+.timer-status-pomo-long::before {
+  content: "";
+  display: inline-block;
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--text-secondary);
 }
 
 /* ── Document Picture-in-Picture floating timers ────────────────────────── */
@@ -2052,7 +2004,8 @@ svg.lucide {
   .td-exit { animation: td-fade-out 0.12s ease both; }
   .td-colon-running { animation: none; opacity: 0.5; }
 }
-.td-caption { font-size: calc(var(--td-size) * 0.14); letter-spacing: 0.3em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+
+.td-caption { font-size: calc(var(--td-size) * 0.14); letter-spacing: 0.02em; color: rgba(255,255,255,0.4); }
 .td-pill {
   display: inline-flex; align-items: center; gap: 0.5rem;
   padding: 0.5rem 1rem; border-radius: 9999px;

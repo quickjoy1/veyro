@@ -45,10 +45,11 @@ const ClockDigits = ({ text, state, caption }: Props) => (
     {caption ? <div className="td-caption">{caption}</div> : null}
     {state !== "idle" && (
       <div className="td-pill">
-        <span className="relative flex h-2 w-2">
-          {state === "running" && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />}
-          <span className={`relative inline-flex rounded-full h-2 w-2 ${state === "running" ? "bg-green-500" : "bg-amber-500"}`} />
-        </span>
+        {state === "running" ? (
+          <span className="live-dot" />
+        ) : (
+          <span className="inline-block h-1.5 w-1.5 rounded-full border-[1.5px] border-current opacity-60" />
+        )}
         {state === "running" ? "In progress" : "Paused"}
       </div>
     )}

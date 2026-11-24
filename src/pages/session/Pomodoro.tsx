@@ -506,8 +506,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
             }
           } catch {}
         }
-        const notifTitle = 'Work Session Complete!';
-        const notifBody = next === 'Long Break' ? 'Great job! Time to take a well-deserved long break.' : 'Great job! Time to take a short break.';
+        const notifTitle = 'Work session complete';
+        const notifBody = next === 'Long Break' ? 'Time for a long break.' : 'Time for a short break.';
         if (notAfterResume && justEnteredBreak && nextCycleReady && pastResumeWindow) {
           try {
             const nowTs2 = Date.now();
@@ -585,6 +585,11 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
   // Remove session dependencies - Pomodoro is now independent
   // const activeSessionId = localStorage.getItem('activeSessionId');
   const isPomodoroRunning = pomoState.isRunning; // Remove sync dependency
+  // Tell the top bar and the tab title that a timer is running (the live dot).
+  useEffect(() => {
+    useAppStore.getState().setTimerState('pomodoro', isPomodoroRunning ? 'running' : 'stopped');
+    return () => useAppStore.getState().setTimerState('pomodoro', 'stopped');
+  }, [isPomodoroRunning]);
 
   // Ensure we always have a valid mode configuration - use Extended Focus as sensible default
   const getDefaultModeConfig = () => ({
@@ -651,10 +656,10 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
     });
 
     // Notifications
-    const notifTitle = isWork ? willTakeLongBreak ? 'Work Session Complete! Time for a Long Break!' : 'Work Session Complete!' : 'Break Complete!';
-    const notifBody = isWork ? willTakeLongBreak ? 'Great job! Time to take a well-deserved long break.' : 'Great job! Time to take a short break.' : 'Break is over! Time to get back to work.';
+    const notifTitle = isWork ? willTakeLongBreak ? 'Work session complete, time for a long break' : 'Work session complete' : 'Break complete';
+    const notifBody = isWork ? willTakeLongBreak ? 'Time for a long break.' : 'Time for a short break.' : 'Break is over. Back to work.';
     const toastType = isWork ? willTakeLongBreak ? 'longBreak' : 'break' : 'work';
-    const toastMsg = isWork ? willTakeLongBreak ? 'Work session complete! Time for a long break!' : 'Work session complete! Time for a break!' : "Break is over! Let's get back to work!";
+    const toastMsg = isWork ? willTakeLongBreak ? 'Work session complete. Time for a long break' : 'Work session complete. Time for a break' : 'Break is over. Back to work';
     toast(toastMsg, {
       autoClose: 4000,
       className: `pomo-toast-${toastType}`,
@@ -1194,8 +1199,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
           const lastNotifyTs2 = Number(localStorage.getItem('lastPomoNotifyTs') || '0');
           const recentlyNotified2 = lastNotifyTs2 && Math.abs(nowTs2 - lastNotifyTs2) < 3000;
           if (!recentlyNotified2) {
-            showNotification('Break Complete!', {
-              body: 'Break is over! Time to get back to work.',
+            showNotification('Break complete', {
+              body: 'Break is over. Back to work.',
               icon: '/assets/android-chrome-192x192.png',
               badge: '/assets/android-chrome-192x192.png',
               tag: 'pomodoro-notification',
@@ -1321,7 +1326,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
   return <div className="flex flex-col h-full w-full">
       {/* Header */}
       {hideHeader ? null : <div className="section-title justify-center relative w-full px-4 py-3">
-        <button type="button" onClick={() => setSyncPomodoroWithTimer(!syncPomodoroWithTimer)} className="absolute left-0 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[var(--accent-primary)]/10 focus:bg-[var(--accent-primary)]/20" aria-label={syncPomodoroWithTimer ? 'Disable Pomodoro sync' : 'Enable Pomodoro sync'} title={syncPomodoroWithTimer ? 'Sync ON (click to turn OFF)' : 'Sync OFF (click to turn ON)'}>
+        <button type="button" onClick={() => setSyncPomodoroWithTimer(!syncPomodoroWithTimer)} className="absolute left-0 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-[var(--bg-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)]" aria-label={syncPomodoroWithTimer ? 'Disable Pomodoro sync' : 'Enable Pomodoro sync'} title={syncPomodoroWithTimer ? 'Sync ON (click to turn OFF)' : 'Sync OFF (click to turn ON)'}>
           {syncPomodoroWithTimer ? <RefreshCw size={20} className="icon" style={{
           color: 'var(--accent-primary)'
         }} /> : <RefreshCwOff size={20} className="icon" style={{
@@ -1342,7 +1347,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
 
       {/* Timer Display - circular progress ring */}
       <div className="relative w-full flex-1 flex flex-col items-center justify-center py-2" role="timer" aria-label="Current pomodoro time" data-state={isPomodoroRunning ? "running" : pomoState.manuallyPaused ? "paused" : "idle"}>
-        <ClockDigits text={formatClock(Math.round(pomoState.timeLeft))} state={isPomodoroRunning ? "running" : pomoState.manuallyPaused ? "paused" : "idle"} caption={pomoState.currentMode === 'work' ? 'Focus' : pomoState.currentMode === 'break' ? 'Break' : 'Long Break'} />
+        <ClockDigits text={formatClock(Math.round(pomoState.timeLeft))} state={isPomodoroRunning ? "running" : pomoState.manuallyPaused ? "paused" : "idle"} caption={pomoState.currentMode === 'work' ? 'Focus' : pomoState.currentMode === 'break' ? 'Break' : 'Long break'} />
         {(() => {
           const roundedSeconds = Math.round(pomoState.timeLeft);
           const mins = Math.floor(roundedSeconds / 60);
@@ -1350,7 +1355,8 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
           const modeDuration = currentModeConfig?.[pomoState.currentMode] || (pomoState.currentMode === 'break' ? 600 : pomoState.currentMode === 'longBreak' ? 1800 : 3000);
           const progress = Math.max(0, Math.min(1, 1 - pomoState.timeLeft / modeDuration));
           const isBreak = pomoState.currentMode !== 'work';
-          const ringColor = '#ef4444';
+          const ringColor = isBreak ? 'var(--text-secondary)' : 'var(--accent-primary)';
+          const digitColor = 'var(--text-primary)';
           const isPaused = pomoState.manuallyPaused;
           const radius = 52;
           const circumference = 2 * Math.PI * radius;
@@ -1368,22 +1374,22 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
                   stroke={ringColor} strokeWidth="5" strokeLinecap="round"
                   strokeDasharray={isPaused ? circumference * 0.25 : circumference}
                   strokeDashoffset={isPaused ? circumference * 0.5 : circumference * (1 - progress)}
-                  className={`transition-[stroke-dasharray,stroke-dashoffset] duration-300 ${isPaused ? 'animate-spin origin-center' : isBreak ? 'pomo-ring-pulse' : ''}`}
-                  style={{ transformOrigin: '60px 60px', animationDuration: isPaused ? '2s' : undefined }}
+                  className={`transition-[stroke-dasharray,stroke-dashoffset] duration-300`}
+                  style={{ transformOrigin: '60px 60px' }}
                 />
               </svg>
-              <div className={`absolute inset-0 flex flex-col items-center justify-center ${isBreak && !isPaused ? 'animate-pulse' : ''}`}>
+              <div className={`absolute inset-0 flex flex-col items-center justify-center `}>
                 <div className="flex items-center gap-0.5">
-                  <span className="text-2xl font-mono font-bold tabular-nums leading-none" data-seg="minutes" style={{ color: ringColor }}>
+                  <span className="text-2xl font-mono font-medium tabular-nums leading-none" data-seg="minutes" style={{ color: digitColor }}>
                     {mins.toString().padStart(2, '0')}
                   </span>
-                  <span className="text-xl font-mono font-bold leading-none" style={{ color: ringColor }}>:</span>
-                  <span className="text-2xl font-mono font-bold tabular-nums leading-none" data-seg="seconds" style={{ color: ringColor }}>
+                  <span className="text-xl font-mono font-medium leading-none" style={{ color: digitColor }}>:</span>
+                  <span className="text-2xl font-mono font-medium tabular-nums leading-none" data-seg="seconds" style={{ color: digitColor }}>
                     {secs.toString().padStart(2, '0')}
                   </span>
                 </div>
-                <span className="text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider mt-1">
-                  {pomoState.currentMode === 'work' ? 'Focus' : pomoState.currentMode === 'break' ? 'Break' : 'Long Break'}
+                <span className="text-xs text-[var(--text-secondary)] mt-1">
+                  {pomoState.currentMode === 'work' ? 'Focus' : pomoState.currentMode === 'break' ? 'Break' : 'Long break'}
                 </span>
               </div>
             </div>

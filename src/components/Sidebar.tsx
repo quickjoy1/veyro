@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart3, BookOpen, Calendar, CheckCircle2, Clock, Notebook, Settings } from 'lucide-react';
 import { useNavigation } from '@/navbar/NavigationContext';
+import { useCountdownState, usePomodoroState, useStudyState } from '@/store/appStore';
 
 const navItems = [
   { page: 'session', label: 'Study', icon: Clock },
@@ -18,6 +20,27 @@ const navItems = [
  */
 const Navbar = () => {
   const { activePage, navigateTo, openSettings } = useNavigation();
+  const studyRunning = useStudyState().isRunning;
+  const pomodoroRunning = usePomodoroState().isRunning;
+  const countdownRunning = useCountdownState().status === 'running';
+  const timerRunning = studyRunning || pomodoroRunning || countdownRunning;
+
+  // Signature: a live dot next to Study while any timer runs, and the same dot in the tab title.
+  useEffect(() => {
+    if (!timerRunning) return;
+    const mark = () => {
+      if (!document.title.startsWith('\u25CF ')) document.title = `\u25CF ${document.title}`;
+    };
+    mark();
+    // Each page sets its own title, so keep the dot there after a route change too.
+    const titleEl = document.querySelector('title');
+    const observer = titleEl ? new MutationObserver(mark) : null;
+    if (titleEl) observer?.observe(titleEl, { childList: true, characterData: true, subtree: true });
+    return () => {
+      observer?.disconnect();
+      if (document.title.startsWith('\u25CF ')) document.title = document.title.slice(2);
+    };
+  }, [timerRunning]);
 
   return (
     <header
@@ -30,7 +53,7 @@ const Navbar = () => {
         aria-label="Veyro Management home"
       >
         <img src="/assets/logo.svg" alt="" className="h-8 w-8 rounded-[9px]" />
-        <span className="hidden sm:inline whitespace-nowrap font-heading text-lg font-bold text-[var(--text-primary)]">
+        <span className="hidden sm:inline whitespace-nowrap font-heading text-lg font-semibold text-[var(--text-primary)]">
           Vey<span className="text-[var(--accent-primary)]">ro</span> Management
         </span>
       </button>
@@ -41,9 +64,9 @@ const Navbar = () => {
             <button
               key={page}
               onClick={() => navigateTo(page)}
-              className={`relative min-w-9 min-h-11 sm:min-w-11 shrink-0 flex items-center justify-center gap-2 rounded-lg px-1.5 sm:px-2 lg:px-4 text-sm font-bold transition-colors ${
+              className={`relative min-w-9 min-h-11 sm:min-w-11 shrink-0 flex items-center justify-center gap-2 rounded-lg px-1.5 sm:px-2 lg:px-4 text-sm font-medium transition-colors ${
                 activePage === page
-                  ? 'text-[var(--accent-primary)]'
+                  ? 'text-[var(--text-primary)]'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title={label}
@@ -53,12 +76,13 @@ const Navbar = () => {
               {activePage === page && (
                 <motion.span
                   layoutId="nav-pill"
-                  className="absolute inset-0 rounded-lg bg-accent-soft"
+                  className="absolute inset-0 rounded-lg bg-[var(--bg-secondary)] ring-1 ring-inset ring-[var(--border-primary)]"
                   transition={{ type: 'spring', stiffness: 500, damping: 32 }}
                 />
               )}
-              <Icon size={20} className={`relative shrink-0 transition-transform duration-300 ease-spring ${activePage === page ? 'scale-110' : 'group-hover:scale-110'}`} />
+              <Icon size={20} strokeWidth={1.75} className="relative shrink-0" />
               <span className="relative hidden min-[1240px]:inline leading-none">{label}</span>
+              {page === 'session' && timerRunning && <span className="live-dot relative" aria-label="A timer is running" />}
             </button>
           ))}
         </div>
