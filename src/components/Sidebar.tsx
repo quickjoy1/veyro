@@ -66,7 +66,7 @@ const Navbar = () => {
               onClick={() => navigateTo(page)}
               className={`relative min-w-9 min-h-11 sm:min-w-11 shrink-0 flex items-center justify-center gap-2 rounded-lg px-1.5 sm:px-2 lg:px-4 text-sm font-medium transition-colors ${
                 activePage === page
-                  ? 'text-[var(--text-primary)]'
+                  ? 'text-[var(--accent-primary)]'
                   : 'text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]'
               }`}
               title={label}
@@ -76,7 +76,7 @@ const Navbar = () => {
               {activePage === page && (
                 <motion.span
                   layoutId="nav-pill"
-                  className="absolute inset-0 rounded-lg bg-[var(--bg-secondary)] ring-1 ring-inset ring-[var(--border-primary)]"
+                  className="absolute inset-0 rounded-lg bg-accent-soft"
                   transition={{ type: 'spring', stiffness: 500, damping: 32 }}
                 />
               )}

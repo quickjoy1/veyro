@@ -95,7 +95,7 @@ const DailyGoal = () => {
 
       <div className="flex items-center gap-3">
         <div
-          className={`flex items-center gap-1.5 text-sm font-medium ${'text-[var(--text-secondary)]'}`}
+          className={`flex items-center gap-1.5 text-sm font-medium ${streak > 0 ? 'text-orange-500' : 'text-[var(--text-secondary)]'}`}
           title={`Days in a row with at least ${MIN_STREAK_SECONDS / 60} minutes of focus`}
         >
           <Flame size={16} className={streak > 0 ? 'fill-orange-500/20' : ''} />

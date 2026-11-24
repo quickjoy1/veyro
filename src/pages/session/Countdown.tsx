@@ -825,7 +825,7 @@ const Countdown: React.FC<CountdownProps> = ({
             const s = secondsLeft % 60;
             const radius = 52;
             const circumference = 2 * Math.PI * radius;
-            const ringColor = 'var(--accent-primary)';
+            const ringColor = 'var(--notion-green)';
             const digitColor = 'var(--text-primary)';
             return (
               <div className="relative w-32 h-32">

@@ -43,17 +43,17 @@ interface SoundControlProps {
   onOpenOptions?: () => void;
 }
 
-// One neutral treatment for every sound. A playing sound is shown by an inverted play button,
-// not by a different colour per sound.
+// One treatment for every sound: neutral at rest, the accent on the slider and on whatever is playing.
+// No different colour per sound.
 const NEUTRAL_SOUND = {
   iconBg: "bg-[var(--bg-secondary)]",
   iconText: "text-[var(--text-secondary)]",
-  gradient: "bg-[var(--text-secondary)]",
+  gradient: "bg-[var(--accent-primary)]",
   activeBorder: "border-[var(--border-primary)]",
   activeRing: "ring-[var(--border-primary)]",
   badge: "",
   badgeText: "text-[var(--text-secondary)]",
-  thumb: "bg-[var(--text-primary)] focus:ring-[var(--text-secondary)]",
+  thumb: "bg-[var(--accent-primary)] focus:ring-[var(--accent-primary)]",
   buttonHover: "hover:text-[var(--text-primary)]",
 };
 
@@ -94,9 +94,9 @@ function SoundControl({
     >
       <div className="flex items-center gap-3 sm:gap-3.5">
         <div
-          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${theme.iconBg}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-150 ${isPlaying ? "bg-accent-soft" : theme.iconBg}`}
         >
-          <Icon size={18} strokeWidth={1.5} className={theme.iconText} />
+          <Icon size={18} strokeWidth={1.5} className={isPlaying ? "text-[var(--accent-primary)]" : theme.iconText} />
         </div>
 
         <div className="flex-1 min-w-0">
@@ -137,14 +137,16 @@ function SoundControl({
             thumbClassName={`top-0 -mt-[5px] h-[18px] w-[18px] rounded-full ${theme.thumb} border-2 border-[var(--bg-primary)] shadow-sm cursor-grab active:cursor-grabbing focus:outline-none focus-visible:ring-2`}
             trackClassName="h-2 rounded-full"
             renderTrack={(
-              props: { key?: React.Key } & React.HTMLProps<HTMLDivElement>
+              props: { key?: React.Key } & React.HTMLProps<HTMLDivElement>,
+              state: { index: number }
             ) => {
               const { key, ...rest } = props;
+              // Only the part up to the thumb is filled; the rest stays the plain track.
               return (
                 <div
                   key={key}
                   {...rest}
-                  className={`h-2 rounded-full ${theme.gradient}`}
+                  className={`h-2 rounded-full ${state.index === 0 ? theme.gradient : ""}`}
                 />
               );
             }}
@@ -166,7 +168,7 @@ function SoundControl({
           aria-label={isPlaying ? `Stop ${label}` : `Play ${label}`}
           className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-primary)] ${
             isPlaying
-              ? "bg-[var(--text-primary)] text-[var(--bg-primary)]"
+              ? "bg-[var(--accent-primary)] text-white"
               : `bg-[var(--bg-secondary)] text-[var(--text-secondary)] ${theme.buttonHover}`
           }`}
         >

@@ -14,9 +14,9 @@ import { useWakeLock } from "@/hooks/useWakeLock";
 type TimerId = "study" | "pomodoro" | "countdown";
 
 const TIMER_CONFIG: Record<TimerId, { label: string; icon: typeof Clock; panelClass: string; iconClass: string }> = {
-  study: { label: "Study", icon: Clock, panelClass: "timer-panel-study", iconClass: "text-[var(--text-primary)]" },
-  pomodoro: { label: "Pomodoro", icon: TimerIcon, panelClass: "timer-panel-pomo", iconClass: "text-[var(--text-primary)]" },
-  countdown: { label: "Countdown", icon: Watch, panelClass: "timer-panel-countdown", iconClass: "text-[var(--text-primary)]" },
+  study: { label: "Study", icon: Clock, panelClass: "timer-panel-study", iconClass: "text-[var(--accent-primary)]" },
+  pomodoro: { label: "Pomodoro", icon: TimerIcon, panelClass: "timer-panel-pomo", iconClass: "text-[var(--notion-red)]" },
+  countdown: { label: "Countdown", icon: Watch, panelClass: "timer-panel-countdown", iconClass: "text-[var(--notion-green)]" },
 };
 
 const TAB_KEY = "unifiedTimerTab";

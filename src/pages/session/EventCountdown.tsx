@@ -32,7 +32,7 @@ const daysUntil = (ymd: string, now: Date): number => {
 const tone = (days: number) => {
   if (days <= 0) return { num: 'text-red-600 dark:text-red-400' };
   if (days <= 7) return { num: 'text-amber-600 dark:text-amber-400' };
-  return { num: 'text-[var(--text-primary)]' };
+  return { num: 'text-[var(--accent-primary)]' };
 };
 
 const label = (days: number) => (days === 0 ? 'Today' : `${days}`);
@@ -85,7 +85,7 @@ const EventCountdown = () => {
     return (
       <section aria-label="Upcoming events countdown" data-testid="event-countdown" className="p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <CalendarClock size={16} className="text-[var(--text-secondary)]" />
+          <CalendarClock size={16} className="text-[var(--accent-primary)]" />
           <h3 className="text-base font-semibold text-[var(--text-primary)]">Countdown</h3>
           <button
             type="button"
@@ -104,7 +104,7 @@ const EventCountdown = () => {
   return (
     <section aria-label="Upcoming events countdown" data-testid="event-countdown" className="p-4 sm:p-5">
       <div className="mb-1 flex items-center gap-2">
-        <CalendarClock size={16} className="text-[var(--text-secondary)]" />
+        <CalendarClock size={16} className="text-[var(--accent-primary)]" />
         <h3 className="text-base font-semibold text-[var(--text-primary)]">Countdown</h3>
         <span className="text-xs text-[var(--text-secondary)]">your next events</span>
       </div>

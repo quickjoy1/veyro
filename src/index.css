@@ -1106,14 +1106,21 @@ h1 {
   background-color: color-mix(in srgb, var(--accent-primary) 12%, transparent);
 }
 
-/* Pomodoro and Countdown: the accent belongs to the main Study timer, these stay neutral */
+/* Pomodoro and Countdown: the play button carries the timer's own colour (red, green), nothing else does */
 .timer-ctrl-btn-pomo,
 .timer-ctrl-btn-countdown {
   width: 3rem;
   height: 3rem;
-  color: var(--text-primary);
-  border: 1px solid var(--text-secondary);
+  color: var(--panel-accent);
+  border: 1px solid var(--panel-accent);
   border-radius: 9999px;
+}
+
+.timer-ctrl-btn-pomo:hover:not(:disabled),
+.timer-ctrl-btn-countdown:hover:not(:disabled) {
+  color: var(--panel-accent);
+  border-color: var(--panel-accent);
+  background-color: color-mix(in srgb, var(--panel-accent) 12%, transparent);
 }
 
 /* Modern time adjustment buttons — identical style to .timer-ctrl-btn */

@@ -7,12 +7,12 @@ import { formatDue, getUpcoming, type Tier } from "@/utils/reminderEngine";
 import { getDesktopPermission, requestDesktopPermission, showDesktopNotification, type DesktopPermission } from "@/utils/desktopNotifications";
 
 const TIER_STYLE: Record<Tier, string> = {
-  // Only what is already late or due now is coloured. Everything else stays quiet.
+  // Colour is text only: red when late, amber when close, accent for tomorrow, quiet after that.
   overdue: "text-red-600 dark:text-red-400",
   due: "text-red-600 dark:text-red-400",
-  "1h": "text-[var(--text-primary)]",
-  "3h": "text-[var(--text-secondary)]",
-  "1d": "text-[var(--text-secondary)]",
+  "1h": "text-amber-600 dark:text-amber-400",
+  "3h": "text-amber-600 dark:text-amber-400",
+  "1d": "text-[var(--accent-primary)]",
   "3d": "text-[var(--text-secondary)]",
 };
 const NEUTRAL = "text-[var(--text-secondary)]";
@@ -66,7 +66,7 @@ const NotificationsPanel = () => {
       }`}
     >
       {label}
-      {badge ? <span className="text-[11px] tabular-nums text-[var(--text-secondary)]">{badge}</span> : null}
+      {badge ? <span className={`text-[11px] font-medium tabular-nums ${id === "upcoming" ? "text-[var(--accent-primary)]" : "text-[var(--text-secondary)]"}`}>{badge}</span> : null}
     </button>
   );
 

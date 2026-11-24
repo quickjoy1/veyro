@@ -1355,7 +1355,7 @@ const Pomodoro: React.FC<PomodoroProps> = ({ hideHeader = false }) => {
           const modeDuration = currentModeConfig?.[pomoState.currentMode] || (pomoState.currentMode === 'break' ? 600 : pomoState.currentMode === 'longBreak' ? 1800 : 3000);
           const progress = Math.max(0, Math.min(1, 1 - pomoState.timeLeft / modeDuration));
           const isBreak = pomoState.currentMode !== 'work';
-          const ringColor = isBreak ? 'var(--text-secondary)' : 'var(--accent-primary)';
+          const ringColor = isBreak ? 'var(--text-secondary)' : 'var(--notion-red)';
           const digitColor = 'var(--text-primary)';
           const isPaused = pomoState.manuallyPaused;
           const radius = 52;
